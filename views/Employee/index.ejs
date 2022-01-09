@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="css/management_employee.css">
+<%- include("../header",{title:"Quản lý nhân viên"}) %>
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="page-header">
+        <div class="row">
+            <div class="col-6 col-md-3">
+                <label>Tìm kiếm</label>
+                <input type="text" class="form-control" placeholder="Search products">
+            </div>
+            <div class="col-3 col-md-1">
+                <label>Hiện thị</label>
+                <select>
+                    <option>10</option>
+                    <option>20</option>
+                    <option>30</option>
+                    <option>50</option>
+                    <option>100</option>
+                </select>
+            </div>
+            <div class="col-3 col-md-1 relative">
+                <button id="btnAdd" onclick="showPopup('popupAdd')" class="btn btn-success absolute">Thêm mới</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Tên nhân viên</th>
+                      <th>Số điện thoại</th>
+                      <th>Địa chỉ</th>
+                      <th>Chức danh</th>
+                      <th>Trạng thái</th>
+                      <th>Chi tiết</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Popup thêm mới -->
+<div id="popupAdd" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thêm mới nhân viên</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Modal body text goes here.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Thêm mới</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- =============== -->
+<%- include("../footer") %>
+
+</body>
+</html>

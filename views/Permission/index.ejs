@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="css/management_employee.css">
+<%- include("../header",{title:"Quản lý phân quyền"}) %>
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="page-header">
+    </div>
+    <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div id="divTable" class="table-responsive">
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Popup thêm mới -->
+<div id="popupAdd" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thêm mới nhân viên</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Modal body text goes here.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Thêm mới</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- =============== -->
+<%- include("../footer") %>
+<script src="https://cdn.jsdelivr.net/alasql/0.3/alasql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.7.12/xlsx.core.min.js"></script>
+<script src="/assets/dataTable/vfs_fonts.js"></script>
+<script src="/assets/dataTable/pdfmake.min.js"></script>
+<script src="/assets/dataTable/jszip.min.js"></script>
+<script src="/assets/dataTable/jquery.dataTables.min.js"></script>
+<script src="/assets/dataTable/dataTables.buttons.min.js"></script>
+
+<script src="/assets/dataTable/buttons.print.min.js"></script>
+<script src="/assets/dataTable/buttons.html5.min.js"></script>
+<script src="/js/Permission/index.js"></script>
+</body>
+</html>

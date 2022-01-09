@@ -1,0 +1,14 @@
+.div-edit2
+{
+    margin-top: 10px;
+}
+
+#divFind
+{
+    position: relative;
+}
+#divFind button
+{
+    position: absolute;
+    top: 30px;
+}

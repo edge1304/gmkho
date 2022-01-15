@@ -9,8 +9,6 @@ const SchemaEmployeeGroup = new mongoose.Schema({
     employee_level:{...validator.schemaNumber}, // xếp hạng quền , số càng nhỏ , quyền càng cao , quyền cao nhất = 0 (quản trị cấp cao)
 },{timestamps: true });
 
-SchemaEmployeeGroup.index({"createdAt": 1})
-SchemaEmployeeGroup.index({"updatedAt": 1})
 
 validator.schePre(SchemaEmployeeGroup);
 export const  ModelEmployeeGroup = mongoose.model("EmployeeGroup",SchemaEmployeeGroup);

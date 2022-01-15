@@ -28,8 +28,6 @@ const SchemaExportForm = new mongoose.Schema(
     { timestamps: true }
 );
 
-SchemaExportForm.index({ createdAt: 1 });
-SchemaExportForm.index({ updatedAt: 1 });
 
 validator.schePre(SchemaExportForm)
 export const ModelExportForm = mongoose.model("Product", SchemaExportForm);

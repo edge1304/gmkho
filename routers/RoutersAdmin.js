@@ -6,5 +6,9 @@ routerAdmin.get("/", router.home);
 routerAdmin.get("/login", router.loginAdmin);
 routerAdmin.get("/employee-management", router.employee_management);
 routerAdmin.get("/permission-management", router.permission);
+routerAdmin.get("/branch-management", router.branch);
+routerAdmin.get("/warehouse-management", router.warehouse);
+routerAdmin.get("/category-management", router.category);
+routerAdmin.get("/asset-management", router.asset);
 
 export default routerAdmin;

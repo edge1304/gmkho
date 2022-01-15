@@ -3,11 +3,12 @@ import * as validator from "./../helper/validator.js"
 const SchemaUser = new mongoose.Schema({
     user_fullname:{
         ...validator.schemaString,
-        ...validator.schemaTextIndex
+        ...validator.schemaTextIndex,
     },
     user_phone:{
         ...validator.schemaString,
-        ...validator.schemaTextIndex
+        ...validator.schemaTextIndex,
+        ...validator.schemaUnique
     },
     user_password:{
         ...validator.schemaString,
@@ -30,8 +31,6 @@ const SchemaUser = new mongoose.Schema({
 
 },{timestamps: true });
 
-SchemaUser.index({"createdAt": 1})
-SchemaUser.index({"updatedAt": 1})
 
 validator.schePre(SchemaUser);
 

@@ -10,6 +10,9 @@ const SchemaWarehouse = new mongoose.Schema(
         warehouse_phone: {   // số didenj thoại, và là duy nhất
             ...validator.schemaString,
         },
+        warehouse_address: {   // số didenj thoại, và là duy nhất
+            ...validator.schemaString,
+        },
         id_branch: {  // mã chi nhánh , bắt buộc phải có kể cả ô giám đốc
             ...validator.schemaObjectId,
             ...validator.schemaRequired,
@@ -21,8 +24,6 @@ const SchemaWarehouse = new mongoose.Schema(
     { timestamps: true }
 );
 
-SchemaWarehouse.index({ createdAt: 1 });
-SchemaWarehouse.index({ updatedAt: 1 });
 
 validator.schePre(SchemaWarehouse)
 export const ModelWarehouse = mongoose.model("Warehouse", SchemaWarehouse);

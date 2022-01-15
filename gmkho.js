@@ -29,19 +29,25 @@ createControllerAdmin(app);
 import createControllerPermission from "./controllers/ControllerPermission.js";
 createControllerPermission(app);
 
+import createControllerEmployee from "./controllers/ControllerEmployee.js";
+createControllerEmployee(app);
+
+import createControllerBranch from "./controllers/ControllerBranch.js";
+createControllerBranch(app);
+
+import createControllerWarehouse from "./controllers/ControllerWarehouse.js";
+createControllerWarehouse(app);
+
+import createControllerCategory from "./controllers/ControllerCategory.js";
+createControllerCategory(app);
+
+import createControllerSuperCategory from "./controllers/ControllerSuperCategory.js";
+createControllerSuperCategory(app);
+
+import createControllerAsset from "./controllers/ControllerAsset.js";
+createControllerAsset(app);
+
 app.use(routerAdmin);
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -77,14 +83,17 @@ app.get("/addFunction/:name",async (req,res)=>
 
 
 import {ModelEmployeeSuperGroup} from "./models/EmployeeSuperGroup.js"
-app.get("/addSupperGroup/:name",async (req,res)=>
+app.get("/addSupperGroup/:name/:level",async (req,res)=>
 {
     const data =  await new ModelEmployeeSuperGroup({
         employee_super_group_name: req.params.name,
+        employee_super_group_level:req.params.level
     }).save()
     return res.json(data)
 })
 
+import {ModelSuperCategory} from './models/SuperCategory.js'
+import {ModelCategory} from './models/Category.js'
 app.get("/lay:name",async (req,res)=>
 {
     var db = ModelBranch;
@@ -98,11 +107,32 @@ app.get("/lay:name",async (req,res)=>
         db= ModelEmployee
     if(req.params.name == "EmployeeSuperGroup")
         db= ModelEmployeeSuperGroup
+    if(req.params.name == "SuperCategory")
+        db= ModelSuperCategory
+    if(req.params.name == "Category")
+        db= ModelCategory
 
     const data =  await db.find().sort({_id:-1});
     return res.json(data)
 })
 
+app.get("/empty/:name",async (req,res)=>
+{
+    var db = ModelBranch;
+    if(req.params.name == "Function")
+        db= ModelFunction
+    if(req.params.name == "Permission")
+        db= ModelPermission
+    if(req.params.name == "EmployeeGroup")
+        db= ModelEmployeeGroup
+    if(req.params.name == "Employee")
+        db= ModelEmployee
+    if(req.params.name == "EmployeeSuperGroup")
+        db= ModelEmployeeSuperGroup
+
+    const data =  await db.deleteMany({})
+    return res.json(data)
+})
 import {ModelPermission} from "./models/Permission.js"
 app.get("/addPermission/:group/:function",async (req,res)=>
 {
@@ -123,14 +153,14 @@ app.get("/addEmployee/1",async (req,res)=>
         employee_datebirth: new Date(),
         employee_image:null,
         employee_address:"Hoàng lâu - hồng phong - an dương",
-        id_branch:"61d4fca30aa5e9767284923b",
+        id_branch:"61e15300a4665e6a0db700e8",
         password:"4dff4ea340f0a823f15d3f4f01ab62eae0e5da579ccb851f8db9dfe84c58b2b37b89903a740e1ee172da793a6e79d560e5f7f9bd058a12a280433ed6fa46510a",
         employee_salary:10000,
         employee_salary_duty:5000,
         employee_status:true, // trạng thái của nhân viên : 0: đang 
         employee_bank_number:"102872722091", 
         employee_bank_name:"Vietinbank",
-        id_employee_group:"61d4fd290aa5e97672849246",
+        id_employee_group:"61e156a67dc2ff811e02ccb1",
         employee_history_work:[],
         employee_history_salary:[],
         employee_lunch_allowance:0,
@@ -149,4 +179,3 @@ app.get("/*",async (req,res)=>
 {
     return res.render('pages/samples/error-404')
 })
-

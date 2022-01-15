@@ -22,8 +22,6 @@ const SchemaNotification = new mongoose.Schema(
     { timestamps: true }
 );
 
-SchemaNotification.index({ createdAt: 1 });
-SchemaNotification.index({ updatedAt: 1 });
 
 validator.schePre(SchemaNotification)
 

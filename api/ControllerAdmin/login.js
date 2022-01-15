@@ -28,7 +28,7 @@ export const login = async (app)=>
             const dataGroup = await ModelEmployeeGroup.findById(dataEmployee.id_employee_group);
             if(!dataGroup) return res.status(400).send("Thất bại! Không tìm thấy phân quyền truy cập");
   
-            if(! await helper.checkPermission("61d4fcee0aa5e97672849242", dataGroup._id)) return res.status(400).send("Thất bại! Bạn không có quyền đăng nhập!")
+            if(! await helper.checkPermission("61e1572ef8bf2521b16be1fd", dataGroup._id)) return res.status(400).send("Thất bại! Bạn không có quyền đăng nhập!")
 
             if(dataGroup.employee_level != 0)
             {
@@ -36,6 +36,7 @@ export const login = async (app)=>
             }
             const token = helper.signupjwt({...dataEmployee, id_branch_login:dataBranch._id});
             helper.signToken(token);
+     
             return res.json({employee_fullname:dataEmployee.employee_fullname, name_branch:dataBranch.branch_name, token:token,name_group:dataGroup.employee_group_name})
 
 

@@ -39,8 +39,7 @@ const SchemaEmployee = new mongoose.Schema(
     { timestamps: true }
 );
 
-SchemaEmployee.index({ createdAt: 1 });
-SchemaEmployee.index({ updatedAt: 1 });
+
 
 validator.schePre(SchemaEmployee)
 export const ModelEmployee = mongoose.model("Employee", SchemaEmployee);

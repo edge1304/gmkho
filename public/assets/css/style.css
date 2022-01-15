@@ -8568,18 +8568,15 @@ pre {
 .table, .jsgrid .jsgrid-table {
   width: 100%;
   margin-bottom: 1rem;
-  color: #ffffff; }
+  color: #6c7293; }
   .table th, .jsgrid .jsgrid-table th,
   .table td,
   .jsgrid .jsgrid-table td {
     padding: 0.9375rem;
     vertical-align: top;
-    border-top: 1px solid #2c2e33;
-  }
+    border-top: 1px solid #2c2e33; }
   .table thead th, .jsgrid .jsgrid-table thead th {
     vertical-align: bottom;
-    border-top: 1px solid #2c2e33;
-
     border-bottom: 2px solid #2c2e33; }
   .table tbody + tbody, .jsgrid .jsgrid-table tbody + tbody {
     border-top: 2px solid #2c2e33; }
@@ -8607,8 +8604,8 @@ pre {
   background-color: #000000; }
 
 .table-hover tbody tr:hover {
-  color: #212529;
-  background-color: #000000; }
+  color: black;
+  background-color: #c2edc3; }
 
 .table-primary,
 .table-primary > th,
@@ -8837,8 +8834,8 @@ pre {
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1;
-  color: #495057;
-  background-color: #2A3038;
+  color: black;
+  background-color: white;
   background-clip: padding-box;
   border: 1px solid #2c2e33;
   border-radius: 2px;
@@ -8922,8 +8919,8 @@ select.form-control:focus::-ms-value, select.asColorPicker-input:focus::-ms-valu
 .jsgrid .jsgrid-table .jsgrid-filter-row select:focus::-ms-value, .select2-container--default select.select2-selection--single:focus::-ms-value, .select2-container--default .select2-selection--single select.select2-search__field:focus::-ms-value, select.typeahead:focus::-ms-value,
 select.tt-query:focus::-ms-value,
 select.tt-hint:focus::-ms-value {
-  color: #495057;
-  background-color: #2A3038; }
+  color: black;
+  background-color: white; }
 
 .form-control-file,
 .form-control-range {
@@ -11402,7 +11399,7 @@ input[type="button"].btn-block {
   flex-direction: column;
   min-width: 0;
   word-wrap: break-word;
-  background-color: #191c24;
+  background-color: white;
   background-clip: border-box;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 0.25rem; }
@@ -11598,6 +11595,8 @@ input[type="button"].btn-block {
 
 .pagination, .jsgrid .jsgrid-pager {
   display: flex;
+  justify-content: right;
+  margin-right: 10px;
   padding-left: 0;
   list-style: none;
   border-radius: 0.25rem; }
@@ -11610,7 +11609,7 @@ input[type="button"].btn-block {
   margin-left: -1px;
   line-height: 1.25;
   color: #007bff;
-  background-color: white;
+  /* background-color: #000000; */
   border: 1px solid #dee2e6; }
   .page-link:hover, .jsgrid .jsgrid-pager .jsgrid-pager-nav-button a:hover,
   .jsgrid .jsgrid-pager .jsgrid-pager-page a:hover {
@@ -12371,7 +12370,7 @@ a.close.disabled {
 
 @media (min-width: 576px) {
   .modal-dialog {
-    max-width: 80%;
+    max-width: 500px;
     margin: 30px auto; }
   .modal-dialog-scrollable {
     max-height: calc(100% - 60px); }
@@ -12383,8 +12382,7 @@ a.close.disabled {
       height: calc(100vh - 60px);
       height: min-content; }
   .modal-sm {
-    max-width: 300px; } 
-  }
+    max-width: 300px; } }
 
 @media (min-width: 992px) {
   .modal-lg,
@@ -12998,7 +12996,8 @@ button.bg-dark:focus {
   display: table-cell !important; }
 
 .d-flex, .page-header, .loader-demo-box, .list-wrapper ul li, .lightGallery .image-tile .demo-gallery-poster, .swal2-modal, .navbar .navbar-menu-wrapper .navbar-nav .nav-item.dropdown .dropdown-menu.navbar-dropdown .dropdown-item, .navbar .navbar-menu-wrapper .navbar-nav .nav-item.nav-profile .nav-link {
-  display: flex !important; }
+  display: flex !important;  
+}
 
 .d-inline-flex {
   display: inline-flex !important; }
@@ -15292,7 +15291,7 @@ a.text-dark:hover, a.text-dark:focus {
       background-color: #ffffff !important; }
   .table-bordered th,
   .table-bordered td {
-    border: 1px solid #e3e6f0 !important; }
+    border: 1px solid #dee2e6 !important; }
   .table-dark {
     color: inherit; }
     .table-dark th,
@@ -15743,10 +15742,13 @@ code {
   border-radius: 4px; }
 
 .page-header {
-  margin: 0 0 1.5rem 0; }
+  color: white;
+  margin: 0 10px 1.5rem 0;
+ }
   .page-header .breadcrumb {
     border: 0;
-    margin-bottom: 0; }
+    margin-bottom: 0; 
+  }
 
 .page-title {
   color: #ffffff;
@@ -16928,12 +16930,13 @@ code {
 .tt-query,
 .tt-hint {
   border: 1px solid #ced4da;
+  border-radius: 1px;
   height: calc(2.25rem + 2px);
   font-weight: normal;
   font-size: 0.875rem;
   padding: 0.625rem 0.6875rem;
   background-color: white;
-  border-radius: 0.25rem;
+  border-radius: 2px;
   color: black; }
   .form-control:focus, .asColorPicker-input:focus, .dataTables_wrapper select:focus, .jsgrid .jsgrid-table .jsgrid-filter-row input:focus[type=text],
   .jsgrid .jsgrid-table .jsgrid-filter-row select:focus, .jsgrid .jsgrid-table .jsgrid-filter-row input:focus[type=number], .select2-container--default .select2-selection--single:focus, .select2-container--default .select2-selection--single .select2-search__field:focus, .typeahead:focus,
@@ -17888,11 +17891,10 @@ div.tagsinput {
   margin-bottom: 0;
   color: black; }
   .table thead th, .jsgrid .jsgrid-table thead th {
-    text-align: center;
-    border-top: 1 solid #e3e6f0;
+    border-top: 0;
     border-bottom-width: 1px;
     font-weight: 500;
-    color: black; }
+    color: #6c7293; }
     .table thead th i, .jsgrid .jsgrid-table thead th i {
       margin-left: 0.325rem; }
   .table th, .jsgrid .jsgrid-table th,
@@ -21138,7 +21140,3 @@ div.tagsinput {
   flex-grow: 1; }
 
 /*# sourceMappingURL=maps/style.css.map */
-td , th
-{
-  border: 1px dotted #ccc;
-}

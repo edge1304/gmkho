@@ -3,7 +3,10 @@ import {TokenModel} from "./../models/Token.js"
 import * as validator from "./validator.js"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import sanitize from "mongo-sanitize";
+
 export const HOST_URL = 'http://chamcong.com/';
+
 dotenv.config()
 
 export const authenToken = async (req, res, next) => {
@@ -22,6 +25,7 @@ export const authenToken = async (req, res, next) => {
                                 ...req.body,
                                 _caller: data,
                             }
+                   
                             next()
                         } else {
                             res.sendStatus(403)

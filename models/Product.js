@@ -11,6 +11,10 @@ const SchemaProduct = new mongoose.Schema(
             ...validator.schemaObjectId,
             ...validator.schemaRequired
         },
+        product_index:{
+            ...validator.schemaNumber,
+           
+        },
         id_warehouse:{
             ...validator.schemaObjectId,
             ...validator.schemaRequired
@@ -33,8 +37,7 @@ const SchemaProduct = new mongoose.Schema(
     { timestamps: true }
 );
 
-SchemaProduct.index({ createdAt: 1 });
-SchemaProduct.index({ updatedAt: 1 });
+
 
 validator.schePre(SchemaProduct)
 export const ModelProduct = mongoose.model("Product", SchemaProduct);

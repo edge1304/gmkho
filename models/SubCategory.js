@@ -2,11 +2,17 @@ import mongoose from "mongoose";
 import * as validator from "./../helper/validator.js";
 
 const schemaSubCategory = new mongoose.Schema({
-    subcategory_name: {
+    subcategory_name: {  
         ...validator.schemaString,
         ...validator.schemaRequired,
         ...validator.schemaTextIndex, 
         ...validator.schemaUnique,       
+    },
+    subcategory_text_search: {  
+        ...validator.schemaString,
+        ...validator.schemaRequired,
+        ...validator.schemaTextIndex, 
+     
     },
     id_category: {
         ...validator.schemaObjectId,
@@ -20,7 +26,7 @@ const schemaSubCategory = new mongoose.Schema({
         ...validator.schemaRequired,
         ...validator.schemaUnique,
         ...validator.schemaSlugLink,
-        ...validator.schemaIndex,
+        ...validator.schemaTextIndex,
     },
     subcategory_files: {
         ...validator.schemaJson, // của sơn , không biết để làm gì
@@ -43,20 +49,17 @@ const schemaSubCategory = new mongoose.Schema({
     subcategory_export_price: {  // giá xuất cũng là giá bán
         ...validator.schemaNumber,
     },
-    subcategory_sale: {  // số lượng đã bán
-        ...validator.schemaNumber,
-    },
-    subcategory_code: {
+    subcategory_code: {  // mã máy
         ...validator.schemaString,
-        ...validator.schemaAutoIndex,
+        ...validator.schemaIndex,
     },
-    subcategory_specifications:{
+    subcategory_specifications:{  // thông số kĩ thuật
         ...validator.schemaJson
     },
-    subcategory_images:{
+    subcategory_images:{  // mảng ảnh sản phẩm
         ...validator.schemaArray
     },
-    subcategory_tags:{
+    subcategory_tags:{  // các từ khóa tìm kiếm cách nhâu bởi dấu ,sub
         ...validator.schemaString,
     },
     subcategory_seo_meta_keyword:{
@@ -72,14 +75,18 @@ const schemaSubCategory = new mongoose.Schema({
         ...validator.schemaString,
     },
     subcategory_sale_status:{  // trạng thái sale
-        ...validator.schemaString,
+        ...validator.schemaArray,
     },
     subcategory_content:{  // nội dung hiển thị
-        ...validator.schemaString,
-    },
-    id_combowarranty: {  // mã combo khuyến mãi
         ...validator.schemaObjectId,
-        ...validator.schemaAutoIndex,
+    },
+    id_combo_warranty: {  // mã combo bảo hành
+        ...validator.schemaObjectId,
+        ...validator.schemaIndex,
+    },
+    id_combo_promotion: {  // mã combo khuyến mãi
+        ...validator.schemaObjectId,
+        ...validator.schemaIndex,
     },
     subcategory_bat:{ // bat thưởng cho nhân viên
         ...validator.schemaNumber
@@ -97,16 +104,14 @@ const schemaSubCategory = new mongoose.Schema({
         ...validator.schemaNumber
     },
     subcategory_unit:{ // đơn vị tính
-        ...validator.schemaString
+        ...validator.schemaString,
+        default:"Chiếc"
     },
     subcategory_video:{ // link video
         ...validator.schemaString
     }
 
 }, { timestamps: true })
-
-schemaSubCategory.index({ createdAt: 1 })
-schemaSubCategory.index({ updatedAt: 1 })
 
 validator.schePre(schemaSubCategory)
 

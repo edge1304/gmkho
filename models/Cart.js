@@ -29,8 +29,7 @@ const SchemaCart = new mongoose.Schema({
     id_export_form:{...validator.schemaObjectId} // id phiếu xuất , sau khi thanh toán sẽ có mã phiếu này
 },{timestamps: true });
 
-SchemaCart.index({"createdAt": 1})
-SchemaCart.index({"updatedAt": 1})
+
 
 validator.schePre(SchemaCart)
 export const  ModelCart = mongoose.model("Cart",SchemaCart);

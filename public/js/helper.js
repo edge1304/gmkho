@@ -1,4 +1,11 @@
 const ACCESS_TOKEN = getCookie("token")
+const MAX_SIZE_IMAGE = 400000;
+const URL_MAIN = 'https://gmkho.appnganh.xyz/'
+const URL_IMAGE_BRANCH = URL_MAIN+'images/images_branch/'
+const URL_IMAGE_EMPLOYEE = URL_MAIN+'images/images_employee/'
+const URL_IMAGE_CATEGORY = URL_MAIN+'images/images_category/'
+
+const IMAGE_NULL = 'https://i.pinimg.com/originals/aa/be/6d/aabe6d6db5e5f569e69e56e851eba8f0.gif'
 var stt = 1;
 function logout()
 {
@@ -38,14 +45,18 @@ function getCookie(name) {
 
 function isLoading(status=true)
 {
+    
     if(status) $("#loading_screen").show();
-    else $("#loading_screen").hide();
+
+    else 
+    {
+        $("#loading_screen").hide();
+    }
 }
 
-function changeURL(urlPath){
 
-    window.history.pushState('', '', urlPath);
-}
+
+
 
 $(function() {
     $('select, .select2').each(function() {
@@ -82,6 +93,15 @@ const tryParseInt = function (str) {
     }
 };
 
+const tryParseFloat = function (str) {
+    try 
+    {
+        return isNaN(parseFloat(str))?0:parseFloat(str) 
+    } catch (e) {
+        console.log(e)
+        return 0;
+    }
+};
 const isDefine = function (val) {
     try {
         if (val == undefined) return false;
@@ -122,8 +142,9 @@ function money(nStr) {
     return x1 + x2;
 }
 
-function pagination(count, legth , isShow=3)
+function pagination(count, legth , isShow=4)
 {
+    count = Math.ceil(tryParseInt(count) / tryParseInt(limit));
     $("#divPagination").empty()
     if(legth == 0)
     {
@@ -140,7 +161,7 @@ function pagination(count, legth , isShow=3)
             if(page != 1) isable = "" 
             html += `
                 <li class="page-item ${isable}">
-                    <a class="page-link" onclick="changePage(-1,${legth})" href="javascript:void(0)" tabindex="-1">Trước</a>
+                    <a class="page-link" onclick="changePage(${(tryParseInt(page)-1)},${legth})" href="javascript:void(0)" tabindex="-1">Trước</a>
                 </li>`
         }
 
@@ -189,7 +210,7 @@ function pagination(count, legth , isShow=3)
             if(page < count) isable = "" 
             html += `
                 <li class="page-item ${isable}">
-                    <a class="page-link" onclick="changePage(0, ${legth})" href="javascript:void(0)" tabindex="1">Sau</a>
+                    <a class="page-link" onclick="changePage(${(tryParseInt(page)+1)}, ${legth})" href="javascript:void(0)" tabindex="1">Sau</a>
                 </li>`
             break;
         }
@@ -201,20 +222,20 @@ function pagination(count, legth , isShow=3)
 
 function changePage(index,length)
 {
-    
     stt = ((index-1)*length)+1
-    if(index == -1)
-    {
-        page -= 1; // ấn vào nút trước -1 page
-    }
-    else if(index == 0)
-    {
-        page += 1
-    }
-    else
-    {
+    // if(index == -1)
+    // {
+    //     page -= 1; // ấn vào nút trước -1 page
+    // }
+    // else if(index == 0)
+    // {
+    //     page += 1
+    // }
+    // else
+    // {
         page = index;
-    }
+        // stt = ((index+1)*length)+1
+    // }
     
     getData();
 }
@@ -232,7 +253,11 @@ function showPopup(popup ,isEmpty=false)
 {
     if(isEmpty)
     {
-        $(`#${popup} input`).val(null)
+        $(`#${popup} input[type=text]`).val(null)
+        $(`#${popup} input[type=text]`).attr("autocomplete","off")
+        $(`#${popup} input[type=file]`).val(null)
+        $(`#${popup} .number`).val(0)
+        $(`#${popup} img`).attr("src",IMAGE_NULL)
     }
     $(`#${popup}`).modal('show');
 }
@@ -274,12 +299,19 @@ function info(text_tb) {
     );
 };
 
-function inputNumber(input)
+function inputNumber(input ,typeNumber='int')
 {
     if($(input).val().length == 0) $(input).val(0);
+    if(typeNumber == 'int')
+        $(input).val(tryParseInt($(input).val()));
+    if(typeNumber == 'float')
+    {
+        console.log($(input).val())
+        $(input).val(parseFloat($(input).val()));
 
-    $(input).val(tryParseInt($(input).val()));
+    }
 }
+
 
 function isChecked(time)
 {
@@ -309,16 +341,23 @@ function achievement(in_morning, out_morning, in_afternoon, out_afternoon)
     return round2(number);
 }
 
-function dataTable(id='dataTable')
+function dataTable(id,isButton=true)
 {
+    if(typeof(id) == 'undefined' || id==null)
+    {
+        id='dataTable'
+    }
+    var buttons = ['copy', 'csv', 'excel', 'pdf', 'print']
+    if(!isButton)
+    {
+        buttons = []
+    }
     $(`#${id}`).DataTable( {
         dom: 'Bfrtip',
         lengthChange: true,
         paging:true,
-        "lengthMenu":[[20,30,40,50,-1],[20,30,40,50,'Tất cả']],
-        buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]
+        lengthMenu:[[10,30,40,50,-1],[10,30,40,50,'Tất cả']],
+        buttons: buttons
     } );
 }
 
@@ -407,3 +446,19 @@ function sameDay(val1, val2)
     }
     return false
 }
+
+$(window).on('popstate', function(event) {
+    window.location = window.location.search
+});
+
+function changeURL(urlPath){
+    window.history.pushState({id:1}, null, urlPath);
+}
+
+
+$('#keyFind').on('keypress',(event)=>{
+    if(event.which == '13')
+    {
+        getData(false)
+    }
+})

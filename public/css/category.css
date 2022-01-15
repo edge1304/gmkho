@@ -1,0 +1,19 @@
+.div-image img{
+    margin-left: 43%;
+    width: 200px;
+    height: 200px;
+    border: 1px dotted;
+}
+
+.div-image b{
+    left: 50%;
+    position: absolute;
+}
+
+.div-image input{
+    display: none;
+}
+#btnAdd
+{
+    top: 38px;
+}

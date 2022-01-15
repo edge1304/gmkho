@@ -17,8 +17,6 @@ const SchemaPermission = new mongoose.Schema(
     { timestamps: true }
 );
 
-SchemaPermission.index({ createdAt: 1 });
-SchemaPermission.index({ updatedAt: 1 });
 
 validator.schePre(SchemaPermission)
 

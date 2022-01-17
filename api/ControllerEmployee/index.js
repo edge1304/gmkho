@@ -123,6 +123,10 @@ export const update = async(app)=>{
                 try
                 {
                     const updateNew = await ModelEmployee.findByIdAndUpdate(dataEm._id,newValue)
+                    if(!req.file)
+                    {
+                        await validator.removeFile(validator.URL_IMAGE_EMPLOYEE+ `/${dataEm.employee_image}`)
+                    }
                     return res.json(updateNew)
                 }
                 catch(e)

@@ -17,3 +17,7 @@
 {
     top: 38px;
 }
+
+.modal-body i {
+    font-size: 20px;
+}

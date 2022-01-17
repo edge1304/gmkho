@@ -18,6 +18,18 @@ input
     max-width: 900px !important;
 }
 
+.model-90
+{
+    max-width: 1200px !important;
+}
+.model-100
+{
+    max-width: 1500px !important;
+}
+.modal .show
+{
+    padding: 0 !important;
+}
 b
 {
     font-family:"Times New Roman", Times, serif;
@@ -145,3 +157,8 @@ b
     }
 }
 
+@media only screen and (max-width: 46.1875em) {
+    .hide-on-mobile {
+      display: none;
+    }
+}

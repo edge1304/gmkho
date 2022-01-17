@@ -10,20 +10,19 @@ const schemaSubCategory = new mongoose.Schema({
     },
     subcategory_text_search: {  
         ...validator.schemaString,
-        ...validator.schemaRequired,
         ...validator.schemaTextIndex, 
      
     },
     id_category: {
         ...validator.schemaObjectId,
-        ...validator.schemaAutoIndex,
+        ...validator.schemaIndex,
+        ...validator.schemaRequired,
     },
     subcategory_status: {
         ...validator.schemaNumber, // trạng thái sản phẩm ,xác định đã có trên web hay chưa 0 là chưa , 1 là lên , 2 là đang ẩn
     },
     subcategory_slug_link: {  // slug link
         ...validator.schemaString,
-        ...validator.schemaRequired,
         ...validator.schemaUnique,
         ...validator.schemaSlugLink,
         ...validator.schemaTextIndex,
@@ -114,6 +113,15 @@ const schemaSubCategory = new mongoose.Schema({
 }, { timestamps: true })
 
 validator.schePre(schemaSubCategory)
+
+schemaSubCategory.pre(['save','findByIdAndUpdate','findOneAndUpdate'], async function(next) {
+    this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name)
+    this.subcategory_slug_link = validator.stringToSlug(this.subcategory_name)
+    return next()
+})
+
+
+
 
 
 export const ModelSubCategory = mongoose.model("SubCategory", schemaSubCategory)

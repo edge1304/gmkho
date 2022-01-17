@@ -16,6 +16,7 @@
 }
 .div-image 
 {
+    max-height: 200px;
     height: 200px;
     width: 100%;
     text-align: center;
@@ -24,4 +25,9 @@
 {
     top: -19px;
     right: 50%;
+}
+
+.form-check 
+{
+    margin-left: 10px;
 }

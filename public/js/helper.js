@@ -249,7 +249,7 @@ function addZero(number, length=2) {
     return my_string;
 }
 
-function showPopup(popup ,isEmpty=false)
+function showPopup(popup ,isEmpty=false, popupHide)
 {
     if(isEmpty)
     {
@@ -260,11 +260,20 @@ function showPopup(popup ,isEmpty=false)
         $(`#${popup} img`).attr("src",IMAGE_NULL)
     }
     $(`#${popup}`).modal('show');
+    if(typeof popupHide != 'undefined')
+    {
+        hidePopup(popupHide)
+    }
+   
 }
 
-function hidePopup(popup)
+function hidePopup(popup,popupShow)
 {
     $(`#${popup}`).modal('hide')
+    if(typeof popupShow != 'undefined')
+    {
+        showPopup(popupHide)
+    }
 }
 
 function success(text_tb) {
@@ -449,6 +458,7 @@ function sameDay(val1, val2)
 
 $(window).on('popstate', function(event) {
     window.location = window.location.search
+    window.history.pushState({id:1}, null,'');
 });
 
 function changeURL(urlPath){
@@ -462,3 +472,11 @@ $('#keyFind').on('keypress',(event)=>{
         getData(false)
     }
 })
+
+function downloadExcelLocal( data,fileName="download")
+{
+    
+    var opts = [{sheetid:'One',header:true},{sheetid:'Two',header:false}];
+    alasql(`SELECT INTO XLSX("${fileName}.xlsx",?) FROM ?`,
+                        [opts,[data]]);
+}

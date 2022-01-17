@@ -1,0 +1,21 @@
+
+.add
+{
+    top: 38px;
+}
+
+.modal-body i {
+    font-size: 20px;
+}
+
+@media only screen and (max-width: 1024px) {
+    .hide-on-mobile {
+      display: none;
+    }
+}
+@media only screen and (min-width: 1440px) {
+    .divAdd
+    {
+        max-width: 150px !important;
+    } 
+}

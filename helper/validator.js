@@ -25,6 +25,7 @@ const limit_query = 100;
 //#region check validate
 //limit - page
 export const URL_IMAGE_CATEGORY = 'public/images/images_category'
+export const URL_IMAGE_EMPLOYEE = 'public/images/images_employee'
 
 export const isDefine = function (val) {
     try {
@@ -245,6 +246,19 @@ export const stringToSlug = function (str) {
         .replace(/[^a-z0-9\-]/g, "-")
         .replace(/-+/g, "-");
 
+    return str;
+};
+
+export const stringTextSearch = function (str) {
+    // remove accents
+    if (empty(str)) return null;
+    var from = "àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷ",
+        to = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeduuuuuuuuuuuoooooooooooooooooiiiiiaeiiouuncyyyyy";
+    for (var i = 0, l = from.length; i < l; i++) {
+        str = str.replace(RegExp(from[i], "gi"), to[i]);
+    }
+
+    str = str.toLowerCase().trim()
     return str;
 };
 //làm tròn số
@@ -727,75 +741,6 @@ export const  schePre = (Schema) =>
 }
 
 
-
-// export const limitQuery = function (limit) {
-//     limit = tryParseInt(limit)
-//     limit = Math.min(limit, limit_query)
-//     if (limit <= 0) limit = 10
-//     return limit
-// }
-
-// export const skipQuery = function (limit, page) {
-//     limit = limitQuery(limit)
-//     return limit * (Math.max(tryParseInt(page), 1) - 1)
-// }
-
-// export const sortQuery = function (req) {
-//     let sort = {}
-//     if (isDefine(req.query.sort)) {
-//         var arrSort = req.query.sort
-//         for(let i =0; i<arrSort.length;i++)
-//         {
-//             Object.keys(arrSort[i]).map(key=>
-//                 {
-//                     sort = {
-//                         ...sort,
-//                         [key]: parseInt(arrSort[i][key])
-//                     }
-//                 })
-//         }
-//     }
-//     return sort
-// }
-
-// export const query = function (req) {
-//     var query = {}
-//     Object.keys(req.query).map( key =>
-//         {
-//             if(key != 'limit'  && key != 'page' && key != 'offset' && key != 'getOther')
-//             {
-//                 if(ObjectId.isValid(req.query[key]))
-//                 {
-//                     query = {
-//                         ...query, [key]:req.query[key]
-//                     }
-//                 }
-//                 else if(! isNaN(parseInt(req.query[key])))
-//                 {
-//                     query = {
-//                         ...query, [key]:parseInt(req.query[key])
-//                     }
-//                 }
-//                 else
-//                 {
-//                     query = {
-//                         ...query, [key]:{$regex:".*"+req.query[key]+".*", $options:"$i"}
-//                     }
-//                 }
-//             }
-//         })
-   
-//     return query
-// }
-
-// export const resultAPI = function (docs, total, limit, page) {
-//     return {
-//         total: total,
-//         limit: limit,
-//         page: page / limit + 1,
-//         data: docs,
-//     }
-// }
 export const isNumber = function (variable, is_different_type = false) {
     if (is_different_type) {
         return !isNaN(variable)
@@ -804,108 +749,6 @@ export const isNumber = function (variable, is_different_type = false) {
     }
 }
 
-
-// export const setNewValue = (req)=>{
-//     var value = {}
-//     Object.keys(req.body).map( key =>{
-//         value = {
-//             ...value,
-//             key :req.body[key]
-//         }
-//     })
-//     return value
-
-// }
-// //#region
-// class mideware {
-//     constructor(req, res , objectModel) {
-//         this.req = req
-//         this.res = res
-//         this.objectModel = objectModel
-//     }
-
-//     setParams(req, res,objectModel) {
-//         this.req = req
-//         this.res = res
-//         this.objectModel = objectModel
-
-//     }
-
-//     async handleInsert() {
-//         try
-//         {
-//             const value = setNewValue(this.req)
-//             const insertNew = await new this.objectModel(value).save()
-//             return this.res.json(insertNew)
-//         }
-//         catch(e)
-//         {
-//             console.log(e)
-//             return this.res.status(500).send("Thất bại! Có lỗi xảy ra")
-//         }
-//     }
-
-//     async createDoc(files) {
-//         try {
-//             const object = this.getFieldsOfRequest(this.req)
-//             object.files = files
-
-//             return this.res.json(await new this.objectModel(object).save())
-//         } catch (err) {
-//             this.throwError(err, this.req, this.res)
-//         }
-//     }
-
-//     // async handleUpdate() {
-//     //     // storager.uploadFile(this.req, this.res, (files) => {
-//     //     //     this.updateDoc(files)
-//     //     // })
-
-//     // }
-
-//     // async updateDoc(files) {
-//     //     try {
-//     //         const object = await this.objectModel.findByIdAndUpdate(helper.sanitize(this.req.params.objectId), { $set: this.getFieldsOfRequest(this.req), $push: { files: { $each: files } } })
-//     //         return this.res.json(object)
-//     //     } catch (err) {
-//     //         this.throwError(err, this.req, this.res)
-//     //     }
-//     // }
-
-//     // async handleRemoveImage() {
-//     //     const objForUpdate = { $pull: { files: helper.sanitize(this.req.body.name_file) } }
-//     //     const object = await this.objectModel.findByIdAndUpdate(helper.sanitize(this.req.params.objectId), objForUpdate)
-
-//     //     storager.removeFile(this.req, () => {
-//     //         return this.res.json(object)
-//     //     })
-//     // }
-
-//     async handleFind(count=true) {
-//         const limit = limitQuery(this.req.query.limit)
-//         const page = skipQuery(this.req.query.limit, this.req.query.page)
-//         const sort = sortQuery(this.req)
-//         const squery = query(this.req)
-//         const data = await this.objectModel.find(squery).sort(sort).limit(limit).skip(page)
-//         var total = 0
-//         if(count)
-//         {
-//           total = await this.objectModel.countDocuments(squery)
-         
-//         }
-//         return {
-//             data:data, 
-//             count: total 
-//         }
-//     }
-    
-//     async findById(id=this.req.query._id) {
-//         const data = await this.objectModel.findById(id)
-//         return this.res.json(data)
-//     }
-// }
-// //#endregion
-// export default mideware ;
 
 
 export const getLimit = (req)=>

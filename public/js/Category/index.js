@@ -267,6 +267,210 @@ function confirmAddSuper()
 
 function showKeys(index)
 {
-    // console.log(arrData[index])
-    
+
+    $("#tbodyKey").empty()
+    if(arrData[index].category_options)
+    {
+        var stt2 = 1
+        Object.keys(arrData[index].category_options).map(key =>{
+            let html = `<tr><td>${stt2++}</td><td>${key}</td><td>`
+            for(let i = 0;i<arrData[index].category_options[key].length;i++)
+            {
+                html += `${arrData[index].category_options[key][i]}, `
+            }
+            html += `</td><td>
+                        <i onclick="editKey(${index},'${key}')" class="mdi mdi-tooltip-edit text-primary"></i>
+                        <i onclick="showPopupDeleteKey(${index},'${key}')" class="mdi mdi-delete-forever text-danger"></i>
+                    </td></tr>`
+            $("#tbodyKey").append(html)
+        })
+    }
+    $("#confirmAddKey").attr("onclick",`confirmSaveAddKey(${index})`)
+    showPopup('popupDetailKey')
+}
+
+function changeValueKey(input)
+{
+    if(event.which == '13')
+    {
+        const str = $(input).val().trim().split(' / ')
+        var result = ""
+        for(let i = 0;i<str.length;i++)
+        {
+            if(str[i].trim() != '/' && str[i].trim().length > 0)
+            {
+                result += str[i].trim() +" / "
+            }
+        }
+        $(input).val(result)
+
+    }
+}
+
+function confirmSaveAddKey(index)
+{
+  
+    var arrKey = []
+
+    const key =  $("#addKey").val().trim()
+    if(key.length == 0)
+    {
+        info("Từ khóa không được để trống")
+        return
+    }
+
+    const str = $("#addValueKey").val().trim().split(' / ')
+    for(let i = 0;i<str.length;i++)
+    {
+        if(str[i].trim() != '/' && str[i].trim().length > 0)
+        {
+            arrKey.push(str[i].trim())
+        }
+    }
+    if(arrKey.length == 0)
+    {
+        info("Phải có ít nhất 1 giá trị")
+        return
+    }
+    hidePopup('popupAddKey')
+    hidePopup('popupDetailKey')
+    isLoading();
+    $.ajax({
+        type: 'post',
+        url: `../api/category/key`,
+        headers: {
+            token: ACCESS_TOKEN,
+        },
+        data: {
+            category_key:key,
+            values:arrKey,
+            id_category:arrData[index]._id
+        },
+       
+        caches:false,
+        success: function (data) {
+            isLoading(false);
+            success("Thành công")
+            arrData[index].category_options = data.category_options
+            showKeys(index)
+            
+        },
+        error: function (data) {
+            isLoading(false);
+            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
+            if(data!= null && data.status != 503 && data.status != 502)
+                info(data.responseText);
+            
+        }
+    })
+}
+
+
+function editKey(index, key)
+{
+    $("#editKey").val(key)
+    var strVal = ''
+    for(let i =0;i<arrData[index].category_options[key].length;i++)
+    {
+        strVal += arrData[index].category_options[key][i] +" / "
+    }
+    $("#editValueKey").val(strVal)
+    $("#btnconfirmEditKey").attr("onclick",`confirmEditKey(${index},'${key}')`)
+    showPopup('popupEditKey',false,'popupDetailKey')
+}
+
+function confirmEditKey(index, oldKey)
+{
+    var arrKey = []
+    const key =  $("#editKey").val().trim()
+    if(key.length == 0)
+    {
+        info("Từ khóa không được để trống")
+        return
+    }
+
+    const str = $("#editValueKey").val().trim().split(' / ')
+    for(let i = 0;i<str.length;i++)
+    {
+        if(str[i].trim() != '/' && str[i].trim().length > 0)
+        {
+            arrKey.push(str[i].trim())
+        }
+    }
+    if(arrKey.length == 0)
+    {
+        info("Phải có ít nhất 1 giá trị")
+        return
+    }
+    hidePopup('popupEditKey')
+    isLoading();
+    $.ajax({
+        type: 'put',
+        url: `../api/category/key`,
+        headers: {
+            token: ACCESS_TOKEN,
+        },
+        data: {
+            category_key:key,
+            values:arrKey,
+            oldKey:oldKey,
+            id_category:arrData[index]._id,
+        },
+       
+        caches:false,
+        success: function (data) {
+            isLoading(false);
+            success("Thành công")
+            arrData[index].category_options = data.category_options
+            showKeys(index)
+            
+        },
+        error: function (data) {
+            isLoading(false);
+            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
+            if(data!= null && data.status != 503 && data.status != 502)
+                info(data.responseText);
+            
+        }
+    })
+}
+
+function showPopupDeleteKey(index , key)
+{
+    $("#btnconfirmDeleteKey").attr("onclick",`confirmDeleteKey(${index},'${key}')`)
+    showPopup('popupDeleteKey')
+}
+
+function confirmDeleteKey(index , key)
+{
+
+    hidePopup('popupDeleteKey')
+    isLoading();
+    $.ajax({
+        type: 'delete',
+        url: `../api/category/key`,
+        headers: {
+            token: ACCESS_TOKEN,
+        },
+        data: {
+            category_key:key,
+            id_category:arrData[index]._id,
+        },
+       
+        caches:false,
+        success: function (data) {
+            isLoading(false);
+            success("Thành công")
+            arrData[index].category_options = data.category_options
+            showKeys(index)
+            
+        },
+        error: function (data) {
+            isLoading(false);
+            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
+            if(data!= null && data.status != 503 && data.status != 502)
+                info(data.responseText);
+            
+        }
+    })
 }

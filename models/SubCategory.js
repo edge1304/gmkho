@@ -5,13 +5,15 @@ const schemaSubCategory = new mongoose.Schema({
     subcategory_name: {  
         ...validator.schemaString,
         ...validator.schemaRequired,
-        ...validator.schemaTextIndex, 
         ...validator.schemaUnique,       
     },
+    subcategory_replace_name: {  
+        ...validator.schemaString,
+        ...validator.schemaUnique,       
+    }, 
     subcategory_text_search: {  
         ...validator.schemaString,
         ...validator.schemaTextIndex, 
-     
     },
     id_category: {
         ...validator.schemaObjectId,
@@ -19,7 +21,7 @@ const schemaSubCategory = new mongoose.Schema({
         ...validator.schemaRequired,
     },
     subcategory_status: {
-        ...validator.schemaNumber, // trạng thái sản phẩm ,xác định đã có trên web hay chưa 0 là chưa , 1 là lên , 2 là đang ẩn
+        ...validator.schemaNumber, // trạng thái sản phẩm ,xác định đã có trên web hay chưa 0 là chưa , 1 là lên , -1 là đang ẩn
     },
     subcategory_slug_link: {  // slug link
         ...validator.schemaString,
@@ -73,19 +75,25 @@ const schemaSubCategory = new mongoose.Schema({
     subcategory_seo_image:{  // seo ảnh
         ...validator.schemaString,
     },
+    subcategory_seo_description:{  // seo ảnh
+        ...validator.schemaString,
+    },
     subcategory_sale_status:{  // trạng thái sale
         ...validator.schemaArray,
     },
     subcategory_content:{  // nội dung hiển thị
-        ...validator.schemaObjectId,
+        ...validator.schemaString,
+    },
+    subcategory_related:{  // nội dung hiển thị
+        ...validator.schemaArray,
     },
     id_combo_warranty: {  // mã combo bảo hành
-        ...validator.schemaObjectId,
-        ...validator.schemaIndex,
+        ...validator.schemaString,
+        // ...validator.schemaIndex,
     },
     id_combo_promotion: {  // mã combo khuyến mãi
-        ...validator.schemaObjectId,
-        ...validator.schemaIndex,
+        ...validator.schemaString,
+        // ...validator.schemaIndex,
     },
     subcategory_bat:{ // bat thưởng cho nhân viên
         ...validator.schemaNumber
@@ -108,20 +116,31 @@ const schemaSubCategory = new mongoose.Schema({
     },
     subcategory_video:{ // link video
         ...validator.schemaString
+    },
+    subcategory_stt:{ // link video
+        ...validator.schemaNumber
+    },
+    subcategory_options:{ // link video
+        ...validator.schemaJson
     }
 
 }, { timestamps: true })
 
 validator.schePre(schemaSubCategory)
 
-schemaSubCategory.pre(['save','findByIdAndUpdate','findOneAndUpdate'], async function(next) {
+schemaSubCategory.pre(['findByIdAndUpdate','findOneAndUpdate'], async function(next) {
     this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name)
     this.subcategory_slug_link = validator.stringToSlug(this.subcategory_name)
     return next()
 })
 
 
-
+schemaSubCategory.pre(['save','insertManey'], async function(next) {
+    this.subcategory_replace_name = this.subcategory_name,
+    this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name)
+    this.subcategory_slug_link = validator.stringToSlug(this.subcategory_name)
+    return next()
+})
 
 
 export const ModelSubCategory = mongoose.model("SubCategory", schemaSubCategory)

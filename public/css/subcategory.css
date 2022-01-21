@@ -19,3 +19,12 @@
         max-width: 150px !important;
     } 
 }
+
+#divTableAddExcel
+{
+    overflow: auto;
+}
+
+#tbodyTable i{
+    font-size: 20px;
+}

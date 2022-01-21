@@ -9,11 +9,13 @@ import logger from "morgan";
 import * as connectDB from "./connectDB.js";
 import routerAdmin from "./routers/RoutersAdmin.js";
 import moment from 'moment-timezone';
+import admin from 'firebase-admin';
+import cron from 'node-cron';
 
 const app = express();
 
 app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" ,parameterLimit : 10000}));
 app.use(cors());
 app.set("views", "./views");
 app.set("view engine", "ejs");
@@ -49,6 +51,18 @@ createControllerAsset(app);
 
 import createControllerSubCategory from "./controllers/ControllerSubCategory.js";
 createControllerSubCategory(app);
+
+import createControllerCombo from "./controllers/ControllerCombo.js";
+createControllerCombo(app);
+createControllerBranch(app)
+import createControllerTimekeeping from "./controllers/ControllerTimekeeping.js";
+createControllerTimekeeping(app)
+
+import createControllerCalendar from "./controllers/ControllerCalendar.js";
+createControllerCalendar(app)
+
+import createControllerMenu from "./controllers/ControllerMenu.js";
+createControllerMenu(app)
 
 app.use(routerAdmin);
 
@@ -95,6 +109,10 @@ import { ModelSuperCategory } from './models/SuperCategory.js'
 import { ModelCategory } from './models/Category.js'
 import { ModelWarehouse } from "./models/Warehouse.js"
 import { ModelSubCategory } from "./models/SubCategory.js"
+import { ModelEmployee } from "./models/Employee.js"
+import { ModelAsset } from "./models/Asset.js"
+import { ModelWarrantyCombo } from "./models/WarrantyCombo.js"
+import { ModelMenu } from "./models/Menu.js"
 
 app.get("/lay:name", async (req, res) => {
     var db = ModelBranch;
@@ -116,7 +134,13 @@ app.get("/lay:name", async (req, res) => {
         db = ModelWarehouse
     if (req.params.name == "SubCategory")
         db = ModelSubCategory
-        
+    if (req.params.name == "Asset")
+        db = ModelAsset 
+    if (req.params.name == "WarrantyCombo")
+        db = ModelWarrantyCombo  
+    if (req.params.name == "Menu")
+        db = ModelMenu  
+
     const data = await db.find().sort({ _id: -1 });
     return res.json(data)
 })
@@ -137,6 +161,8 @@ app.get("/empty/:name", async (req, res) => {
         db = ModelWarehouse
     if (req.params.name == "SubCategory")
         db = ModelSubCategory
+    if (req.params.name == "Asset")
+        db = ModelAsset
     const data = await db.deleteMany({})
     return res.json(data)
 })
@@ -150,7 +176,6 @@ app.get("/addPermission/:group/:function", async (req, res) => {
 })
 
 
-import { ModelEmployee } from "./models/Employee.js"
 app.get("/addEmployee/1", async (req, res) => {
     const data = await new ModelEmployee({
         employee_fullname: "Phạm Văn Vụ",
@@ -176,8 +201,18 @@ app.get("/addEmployee/1", async (req, res) => {
 })
 
 app.get("/ABC", async (req, res) => {
-    await ModelEmployeeGroup.updateMany({}, { $set: { id_super_group: "61d953d7423b3518f5744bb2" } })
-    res.send("ok")
+    
+    // // const newData = await new ModelMenu({
+    // //     menu_name:"Menu danh mục website",
+    // //     menu_content:[
+    // //         "61ea21d9ccd4a03c0d639a62",
+    // //         "61ea0f2afa61600ddfedbeab",
+    // //         "61ea0f20fa61600ddfedbea3",
+    // //         "61ea0f13fa61600ddfedbe9b",
+    // //     ],
+    // //     menu_type:"Category"
+    // // }).save()
+    // return res.json(newData)
 })
 
 app.get("/*", async (req, res) => {

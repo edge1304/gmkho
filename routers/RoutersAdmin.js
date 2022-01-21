@@ -10,7 +10,12 @@ routerAdmin.get("/branch-management", router.branch);
 routerAdmin.get("/warehouse-management", router.warehouse);
 routerAdmin.get("/category-management", router.category);
 routerAdmin.get("/product-management", router.subcategory);
+routerAdmin.get("/subcategory-contents-management", router.up_subcategory);
+routerAdmin.get("/warranty-combo-management", router.warranty_combo);
+routerAdmin.get("/promotion-combo-management", router.promotion_combo);
 routerAdmin.get("/asset-management", router.asset);
-
-
+routerAdmin.get("/timekeeping-work-management", router.timekeeping_work);
+routerAdmin.get("/timekeeping-schedule-management", router.timekeeping_schedule);
+routerAdmin.get("/calendar-management", router.calendar);
+routerAdmin.get("/menu-management", router.menu);
 export default routerAdmin;

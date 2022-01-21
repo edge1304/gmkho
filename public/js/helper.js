@@ -4,6 +4,7 @@ const URL_MAIN = 'https://gmkho.appnganh.xyz/'
 const URL_IMAGE_BRANCH = URL_MAIN+'images/images_branch/'
 const URL_IMAGE_EMPLOYEE = URL_MAIN+'images/images_employee/'
 const URL_IMAGE_CATEGORY = URL_MAIN+'images/images_category/'
+const URL_IMAGE_PRODUCT = URL_MAIN+'images/images_product/'
 
 const IMAGE_NULL = 'https://i.pinimg.com/originals/aa/be/6d/aabe6d6db5e5f569e69e56e851eba8f0.gif'
 var stt = 1;
@@ -256,6 +257,8 @@ function showPopup(popup ,isEmpty=false, popupHide)
         $(`#${popup} input[type=text]`).val(null)
         $(`#${popup} input[type=text]`).attr("autocomplete","off")
         $(`#${popup} input[type=file]`).val(null)
+        $(`#${popup} .empty`).empty()
+
         $(`#${popup} .number`).val(0)
         $(`#${popup} img`).attr("src",IMAGE_NULL)
     }

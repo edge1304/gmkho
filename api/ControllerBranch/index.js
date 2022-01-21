@@ -33,7 +33,7 @@ export const management = async(app)=>{
 }
 
 
-var storage = multer.diskStorage({
+const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, 'public/images/images_branch')
     },
@@ -41,7 +41,7 @@ var storage = multer.diskStorage({
         cb(null,path.basename(file.originalname).replace(path.extname(file.originalname),'-') + Date.now() + path.extname(file.originalname))
     }
 });
-var upload_image_branch = multer({
+const upload_image_branch = multer({
     storage: storage,
     fileFilter: function(req, file, cb) {
         if (file.mimetype == "image/bmp" || file.mimetype == "image/png" || file.mimetype == "image/jpeg" || file.mimetype == "image/jpg" || file.mimetype == "image/jfif") {
@@ -90,7 +90,19 @@ export const update = async (app)=>{
                         branch_note:branch_note,
                         branch_address:branch_address,
                         branch_phone:branch_phone,
-                        branch_header_content:branch_header_content
+                        branch_header_content:branch_header_content,
+                        in_morning: JSON.parse(sanitize(req.body.in_morning)),
+                        out_morning: JSON.parse(sanitize(req.body.out_morning)),
+                        in_afternoon: JSON.parse(sanitize(req.body.in_afternoon)),
+                        out_afternoon: JSON.parse(sanitize(req.body.out_afternoon)),
+        
+                        in_noon_schedule: JSON.parse(sanitize(req.body.in_noon_schedule)),
+                        out_noon_schedule: JSON.parse(sanitize(req.body.out_noon_schedule)),
+                        in_night_schedule: JSON.parse(sanitize(req.body.in_night_schedule)),
+                        out_night_schedule: JSON.parse(sanitize(req.body.out_night_schedule)),
+        
+                        late_limit: validator.tryParseInt(sanitize(req.body.late_limit)),
+                        branch_ipwifi: sanitize(req.body.branch_ipwifi),
                     }
                     const updateNew = await ModelBranch.findByIdAndUpdate(dataBranch._id,newValue)
                     return res.json(updateNew)
@@ -136,16 +148,27 @@ export const insert = async (app)=>{
                     const branch_address = req.body.branch_address.trim()
                     const branch_note = req.body.branch_note.trim()
                     const branch_header_content = req.body.branch_header_content.trim()
-                    const id_branch = req.body.id_branch
-
                     if(branch_name.length == 0) return res.status(400).send("Thất bại! Tên chi nhánh không được để trống")
+
                     newValue ={
                         ...newValue,
                         branch_name:branch_name,
                         branch_note:branch_note,
                         branch_address:branch_address,
                         branch_phone:branch_phone,
-                        branch_header_content:branch_header_content
+                        branch_header_content:branch_header_content,
+                        in_morning: JSON.parse(sanitize(req.body.in_morning)),
+                        out_morning: JSON.parse(sanitize(req.body.out_morning)),
+                        in_afternoon: JSON.parse(sanitize(req.body.in_afternoon)),
+                        out_afternoon: JSON.parse(sanitize(req.body.out_afternoon)),
+        
+                        in_noon_schedule: JSON.parse(sanitize(req.body.in_noon_schedule)),
+                        out_noon_schedule: JSON.parse(sanitize(req.body.out_noon_schedule)),
+                        in_night_schedule: JSON.parse(sanitize(req.body.in_night_schedule)),
+                        out_night_schedule: JSON.parse(sanitize(req.body.out_night_schedule)),
+        
+                        late_limit: validator.tryParseInt(sanitize(req.body.late_limit)),
+                        branch_ipwifi: sanitize(req.body.branch_ipwifi),
                     }
                     try
                     {
@@ -154,6 +177,7 @@ export const insert = async (app)=>{
                     }
                     catch(e)
                     {
+                        console.log(e)
                         return res.status(500).send("Thất bại! Có lỗi xảy ra")
                     }
                     

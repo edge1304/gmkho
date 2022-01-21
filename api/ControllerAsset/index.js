@@ -15,7 +15,7 @@ export const management = async (app) => {
         return res
           .status(403)
           .send("Thất bại! Bạn không có quyền truy cập chức năng này")
-      // console.log(req.query);
+      console.log(req.query);
       const data = await ModelAsset.find();
       return res.json(data);
     }

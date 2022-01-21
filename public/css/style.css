@@ -13,9 +13,28 @@ input
     text-align: center;
 }
 
+.right
+{
+    text-align: right;
+}
+
+.left
+{
+    text-align: left;
+}
+
 .model-80
 {
     max-width: 900px !important;
+}
+
+.model-60
+{
+    max-width: 700px !important;
+}
+.model-70
+{
+    max-width: 800px !important;
 }
 
 .model-90
@@ -161,4 +180,12 @@ b
     .hide-on-mobile {
       display: none;
     }
+}
+.table thead th
+{
+    text-align: center;
+}
+.detail
+{
+    font-size: 20px;
 }

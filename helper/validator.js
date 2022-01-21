@@ -26,10 +26,11 @@ const limit_query = 100;
 //limit - page
 export const URL_IMAGE_CATEGORY = 'public/images/images_category'
 export const URL_IMAGE_EMPLOYEE = 'public/images/images_employee'
+export const URL_IMAGE_PRODUCT = 'public/images/images_product'
 
 export const isDefine = function (val) {
     try {
-        if (val == undefined || val == `undefined` || val == null || val == `null` || val.toString().length == 0) return false;
+        if (val == undefined || val == `undefined` || val == null || val == `null` || val.toString().length == 0 || typeof val == 'undefined') return false;
         return true;
     } catch (err) {
         return false;
@@ -526,7 +527,7 @@ export const schemaObjectId = {
     trim: true,
     default: null,
     maxLength: maxLength,
-    index:true
+    index: true
 };
 export const schemaDatetime = {
     type: Date,
@@ -578,7 +579,7 @@ export const schemaAutoIndex = { // đánh inđex
 };
 
 
-export const schemaBoolean = {  
+export const schemaBoolean = {
     type: Boolean,
     default: true,
 };
@@ -598,7 +599,7 @@ export const schemaImmutable = {  //không thay đổi
 };
 //
 export const schemaSlugLink = {
-    text:true,
+    text: true,
     set: setSlug,
 }
 
@@ -634,100 +635,100 @@ export const schemaSchedule = {
 export const schemaProduct = {
     id_subcategory: {
         type: ObjectId,
-        required:true
+        required: true
     },
-    id_product:{
+    id_product: {
         type: ObjectId,
     },
-    money_import_notvat:{
+    money_import_notvat: {
         type: Number,
-        default:0
+        default: 0
     },
-    id_product2:{
+    id_product2: {
         type: String
     },
-    subcategory_name:{
+    subcategory_name: {
         type: String,
         text: true,
     },
-    export_price:{
+    export_price: {
         type: Number,
-        default:0
+        default: 0
     },
-    subcategory_discount:{
+    subcategory_discount: {
         type: Number,
-        default:0
+        default: 0
     },
-    subcategory_vat:{
+    subcategory_vat: {
         type: Number,
-        default:0
+        default: 0
     },
-    subcategory_ck:{
+    subcategory_ck: {
         type: Number,
-        default:0
+        default: 0
     },
-    subcategory_part:{
+    subcategory_part: {
         type: Number,
-        default:0
+        default: 0
     },
-    subcategory_warranty:{
+    subcategory_warranty: {
         type: Number,
-        default:0
+        default: 0
     },
-    subcategory_point:{
+    subcategory_point: {
         type: Number,
-        default:0
+        default: 0
     },
-    quantity:{
+    quantity: {
         type: Number,
-        default:0
+        default: 0
     },
-    id_employee:{
+    id_employee: {
         type: ObjectId
     },
-    employee_fullname:{
+    employee_fullname: {
         type: String
     },
-    index:{
+    index: {
         type: Number,
-        default:0
+        default: 0
     },
-    status_proposal:{
+    status_proposal: {
         type: String,
-        default:"Chưa đề xuất"
+        default: "Chưa đề xuất"
     },
-    note:{
+    note: {
         type: String,
-        default:null
+        default: null
     },
-    image:{
+    image: {
         type: String,
-        default:null
+        default: null
     }
 
 }
 //#endregion schema ===============================================================
 
 
-export const  schePre = (Schema) => 
-{
+export const schePre = (Schema) => {
     Schema.index({ createdAt: 1 });
     Schema.index({ updatedAt: 1 });
-    
-    Schema.pre(['find', 'findOne', 'findById' ], async function(next) {
+
+    Schema.pre(['find', 'findOne', 'findById'], async function (next) {
         this.lean()
+        this.sort({_id:-1})
         return next()
     })
-    
-    Schema.pre(['findOneAndUpdate','findByIdAndUpdate'], async function(next) {
+
+    Schema.pre(['findOneAndUpdate', 'findByIdAndUpdate'], async function (next) {
         this.options.runValidators = true
         this.options.new = true
         this.lean()
         return next()
     })
-    
-    
-    Schema.pre(['updateOne', 'updateMany'], async function(next) {
+
+
+    Schema.pre(['updateOne', 'updateMany'], async function (next) {
         this.options.runValidators = true
         this.options.new = true
         return next()
@@ -737,7 +738,7 @@ export const  schePre = (Schema) =>
     // Schema.post(['find'], async function(docs, next) {
     //     return next(docs)
     // })
-    
+
 }
 
 
@@ -751,37 +752,38 @@ export const isNumber = function (variable, is_different_type = false) {
 
 
 
-export const getLimit = (req)=>
-{
+export const getLimit = (req) => {
     var limit = 10;
-    
-    if( isDefine(req.query.limit) )
-    {
+
+    if (isDefine(req.query.limit)) {
         limit = parseInt(req.query.limit)
-        if(isNaN(limit) || limit < 0)
-        {
+        if (isNaN(limit) || limit < 0) {
             limit = 10
         }
     }
     return limit
 }
 
-export const getOffset = (req)=>
-{
+export const getOffset = (req) => {
 
     var page = 1;
-    if( isDefine(req.query.page) )
-    {
+    if (isDefine(req.query.page)) {
         page = parseInt(req.query.page)
-        if(isNaN(page) || page < 0)
-        {
+        if (isNaN(page) || page < 0) {
             page = 1
         }
     }
-    return (page-1)*getLimit(req)
+    return (page - 1) * getLimit(req)
 }
 
-export const removeFile = async (url)=>
-{
-    await unlink(url);
+export const removeFile = async (url) => {
+    try
+    {
+        await unlink(url);
+
+    }
+    catch(e)
+    {
+        
+    }
 }

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="/assets/dataTable/buttons.dataTables.min.css">
+<link rel="stylesheet" href="/assets/dataTable/jquery.dataTables.min.css">
+
+<link rel="stylesheet" href="/css/menu.css">
+<%- include("../../header",{title:"Quản lý content | Menu hiển thị"}) %>
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="div-header-table">
+     
+    </div>
+    <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div id="divTable" class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>STT</th>
+                        <th>Tên menu</th>
+                        <th>Chi tiết</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbodyTable">
+                        
+                    </tbody>
+                </table>
+            </div>
+          </div>
+          <div id="divPagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- Popup -->
+<!-- Popup thêm mới -->
+<div id="menuBuildCaseApp" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog model-70" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Danh mục build case</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+            <div class="col-8 col-md-8">
+                <label>Tên danh mục</label>
+                <input placeholder="Nhập tên danh mục" class="form-control">
+                <i onclick="addCategory()" class="mdi mdi-plus-circle text-success absulate"></i>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="confirmAdd()" class="btn btn-primary">Lưu chỉnh sửa</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup -->
+
+
+<!-- =============== -->
+<%- include("../../footer") %>
+
+<script src="/js/ContentsManagement/Menu/index.js"></script>
+</body>
+</html>

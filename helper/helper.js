@@ -1,5 +1,5 @@
 
-import {TokenModel} from "./../models/Token.js"
+import { TokenModel } from "./../models/Token.js"
 import * as validator from "./validator.js"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
@@ -15,7 +15,7 @@ export const authenToken = async (req, res, next) => {
         if (!token) {
             res.sendStatus(401)
         } else {
-            TokenModel.findOne({token: token}, (err, result) => {
+            TokenModel.findOne({ token: token }, (err, result) => {
                 if (err || !result) {
                     res.sendStatus(403)
                 } else {
@@ -25,7 +25,7 @@ export const authenToken = async (req, res, next) => {
                                 ...req.body,
                                 _caller: data,
                             }
-                   
+
                             next()
                         } else {
                             res.sendStatus(403)
@@ -53,7 +53,7 @@ export const signToken = async (token) => {
 
 export const unSignToken = async (token) => {
     try {
-        await TokenModel.deleteOne({token: token})
+        await TokenModel.deleteOne({ token: token })
     } catch (err) {
         validator.throwError(err)
     }
@@ -63,7 +63,7 @@ export const signupjwt = (value) => {
     return jwt.sign(value, process.env.ACCESS_TOKEN_SECRET)
 }
 
-export const imageFilter = function(req, file, cb) {
+export const imageFilter = function (req, file, cb) {
     // Accept images only
     if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/)) {
         req.fileValidationError = 'Only image files are allowed!';
@@ -72,21 +72,17 @@ export const imageFilter = function(req, file, cb) {
     cb(null, true);
 };
 
-import {ModelPermission} from './../models/Permission.js'
-export const checkPermission = async (id_function, groupuser)=>
-{
-    try
-    {
-        const dataPer = await ModelPermission.findOne({id_function:id_function,id_employee_group:groupuser});
-        if(!dataPer) return false;
-        if(dataPer.permission_status)
-        {
+import { ModelPermission } from './../models/Permission.js'
+export const checkPermission = async (id_function, groupuser) => {
+    try {
+        const dataPer = await ModelPermission.findOne({ id_function: id_function, id_employee_group: groupuser });
+        if (!dataPer) return false;
+        if (dataPer.permission_status) {
             return true
         }
         return false
     }
-    catch(e)
-    {
+    catch (e) {
         return false
-    }   
+    }
 }

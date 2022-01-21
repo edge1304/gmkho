@@ -24,39 +24,91 @@ export const employee_management = async (req, res) => {
         id_employee_group = sanitize(req.query.id_employee_group)
     }
 
-    return res.render("Employee/index", { ...header_url(req), id_employee_group: id_employee_group })
+    return res.render("SystemsManagement/Employee/index", { ...header_url(req), id_employee_group: id_employee_group })
 }
 
 export const permission = async (req, res) => {
-    return res.render("Permission/index")
+    return res.render("SystemsManagement/Permission/index")
 }
 
 export const branch = async (req, res) => {
-    return res.render("Branch/index")
+    return res.render("SystemsManagement/Branch/index")
 }
 
 export const warehouse = async (req, res) => {
-    return res.render("Warehouse/index")
+    return res.render("SystemsManagement/Warehouse/index")
 }
+
 export const subcategory = async (req, res) => {
     var id_category = req.query.id_category
-    if(!validator.isDefine(id_category)) id_category = ""
-    return res.render("SubCategory/index",{...header_url(req),id_category:id_category})
+    if (!validator.isDefine(id_category)) id_category = ""
+    return res.render("SystemsManagement/SubCategory/index", { ...header_url(req), id_category: id_category })
 }
+
 export const asset = async (req, res) => {
-    console.log("🚀 ~ file: ControllerAdmin.js ~ line 43 ~ asset ~ req", req)
-    return res.render("Asset/index", { ...header_url(req) })
+    // console.log("🚀 ~ file: ControllerAdmin.js ~ line 43 ~ asset ~ req", req)
+    return res.render("SystemsManagement/Asset/index", { ...header_url(req) })
 }
-
-
 
 export const category = async (req, res) => {
     var id_super_category = "";
     if (req.query.id_super_category) {
         id_super_category = sanitize(req.query.id_super_category)
     }
-    return res.render("Category/index", { ...header_url(req), id_super_category: id_super_category })
+    return res.render("SystemsManagement/Category/index", { ...header_url(req), id_super_category: id_super_category })
 }
+
+export const warranty_combo = async (req, res) => {
+    return res.render("ContentsManagement/Combo/warranty", { ...header_url(req) })
+}
+
+export const promotion_combo = async (req, res) => {
+    return res.render("ContentsManagement/Combo/promotion", { ...header_url(req) })
+}
+export const menu = async (req, res) => {
+    return res.render("ContentsManagement/Menu/index", { ...header_url(req) })
+}
+export const up_subcategory = async (req, res) => {
+    const id_subcategory = req.query.id_subcategory
+
+    var id_category = req.query.id_category
+    if (!validator.isDefine(id_category)) id_category = ""
+
+    var subcategory_status = req.query.subcategory_status
+    if (!validator.isDefine(subcategory_status)) subcategory_status = ""
+    if(!validator.ObjectId.isValid(id_subcategory)) {
+        return res.render("ContentsManagement/SubCategory/index",{...header_url(req),id_category:id_category, subcategory_status:subcategory_status})
+    }
+    return res.render("ContentsManagement/SubCategory/uptowebsite", {id_subcategory:id_subcategory })
+}
+
+export const timekeeping_work = async (req,res)=>{
+    let fromdate = validator.timeString().fulldate;
+   
+    if(validator.isDefine(req.query.fromdate))
+    {
+        fromdate = req.query.fromdate;
+    }
+    return res.render("ReportsManagement/Timekeeping/work",{fromdate:fromdate})
+}
+export const timekeeping_schedule = async (req,res)=>{
+    let fromdate = validator.timeString().fulldate;
+   
+    if(validator.isDefine(req.query.fromdate) && req.query.fromdate.length > 0)
+    {
+        fromdate = req.query.fromdate;
+    }
+    return res.render("ReportsManagement/Timekeeping/schedule",{fromdate:fromdate})
+}
+export const calendar = async (req,res)=>{
+    let fromdate = validator.timeString().fulldate;
+    if(validator.isDefine(req.query.fromdate))
+    {
+        fromdate = req.query.fromdate;
+    }
+    return res.render("ReportsManagement/Calendar/index",{fromdate:fromdate})
+}
+
 export default createControllerAdmin;
 
 

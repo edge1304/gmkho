@@ -25,7 +25,18 @@ const SchemaBranch = new mongoose.Schema({
 	},
 	branch_note:{
 		...validator.schemaString
-	}
+	},
+	in_morning:validator.schemaSchedule,
+	out_morning:validator.schemaSchedule,
+	in_afternoon:validator.schemaSchedule,
+	out_afternoon:validator.schemaSchedule,
+
+	in_noon_schedule:validator.schemaSchedule,
+	out_noon_schedule:validator.schemaSchedule,
+	in_night_schedule:validator.schemaSchedule,
+	out_night_schedule:validator.schemaSchedule,
+
+	late_limit:validator.schemaNumber,
 
 },{timestamps: true });
 

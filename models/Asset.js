@@ -18,7 +18,13 @@ const SchemaAsset = new mongoose.Schema(
       ...validator.schemaString,
     },
     asset_time: {
+      ...validator.schemaDatetime,
+    },
+    asset_expiry: {
       ...validator.schemaNumber,
+    },
+    asset_position: {
+      ...validator.schemaString,
     },
     id_branch: {
       ...validator.schemaObjectId,

@@ -8574,7 +8574,32 @@ pre {
   .jsgrid .jsgrid-table td {
     padding: 0.9375rem;
     vertical-align: top;
-    border-top: 1px solid #2c2e33; }
+    /* border-top: 1px solid #2c2e33; */
+   }
+   td, th
+{
+    border: 1px dotted #ccc;
+    border-top-color: rgb(204, 204, 204);
+    border-top-style: dotted;
+    border-top-width: 1px;
+    border-right-color: rgb(204, 204, 204);
+    border-right-style: dotted;
+    border-right-width: 1px;
+    border-bottom-color: rgb(204, 204, 204);
+    border-bottom-style: dotted;
+    border-bottom-width: 1px;
+    border-left-color: rgb(204, 204, 204);
+    border-left-style: dotted;
+    border-left-width: 1px;
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+    padding: 8px;
+}
+
+
   .table thead th, .jsgrid .jsgrid-table thead th {
     vertical-align: bottom;
     border-bottom: 2px solid #2c2e33; }

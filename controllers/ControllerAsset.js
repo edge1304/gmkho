@@ -1,10 +1,10 @@
 
 // import { management} from "../api/ControllerBranch/index.js";
-import { management } from "../api/ControllerAsset/index.js";
+import { insert, management, update } from "../api/ControllerAsset/index.js";
 
 function createControllerAsset(app) {
   management(app)
-  // update(app)
-  // insert(app)
+  insert(app)
+  update(app)
 }
 export default createControllerAsset

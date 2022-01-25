@@ -1,3 +1,5 @@
+
+   
 var arrData = [];
 getData()
 function getData()
@@ -15,12 +17,8 @@ function getData()
             isLoading(false);
             drawTable(data)
         },
-        error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+        error: function (data) {   
+            errAjax(data) 
         }
     })
 }
@@ -207,11 +205,7 @@ function confirmEdit(index)
             
         },
         error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+            errAjax(data) 
         }
     })
 }
@@ -290,12 +284,8 @@ function confirmAdd()
             success("Thành công")
             getData()
         },
-        error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+        error: function (data) {   
+            errAjax(data) 
         }
     })
 }

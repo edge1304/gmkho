@@ -53,15 +53,20 @@
       </div>
       <div class="modal-body">
         <div class="row">
-            <div class="col-8 col-md-8">
+            <div class="col-8 col-md-8 relative">
                 <label>Tên danh mục</label>
-                <input placeholder="Nhập tên danh mục" class="form-control">
-                <i onclick="addCategory()" class="mdi mdi-plus-circle text-success absulate"></i>
+                <input placeholder="Nhập tên danh mục" id="inputFindCategory" class="form-control">
+                <!-- <i onclick="addCategory()" class="mdi mdi-plus-circle text-success absulate"></i> -->
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                <div id="div_category" class="div-category" ></div>
             </div>
+            <div class="col-12 col-md-12 div-list-content"></div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" onclick="confirmAdd()" class="btn btn-primary">Lưu chỉnh sửa</button>
+        <button type="button" id="btnSaveMenuCategory" class="btn btn-primary">Lưu chỉnh sửa</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
       </div>
     </div>
@@ -70,6 +75,36 @@
 
 <!-- Popup -->
 
+<div id="menuSuperCategoryWebsite" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog model-70" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Danh mục build case</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+              <div class="col-8 col-md-8 relative">
+                  <label>Tên danh mục lớn</label>
+                  <input placeholder="Nhập tên danh mục lớn" id="inputFindSuperCategory" class="form-control">
+                  <!-- <i onclick="addCategory()" class="mdi mdi-plus-circle text-success absulate"></i> -->
+                  <div class="spinner-border" role="status">
+                      <span class="sr-only">Loading...</span>
+                    </div>
+                  <div id="div_super_category" class="div-super_category" ></div>
+              </div>
+              <div class="col-12 col-md-12 div-list-content"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnSaveMenuSuperCategory" class="btn btn-primary">Lưu chỉnh sửa</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <!-- =============== -->
 <%- include("../../footer") %>

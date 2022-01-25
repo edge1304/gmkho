@@ -18,4 +18,8 @@ routerAdmin.get("/timekeeping-work-management", router.timekeeping_work);
 routerAdmin.get("/timekeeping-schedule-management", router.timekeeping_schedule);
 routerAdmin.get("/calendar-management", router.calendar);
 routerAdmin.get("/menu-management", router.menu);
+routerAdmin.get("/import-product-from-supplier", router.import_supplier);
+routerAdmin.get("/import-product-from-supplier/add", router.add_import_supplier);
+routerAdmin.get("/fundbook-management", router.fundbook);
+routerAdmin.get("/fundbook-management/report", router.fundbook_report);
 export default routerAdmin;

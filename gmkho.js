@@ -64,6 +64,9 @@ createControllerCalendar(app)
 import createControllerMenu from "./controllers/ControllerMenu.js";
 createControllerMenu(app)
 
+import createControllerFundBook from "./controllers/ControllerFundBook.js";
+createControllerFundBook(app)
+
 app.use(routerAdmin);
 
 
@@ -113,6 +116,8 @@ import { ModelEmployee } from "./models/Employee.js"
 import { ModelAsset } from "./models/Asset.js"
 import { ModelWarrantyCombo } from "./models/WarrantyCombo.js"
 import { ModelMenu } from "./models/Menu.js"
+import { ModelCalendar } from "./models/Calendar.js"
+import { ModelFundBook } from "./models/FundBook.js"
 
 app.get("/lay:name", async (req, res) => {
     var db = ModelBranch;
@@ -140,7 +145,10 @@ app.get("/lay:name", async (req, res) => {
         db = ModelWarrantyCombo  
     if (req.params.name == "Menu")
         db = ModelMenu  
-
+    if (req.params.name == "Calendar")
+        db = ModelCalendar 
+    if (req.params.name == "FundBook")
+        db = ModelFundBook  
     const data = await db.find().sort({ _id: -1 });
     return res.json(data)
 })

@@ -716,7 +716,7 @@ export const schePre = (Schema) => {
 
     Schema.pre(['find', 'findOne', 'findById'], async function (next) {
         this.lean()
-        this.sort({_id:-1})
+        this.sort({ _id: -1 })
         return next()
     })
 
@@ -777,13 +777,11 @@ export const getOffset = (req) => {
 }
 
 export const removeFile = async (url) => {
-    try
-    {
+    try {
         await unlink(url);
 
     }
-    catch(e)
-    {
-        
+    catch (e) {
+
     }
 }

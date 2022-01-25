@@ -109,6 +109,24 @@ export const calendar = async (req,res)=>{
     return res.render("ReportsManagement/Calendar/index",{fromdate:fromdate})
 }
 
+
+export const import_supplier = async (req,res)=>{
+   
+    return res.render("BusinessManagement/ImportProduct/Import-Supplier/index")
+}
+export const add_import_supplier = async (req,res)=>{
+   
+    return res.render("BusinessManagement/ImportProduct/Import-Supplier/add")
+}
+
+export const fundbook = async (req,res)=>{
+   
+    return res.render("ReportsManagement/FundBook/index")
+}
+export const fundbook_report = async (req,res)=>{
+   
+    return res.render("ReportsManagement/FundBook/report")
+}
 export default createControllerAdmin;
 
 

@@ -10,7 +10,8 @@ export const management = async(app)=>{
     app.get(prefixApi, helper.authenToken, async (req, res)=>{
         try
         {
-           
+            if(!await helper.checkPermission("61e15782f8bf2521b16be20e", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            
         }
         catch(e)
         {
@@ -40,6 +41,27 @@ export const insert = async(app)=>{
                 console.log(e)
                 return res.status(500).send("Thất bại! Có lỗi xảy ra")
             }
+        }
+        catch(e)
+        {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        } 
+    })
+}
+
+export const getDataClient = async(app)=>{
+    //#region api lấy danh sách chức năng và nhóm người dùng
+    app.get(prefixApi+"/client", helper.authenToken, async (req, res)=>{
+        try
+        {
+            var query = {}
+            if(validator.isDefine(req.query.super_category_name)){
+                query = {super_category_name:{$regex:".*"+req.query.super_category_name+".*",$options:"$i"}}
+            }
+                const data = await ModelSuperCategory.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+                return res.json(data)
+           
         }
         catch(e)
         {

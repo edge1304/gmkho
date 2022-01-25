@@ -3,7 +3,7 @@ import sanitize from "mongo-sanitize";
 import * as helper from '../../helper/helper.js'
 import * as validator from '../../helper/validator.js'
 import {ModelWarehouse} from '../../models/Warehouse.js'
-import {ModelBranch} from '../../models/Branch.js'
+import {ModelSubCategory} from '../../models/SubCategory.js'
 
 export const getWarehouse = async (id_branch) =>
 {
@@ -46,6 +46,16 @@ export const insert = async (app)=>{
                     id_branch:req.body._caller.id_branch_login,
 
                 }).save()
+                const subcategory_warehouses = {
+                    id_warehouse:dataInsert._id,
+                    limit_inventory:0,
+                    current_inventory:0
+                }
+                const dataSub = await ModelSubCategory.updateMany({},{
+                    $push:{
+                        subcategory_warehouses:subcategory_warehouses
+                    }
+                })
                 return res.json(dataInsert)
             }
             catch(e)

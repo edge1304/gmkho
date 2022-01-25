@@ -1,3 +1,47 @@
-i{
-    font-size: 20px;
+#menuBuildCaseApp i{
+    font-size: 25px;
+    top: 31px;
+    right: -17px;
+}
+.div-list-content
+{
+    margin-top: 10px;
+    border: 1px dotted;
+    max-height: 500px;
+    overflow: auto;
+    height: 500px;
+}
+
+.div-category
+{
+    width: 100%;
+    position: absolute;
+    max-height: 200px;
+    z-index: 10;
+    border: dotted 1px;
+    background-color: antiquewhite
+}
+
+.div-list-content td:first-child
+{
+    width: 10%;
+}
+.div-list-content td:nth-child(2)
+{
+    width: 95%;
+}
+.div-list-content td:last-child
+{
+    width: 10%;
+    text-align: center;
+    color: red;
+}
+.spinner-border
+{
+    position: absolute;
+    top: 41px;
+    right: 19px;
+    width: 18px !important;
+    height: 18px !important;
+    display: none ;
 }

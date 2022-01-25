@@ -50,10 +50,7 @@ function getData(isLoad = true) {
 
         },
         error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
+            errAjax(data) 
 
         }
     })
@@ -158,10 +155,7 @@ function confirmEdit(index) {
             getData()
         },
         error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
+            errAjax(data) 
 
         }
     })
@@ -208,10 +202,7 @@ function confirmAdd() {
             getData()
         },
         error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
+            errAjax(data) 
 
         }
     })
@@ -243,10 +234,7 @@ function confirmAddSuper() {
             getData()
         },
         error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
+            errAjax(data) 
 
         }
     })
@@ -331,11 +319,7 @@ function confirmSaveAddKey(index) {
 
         },
         error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-
+            errAjax(data) 
         }
     })
 }
@@ -394,10 +378,7 @@ function confirmEditKey(index, oldKey) {
 
         },
         error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
+            errAjax(data) 
 
         }
     })
@@ -432,11 +413,7 @@ function confirmDeleteKey(index, key) {
 
         },
         error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-
+            errAjax(data) 
         }
     })
 }

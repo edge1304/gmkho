@@ -37,11 +37,7 @@ function getData()
             
         },
         error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
+            errAjax(data) 
             
         }
     })
@@ -172,12 +168,7 @@ function confirmEditGroup(index)
             
         },
         error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+            errAjax(data) 
         }
     })
 }
@@ -233,11 +224,7 @@ function  changePermission(input, index) {
            
         },
         error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+            errAjax(data) 
         }
     })
     

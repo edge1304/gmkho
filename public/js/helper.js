@@ -483,3 +483,11 @@ function downloadExcelLocal( data,fileName="download")
     alasql(`SELECT INTO XLSX("${fileName}.xlsx",?) FROM ?`,
                         [opts,[data]]);
 }
+
+function errAjax(data)
+{
+    isLoading(false);
+    if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
+    if(data!= null && data.status != 503 && data.status != 502)
+        info(data.responseText);
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="/css/import_product/add_import_supplier.css">
+<%- include("./../../../header",{title:"Nhập hàng | Từ nhà cung cấp"}) %>
+<div class="main-panel">
+  <div class="content-wrapper">
+   
+    <div class="div-header-table">
+      <div>
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" href="/import-product-from-supplier/add">Thêm mới</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/import-product-from-supplier">Tìm kiếm</a>
+          </li>
+        </ul>
+      </div>
+      <div class="row">
+        <div id="div_find_supplier" class="col-6 col-md-3 ralative">
+          <label>Nhà cung cấp</label>
+          <input placeholder="Nhập tên nhà cung cấp hoặc số điện thoại" class="form-control">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+          <div id="div_list_supplier"></div>
+        </div>
+        <div class="col-6 col-md-2">
+          <label>Số điện thoại</label>
+          <input disabled placeholder="Số điện thoại" class="form-control">
+        </div>
+        <div class="col-6 col-md-2">
+          <label>Địa chỉ</label>
+          <input disabled placeholder="Địa chỉ nhà cung cấp" class="form-control">
+        </div>
+        <div class="col-6 col-md-2">
+          <label>Địa chỉ</label>
+          <input disabled placeholder="Địa chỉ nhà cung cấp" class="form-control">
+        </div>
+
+        <div class="col-6 col-md-2">
+          <label>Chọn kho</label>
+          <select></select>
+        </div>
+        <div class="col-3 col-md-1 ralative">
+          <button id="btn_show_popup_supplier" class="btn btn-primary"><i class="mdi mdi-account-plus" onclick="showPopup('')" title="Thêm mới nhà cung cấp"></i></button>
+        </div>
+
+      </div>
+    </div>
+    <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12 col-md-12">
+                <table class="table table-hover" id="table-main">
+                    <thead>
+                      <tr>
+                        <th>Tên sản phẩm</th>
+                        <th>Mã phụ</th>
+                        <th>Giá nhập</th>
+                        <th>VAT</th>
+                        <th>CK</th>
+                        <th>Số lượng</th>
+                        <th>Bảo hành</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <input class="form-control" placeholder="Nhập tên sản phẩm . . .">
+                          <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                          <div class="div-product"></div>
+                        </td>
+                        <td><input class="form-control" placeholder="Nhập mã sản phẩm nếu có . . ."></td>
+                        <td><input value="0" class="number form-control" placeholder="Nhập giá nhập . . ."></td>
+                        <td><input value="0" class="number form-control" placeholder="Nhập VAT . . ."></td>
+                        <td><input value="0" class="number form-control" placeholder="Nhập Chiết khấu . . ."></td>
+                        <td><input value="0" class="number form-control" placeholder="Nhập số lượng. . ."></td>
+                        <td><input value="0" class="number form-control" placeholder="Nhập bảo hành . . ."></td>
+                        <td><i class="mdi mdi-delete-forever"></i></td>
+                      </tr>
+                    </tbody>
+                </table>
+              </div>
+              <div class="col-12 col-md-4">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+<!-- =============== -->
+<%- include("./../../../footer") %>
+
+<script src="https://cdn.jsdelivr.net/alasql/0.3/alasql.min.js"></script>
+<script src="/assets/js/xlsx.core.min.js"></script>
+<script src="/js/BusinessManagement/ImportProduct/Import-Supplier/add.js"></script>
+</body>
+</html>

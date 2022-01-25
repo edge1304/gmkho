@@ -122,6 +122,9 @@ const schemaSubCategory = new mongoose.Schema({
     },
     subcategory_options:{ // link video
         ...validator.schemaJson
+    },
+    subcategory_warehouses:{ // mảng chu nhánh số lượng tồn
+        ...validator.schemaArray
     }
 
 }, { timestamps: true })

@@ -11127,8 +11127,8 @@ input[type="button"].btn-block {
       border-color: transparent; }
   .nav-tabs .nav-link.active,
   .nav-tabs .nav-item.show .nav-link {
-    color: #ffffff;
-    background-color: black;
+    color: blue;
+    background-color: white;
     border-color: #2c2e33 #2c2e33 black; }
   .nav-tabs .dropdown-menu {
     margin-top: -1px;
@@ -15743,6 +15743,7 @@ address p {
 /* Miscellanoeous */
 body,
 html {
+  font-size: 15px;
   overflow-x: hidden;
   padding-right: 0 !important;
   background-color: #191c24; }
@@ -17928,7 +17929,7 @@ div.tagsinput {
   .jsgrid .jsgrid-table td {
     vertical-align: middle;
     font-size: 0.875rem;
-    line-height: 1;
+    /* line-height: 1; */
     white-space: nowrap; }
     .table th img, .jsgrid .jsgrid-table th img,
     .table td img,
@@ -17954,6 +17955,7 @@ div.tagsinput {
     color: #ffffff; }
 
 .nav-tabs .nav-link {
+  font-size: 9px;
   background: #000000;
   color: #ffffff;
   border-radius: 0;
@@ -21164,5 +21166,3 @@ div.tagsinput {
   width: 100%;
   -webkit-flex-grow: 1;
   flex-grow: 1; }
-
-/*# sourceMappingURL=maps/style.css.map */

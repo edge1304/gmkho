@@ -7,8 +7,10 @@ function createControllerSubCategory(app) {
     main.addExcel(app)
     main.update(app)
     main.findOther(app)
+    main.getDataClient(app)
     getDataToUpWebsite(app)
     edit_content(app)
     edit_stt_status(app)
+
 }
 export default createControllerSubCategory

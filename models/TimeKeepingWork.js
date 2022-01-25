@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 import * as validator from "./../helper/validator.js"
 const SchemaTimekeepingWork = new mongoose.Schema({
 	id_employee: {
-      ...validator.schemaString,
+      ...validator.schemaObjectId,
       ...validator.schemaRequired,
       ...validator.schemaIndex,
     },

@@ -28,7 +28,7 @@ export const login = (app)=>{
             if(!dataGroup) return res.status(400).send("Thất bại! Không tìm thấy chức danh của bạn")
             dataEmployee.employee_group_name = dataGroup.employee_group_name
             delete dataEmployee.password
-            return res.json({token:token, dataEmployee:dataEmployee});
+            return res.json({token:token, dataEmployee:dataEmployee, dataBranch:dataBranch});
         })
     }
     catch(e)

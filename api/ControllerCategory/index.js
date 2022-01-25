@@ -23,7 +23,7 @@ export const management = async(app)=>{
                     arrSuperCategory = await ModelSuperCategory.find()
                 }
                 var query = {}
-                if( validator.isDefine(req.query.category_name)) query = {...query, category_name:{$regex:".*"+sanitize(req.query.category_name)+".*"}}
+                if( validator.isDefine(req.query.category_name)) query = {...query, category_name:{$regex:".*"+sanitize(req.query.category_name)+".*",$options:"$i"}}
                 if( validator.isDefine(req.query.id_super_category) && validator.ObjectId.isValid(req.query.id_super_category)) query = {...query,id_super_category:req.query.id_super_category }
                 
                 const data = await ModelCategory.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
@@ -290,3 +290,23 @@ export const deleteKey = async (app)=>{
 
 
 
+
+export const getDataClient = async(app)=>{
+    //#region api lấy danh sách chức năng và nhóm người dùng
+    app.get(prefixApi +"/client", async (req, res)=>{
+        try
+        {
+            var query = {}
+            if( validator.isDefine(req.query.key)) query = {...query, category_name:{$regex:".*"+sanitize(req.query.key)+".*", $options:"$i"}}
+            if( validator.isDefine(req.query.id_super_category) && validator.ObjectId.isValid(req.query.id_super_category)) query = {...query,id_super_category:req.query.id_super_category }
+    
+            const data = await ModelCategory.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+            return res.json(data)
+        }
+        catch(e)
+        {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        } 
+    })
+}

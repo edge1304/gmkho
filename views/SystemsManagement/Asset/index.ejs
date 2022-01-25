@@ -29,7 +29,7 @@
               </div>
               <div class="col-8 col-md-3">
                 <label>Tìm kiếm</label>
-                <input id="keyFind" value="<%- key %>" placeholder="Nhập tên hoặc số điện thoại . . ." type="text"
+                <input id="keyFind" value="<%- key %>" placeholder="Nhập tên hoặc mã sản phẩm . . ." type="text"
                   class="form-control">
               </div>
               <div class="col-5 col-md-3 relative">
@@ -75,6 +75,7 @@
         <!-- Popup thêm mới -->
         <div id="popupAdd" class="modal" tabindex="-1" role="dialog">
           <div class="modal-dialog model-80" role="document">
+
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title">Chỉnh sửa <i class="mdi mdi-account-minus"></i> </h5>
@@ -86,21 +87,19 @@
                 <div class="row">
                   <div class="col-6 col-md-4">
                     <!-- <div class="form-group"> -->
-                    <label for=""><b>Người sử dụng</b></label>
-                    <select class="form-control" name="selectGroup" id="addAssetUser" onchange="getAllUser()">
+                    <label for="selectUser"><b>Người sử dụng</b></label>
+                    <select class="form-control" name="selectUser" id="addAssetUser">
                     </select>
-                    <!-- </div> -->
-                    <!-- <input placeholder="Nhập tên nhân viên" type="text" class="form-control" id="addName"> -->
                   </div>
                   <div class="col-6 col-md-4">
-                    <label for=""><b>Ngày đưa vào sử dụng</b></label>
-                    <input type="date" class="form-control" name="" id="addAssetTime" aria-describedby="helpId"
-                      placeholder="" value="">
+                    <label for="addAssetTime"><b>Ngày đưa vào sử dụng</b></label>
+                    <input type="date" class="form-control" name="addAssetTime" id="addAssetTime"
+                      aria-describedby="helpId" placeholder="" value="">
                   </div>
                   <div class="col-6 col-md-4">
-                    <label for="addAssetTime"><b>Hạn sử dụng (Tháng)</b></label>
-                    <input oninput="inputNumber(this)" class="form-control number" name="addAssetTime" id="addAssetTime"
-                      aria-describedby="helpId" placeholder="">
+                    <label for="addAssetExpiry"><b>Hạn sử dụng (Tháng)</b></label>
+                    <input oninput="inputNumber(this)" class="form-control number" name="addAssetExpiry"
+                      id="addAssetExpiry" aria-describedby="helpId" placeholder="">
                   </div>
                   <div class="col-6 col-md-6">
                     <label for="addIdAsset"><b>Mã sản phẩm:</b></label>
@@ -131,7 +130,72 @@
               </div>
 
               <div class="modal-footer">
-                <button type="button" onclick="confirmAdd()" class="btn btn-danger">Chỉnh sửa</button>
+                <button type="button" onclick="confirmAdd()" class="btn btn-danger">Thêm mới</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Popup sửa -->
+        <div id="popupEdit" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog model-80" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa <i class="mdi mdi-account-minus"></i> </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-6 col-md-4">
+                    <!-- <div class="form-group"> -->
+                    <label for="selectUser"><b>Người sử dụng</b></label>
+                    <select class="form-control" name="selectUser" id="editAssetUser">
+                    </select>
+                    <!-- </div> -->
+                    <!-- <input placeholder="Nhập tên nhân viên" type="text" class="form-control" id="addName"> -->
+                  </div>
+                  <div class="col-6 col-md-4">
+                    <label for=""><b>Ngày đưa vào sử dụng</b></label>
+                    <input type="date" class="form-control" name="" id="editAssetTime" aria-describedby="helpId"
+                      placeholder="" value="">
+                  </div>
+                  <div class="col-6 col-md-4">
+                    <label for="editAssetExpiry"><b>Hạn sử dụng (Tháng)</b></label>
+                    <input oninput="inputNumber(this)" class="form-control number" name="editAssetExpiry"
+                      id="editAssetExpiry" aria-describedby="helpId" placeholder="">
+                  </div>
+                  <div class="col-6 col-md-6">
+                    <label for="editIdAsset"><b>Mã sản phẩm:</b></label>
+                    <input type="text" class="form-control" name="editIdAsset" id="editIdAsset"
+                      aria-describedby="helpId" placeholder="Nhập mã sản phẩm">
+                  </div>
+                  <div class="col-6 col-md-6">
+                    <label for="editAssetName"><b>Tên sản phẩm:</b></label>
+                    <input type="text" class="form-control" name="editAssetName" id="editAssetName"
+                      aria-describedby="helpId" placeholder="Nhập tên sản phẩm">
+                  </div>
+                  <div class="col-6 col-md-6">
+                    <label for="editAssetPosition"><b>Vị trí:</b></label>
+                    <input type="text" class="form-control" name="editAssetPosition" id="editAssetPosition"
+                      aria-describedby="helpId" placeholder="Nhập vị trí">
+                  </div>
+                  <div class="col-6 col-md-6">
+                    <label for="editAssetPrice"><b>Nguyên giá:</b></label>
+                    <input oninput="inputNumber(this)" class="number form-control" name="editAssetPrice"
+                      id="editAssetPrice" aria-describedby="helpId">
+                  </div>
+                  <div class="col-6 col-md-12">
+                    <label for="editAssetNote"><b>Ghi chú:</b></label>
+                    <textarea class="form-control" name="editAssetNote" id="editAssetNote" rows="3"></textarea>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="modal-footer">
+                <button id="confirmEdit" type="button" onclick="confirmEdit()" class="btn btn-danger">Chỉnh sửa</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
               </div>
             </div>

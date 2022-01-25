@@ -30,13 +30,10 @@ export const management = (app)=>{
                     }
                 },
                 {
-                    $addFields:{"idem":{$toObjectId:"$id_employee"}}
-                },
-                {
                     $lookup:
                     {
                         from:"employees",
-                        localField:"idem",
+                        localField:"id_employee",
                         foreignField:"_id",
                         as:"Employee"
                     }
@@ -48,7 +45,7 @@ export const management = (app)=>{
                 },
                 {
                     $match:{
-                        "Employee.id_branch": req.body._caller.id_branch_login,
+                        "Employee.id_branch": validator.ObjectId(req.body._caller.id_branch_login),
                     }
                 },
                 {

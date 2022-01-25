@@ -117,7 +117,16 @@ function escape(s) {
     return s.replace(/([.*+?\^$(){}|\[\]\/\\])/g, "\\$1");
 }
 
+$(document).ready(function(e) {
+    
+    $('body').keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            $('button').click()
+        }
+    });
 
+});
 
 
 

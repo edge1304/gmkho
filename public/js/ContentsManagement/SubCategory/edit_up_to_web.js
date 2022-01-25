@@ -24,11 +24,7 @@ function getData()
           
         },
         error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+            errAjax(data) 
         }
     })
 }
@@ -181,11 +177,7 @@ function findRelatedProduct(loadmore = false)
             drawDivProductRelated(data)
         },
         error: function (data) {
-            $(input).closest("div").find('.spinner-border').hide()
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+            errAjax(data) 
         }
     })
 }
@@ -357,11 +349,7 @@ function confirmSave()
             // location.reload()
         },
         error: function (data) {
-            isLoading(false)
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+            errAjax(data) 
         }
     })
 }

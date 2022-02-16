@@ -2,38 +2,18 @@ var arrData = [];
 var isEmployee = true
 function getData()
 {
-    isLoading();
-    $.ajax({
-        type: 'GET',
-        url: `../api/timekeeping/schedule?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            fromdate: $("#fromdate").val(),
-        },
-        cache: false,
-        success: function (data) {
-
-            isLoading(false);
-            drawTable(data);
-            if(isEmployee)
+    callAPI('GET',`${API_TIMEKEEPING_SCHEDULE}?`,{fromdate: $("#fromdate").val()},(data)=>{
+        isLoading(false);
+        drawTable(data);
+        if(isEmployee)
+        {
+            for(let i =0;i<data.length;i++)
             {
-                for(let i =0;i<data.length;i++)
-                {
-                    $("#selectEmployee").append(`<option value="${data[i]._id}">${data[i].employee_fullname}</option>`)
-                }
-                isEmployee = false
+                $("#selectEmployee").append(`<option value="${data[i]._id}">${data[i].employee_fullname}</option>`)
             }
-            changeURL(`?fromdate=${$("#fromdate").val()}`)
-        },
-        error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
+            isEmployee = false
         }
+        changeURL(`?fromdate=${$("#fromdate").val()}`)
     })
 }
 
@@ -124,63 +104,48 @@ function showPopupDonwload()
 
 function downloadReport()
 {
-    isLoading();
-    $.ajax({
-        type: 'GET',
-        url: `../api/timekeeping/schedule/report?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            fromdate: $("#fromdateReport").val(),
-            todate: $("#todateReport").val()
-        },
-        cache: false,
-        success: function (data) {
-
-            isLoading(false);
-            for(let i =0;i<data.length;i++)
+    callAPI('GET',`${API_TIMEKEEPING_SCHEDULE}/report?`,{
+        fromdate: $("#fromdateReport").val(),
+        todate: $("#todateReport").val()
+    },(data)=>{
+        for(let i =0;i<data.length;i++)
+        {
+            data[i].DayNumber = 0;
+            data[i].LateNumber = 0
+            data[i].OverTime = 0;
+            data[i].Achievement = 0
+            for(let j =0;j<data[i].data.length;j++)
             {
-                data[i].DayNumber = 0;
-                data[i].LateNumber = 0
-                data[i].OverTime = 0;
-                data[i].Achievement = 0
-                for(let j =0;j<data[i].data.length;j++)
+                data[i].DayNumber ++;
+                data[i].OverTime += data[i].data[j].overtime.hours*60 + data[i].data[j].overtime.minutes
+                data[i].LateNumber = data[i].data[j].late_night.hours*60 + data[i].data[j].late_night.minutes + data[i].data[j].late_noon.hours*60 + data[i].data[j].late_noon.minutes
+                if(isChecked(data[i].data[j].in_noon) && isChecked(data[i].data[j].in_noon).out_noon)
                 {
-                    data[i].DayNumber ++;
-                    data[i].OverTime += data[i].data[j].overtime.hours*60 + data[i].data[j].overtime.minutes
-                    data[i].LateNumber = data[i].data[j].late_night.hours*60 + data[i].data[j].late_night.minutes + data[i].data[j].late_noon.hours*60 + data[i].data[j].late_noon.minutes
-                    if(isChecked(data[i].data[j].in_noon) && isChecked(data[i].data[j].in_noon).out_noon)
-                    {
-                        data[i].Achievement += 1
-                    }
-                    if(isChecked(data[i].data[j].in_night) && isChecked(data[i].data[j].in_noon).out_night)
-                    {
-                        data[i].Achievement +=1
-                    }
-                    // console.log(data[i].data[j].late_noon.hours , data[i].data[j].late_noon.minutes,data[i].data[j].late_afternoon.hours,data[i].data[j].late_afternoon.minutes )
+                    data[i].Achievement += 1
                 }
+                if(isChecked(data[i].data[j].in_night) && isChecked(data[i].data[j].in_noon).out_night)
+                {
+                    data[i].Achievement +=1
+                }
+                // console.log(data[i].data[j].late_noon.hours , data[i].data[j].late_noon.minutes,data[i].data[j].late_afternoon.hours,data[i].data[j].late_afternoon.minutes )
             }
-            var dataDownload = [];
-            for(let i =0;i<data.length;i++)
-            {
-                dataDownload.push({
-                    "Tên nhân viên":data[i].employee_fullname,
-                    "Số điện thoại":data[i].employee_phone,
-                    "Số ngày có lịch":data[i].DayNumber,
-                    "Số công":data[i].Achievement,
-                    "Tổng thời gian đi muộn (phút)":data[i].LateNumber,
-                })
-            }
-            var opts = [{sheetid:'One',header:true},{sheetid:'Two',header:false}];
-            var res = alasql('SELECT INTO XLSX("Báo cáo chấm công tháng.xlsx",?) FROM ?',
-                             [opts,[dataDownload]]);
-        
-        },
-        error: function (data) {
-            errAjax(data) 
         }
+        var dataDownload = [];
+        for(let i =0;i<data.length;i++)
+        {
+            dataDownload.push({
+                "Tên nhân viên":data[i].employee_fullname,
+                "Số điện thoại":data[i].employee_phone,
+                "Số ngày có lịch":data[i].DayNumber,
+                "Số công":data[i].Achievement,
+                "Tổng thời gian đi muộn (phút)":data[i].LateNumber,
+            })
+        }
+        var opts = [{sheetid:'One',header:true},{sheetid:'Two',header:false}];
+        alasql('SELECT INTO XLSX("Báo cáo chấm công tháng.xlsx",?) FROM ?',
+                         [opts,[dataDownload]]);
     })
+  
 }
 
 
@@ -216,29 +181,17 @@ function confirmAdd()
         return;
     }
     hidePopup('popupAdd')
-    isLoading();
-    $.ajax({
-        type: 'POST',
-        url: `../api/timekeeping/schedule/admin`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            in_noon:in_noon,
-            out_noon:out_noon,
-            in_night:in_night,
-            out_night:out_night,
-            id_employee: $("#selectEmployee option:selected").val(),
-        },
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
+
+    callAPI('POST', `${API_TIMEKEEPING_SCHEDULE}/admin`, {
+        in_noon:in_noon,
+        out_noon:out_noon,
+        in_night:in_night,
+        out_night:out_night,
+        id_employee: $("#selectEmployee option:selected").val(),
+    },()=>{
+        success("Thành công")
+        getData()
     })
+    
 
 }

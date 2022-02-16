@@ -13,50 +13,37 @@ function getData(isLoad=true)
     limit = $("#selectLimit option:selected").val();
     key = $("#keyFind").val()
     subcategory_status = $("#selectStatus option:selected").val()
-    $.ajax({
-        type: 'GET',
-        url: `../api/subcategory?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            limit:tryParseInt(limit),
-            page: tryParseInt(page),
-            id_category: id_category,
-            key: key,
-            subcategory_status:subcategory_status,
-            getOther:getOther
-        },
-      
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            if(getOther)
-            {
-                arrCategory= []
-                $("#selectCategory").append(`<option value="">Tất cả</option>`)
-                data.arrCategory.map( category =>{
-                    arrCategory.push(category)
-                    if(id_category == category._id)
-                    {
-                        $("select[name=selectCategory]").append(`<option selected value="${category._id}">${category.category_name}</option>`)
-                    }
-                    else
-                    {
-                        $("select[name=selectCategory]").append(`<option value="${category._id}">${category.category_name}</option>`)
-                    }
-                })
-                getOther = false
-            }
-            drawTable(data.data);
-            pagination(data.count,data.data.length)
-            changeURL(`?limit=${limit}&page=${page}&subcategory_name=${key}&id_category=${id_category}&subcategory_status=${subcategory_status}`)
-          
-        },
-        error: function (data) {
-            errAjax(data) 
+
+    callAPI('GET',`${API_SUBCATEGORY}?`,{
+        limit:tryParseInt(limit),
+        page: tryParseInt(page),
+        id_category: id_category,
+        key: key,
+        subcategory_status:subcategory_status,
+        getOther:getOther
+    },(data)=>{
+        if(getOther)
+        {
+            arrCategory= []
+            $("#selectCategory").append(`<option value="">Tất cả</option>`)
+            data.arrCategory.map( category =>{
+                arrCategory.push(category)
+                if(id_category == category._id)
+                {
+                    $("select[name=selectCategory]").append(`<option selected value="${category._id}">${category.category_name}</option>`)
+                }
+                else
+                {
+                    $("select[name=selectCategory]").append(`<option value="${category._id}">${category.category_name}</option>`)
+                }
+            })
+            getOther = false
         }
+        drawTable(data.data);
+        pagination(data.count,data.data.length)
+        changeURL(`?limit=${limit}&page=${page}&subcategory_name=${key}&id_category=${id_category}&subcategory_status=${subcategory_status}`)
     })
+  
 }
 
 
@@ -107,28 +94,13 @@ function showPopupEdit(index)
 
 function confirmSave(index)
 {
-    isLoading()
-    $.ajax({
-        type: 'put',
-        url: `../api/subcategory/up-to-website/stt_status`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            id_subcategory:arrData[index]._id,
-            subcategory_stt: tryParseInt($("#edit_stt").val()),
-            subcategory_status:$(`input[name=edit_stt]:checked`).val(),
-        },
-      
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
+    hidePopup('popupEdit')
+    callAPI('put',`${API_SUBCATEGORY}/up-to-website/stt_status`,{
+        id_subcategory:arrData[index]._id,
+        subcategory_stt: tryParseInt($("#edit_stt").val()),
+        subcategory_status:$(`input[name=edit_stt]:checked`).val(),
+    },()=>{
+        success("Thành công")
             getData()
-          
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
     })
 }

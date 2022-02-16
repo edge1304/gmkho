@@ -4,22 +4,8 @@ var arrData = []
 function getData()
 {
     isLoading();
-    $.ajax({
-        type: 'get',
-        url: `../api/fundbook?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: null,
-        caches:false,
-
-        success: function (data) {
-            isLoading(false);
-            drawTable(data)
-        },
-        error: function (data) {   
-            errAjax(data) 
-        }
+    callAPI('GET',`${API_FUNDBOOK}?`,null, (data)=>{
+        drawTable(data)
     })
 }
 
@@ -32,30 +18,13 @@ function confirmAdd()
         return
     }
     hidePopup('popupAdd')
-    isLoading();
 
-    $.ajax({
-        type: 'post',
-        url: `../api/fundbook?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            fundbook_name:fundbook_name,
-            fundbook_type:fundbook_type
-        },
-        caches:false,
-
-        success: function (data) {
-            isLoading(false);
+    callAPI('post',`${API_FUNDBOOK}`,{
+        fundbook_name:fundbook_name,
+        fundbook_type:fundbook_type}, ()=>{
             success("Thêm mới thành công")
             getData()
-        },
-        error: function (data) {   
-            errAjax(data) 
-        }
     })
-
 }
 
 
@@ -109,27 +78,13 @@ function confirmEdit(index)
     }
     hidePopup('popupEdit')
     isLoading();
-
-    $.ajax({
-        type: 'put',
-        url: `../api/fundbook`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
+    callAPI('PUT',`${API_FUNDBOOK}`,{
             fundbook_name:fundbook_name,
             fundbook_type:fundbook_type,
             id_fundbook:arrData[index]._id
-        },
-        caches:false,
-
-        success: function (data) {
-            isLoading(false);
+        }, ()=>{
             success("Thêm mới thành công")
             getData()
-        },
-        error: function (data) {   
-            errAjax(data) 
-        }
     })
+  
 }

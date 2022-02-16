@@ -3,37 +3,23 @@ var isGetOther = true;
 var dataBranch = null;
 function getData()
 {
-    isLoading();
-    $.ajax({
-        type: 'GET',
-        url: `../api/calendar?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            fromdate: $("#fromdate").val(),
-            isGetOther:isGetOther
-        },
-        cache: false,
-        success: function (data) {
-            
-            if(isGetOther)
-            {
-                data.dataEmployee.forEach(employee => {
-                    $(`select[name=selectEmployee]`).append(`<option value="${employee._id}">${employee.employee_fullname}</option>`)
-                });
-                dataBranch = data.dataBranch
-            }
-            isLoading(false);
-            drawTable(data.data);
-            changeURL(`?fromdate=${$("#fromdate").val()}`)
-            isGetOther = false;
-
-        },
-        error: function (data) {
-            errAjax(data) 
+    callAPI('GET', `${API_CALENDAR}?`,{
+        fromdate: $("#fromdate").val(),
+        isGetOther:isGetOther
+    },(data) =>{
+        if(isGetOther)
+        {
+            data.dataEmployee.forEach(employee => {
+                $(`select[name=selectEmployee]`).append(`<option value="${employee._id}">${employee.employee_fullname}</option>`)
+            });
+            dataBranch = data.dataBranch
         }
+        isLoading(false);
+        drawTable(data.data);
+        changeURL(`?fromdate=${$("#fromdate").val()}`)
+        isGetOther = false;
     })
+ 
 }
 
 
@@ -118,33 +104,19 @@ function confirmAdd()
         in_night_calendar= {hours:in_night.getHours(), minutes:in_night.getMinutes(),seconds:0}
         out_night_calendar= {hours:out_night.getHours(), minutes:out_night.getMinutes(),seconds:0}
     }
-  
-    isLoading();
     hidePopup('popupAdd')
-    $.ajax({
-        type: 'POST',
-        url: `../api/calendar`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            date_calendar: $("#addTime").val(),
-            id_employee:$("#addSelectEmployee option:selected").val(),
-            in_noon_calendar:in_noon_calendar,
-            out_noon_calendar:out_noon_calendar,
-            in_night_calendar:in_night_calendar,
-            out_night_calendar:out_night_calendar,
-        },
-        cache: false,
-        success: function (data) {
-           success("Thành công");
+    callAPI('POST', `${API_CALENDAR}`,{
+        date_calendar: $("#addTime").val(),
+        id_employee:$("#addSelectEmployee option:selected").val(),
+        in_noon_calendar:in_noon_calendar,
+        out_noon_calendar:out_noon_calendar,
+        in_night_calendar:in_night_calendar,
+        out_night_calendar:out_night_calendar,
+    },()=>{
+        success("Thành công");
            getData()
-
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
     })
+    
 }
 
 function drawTable(data)
@@ -412,26 +384,13 @@ function deleteCalendar(id_calendar, type)
 
 function confirmDelete(id_calendar, type)
 {
-    isLoading();
-    $.ajax({
-        type: 'PUT',
-        url: `../api/calendar`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            id_calendar:id_calendar,
-            type:type,
-            current: new Date()
-        },
-        cache: false,
-        success: function (data) {
-           success("Xóa thành công");
+    callAPI('PUT', `${API_CALENDAR}`,{
+        id_calendar:id_calendar,
+        type:type,
+        current: new Date()
+    },()=>{
+        success("Thành công");
            getData()
-
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
     })
+ 
 }

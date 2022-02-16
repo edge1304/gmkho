@@ -95,6 +95,7 @@ export const update = async (app) => {
     })
 }
 
-export const getOther = async (app)=>{
-
+export const getFundbookByBranch = async (id_branch)=>{
+    const data = await ModelFundBook.find({id_branch:id_branch})
+    return data
 }

@@ -5,8 +5,26 @@ const URL_IMAGE_BRANCH = URL_MAIN+'images/images_branch/'
 const URL_IMAGE_EMPLOYEE = URL_MAIN+'images/images_employee/'
 const URL_IMAGE_CATEGORY = URL_MAIN+'images/images_category/'
 const URL_IMAGE_PRODUCT = URL_MAIN+'images/images_product/'
+const IMAGE_NULL = 'https://i.pinimg.com/originals/aa/be/6d/aabe6d6db5e5f569e69e56e851eba8f0.gif' // ảnh nào bị null tự động bị gán bằng ảnh này
 
-const IMAGE_NULL = 'https://i.pinimg.com/originals/aa/be/6d/aabe6d6db5e5f569e69e56e851eba8f0.gif'
+const API_CATEGORY = `/api/category` // api danh mục
+const API_SUBCATEGORY = `/api/subcategory` // api sản phẩm
+const API_WAREHOUSE = `/api/warehouse` // api danh khách kho
+const API_BRANCH = `/api/branch` // api chi nhánh
+const API_EMPLOYEE = `/api/employee` // api nhân viên
+const API_PERMISSION = `/api/permission` // api Check quyền
+const API_ASSETS = `/api/asset` // api tài sản cố định
+const API_CALENDAR = `/api/calendar` // api lịch trực
+const API_TIMEKEEPING_SCHEDULE = `/api/timekeeping/schedule` // api chấm công trực
+const API_TIMEKEEPING = `/api/timekeeping` // api chấm công đi làm
+const API_FUNDBOOK = `/api/fundbook` // api sổ quỹ
+const API_ACCOUNTING_ENTRY = `/api/accounting-entry` // api bút toán thu chi
+const API_IMPORT_SUPPLIER = `/api/import-supplier` // api NHẬP hàng từ nhà cung cấp
+const API_IMPORT_PERIOD = `/api/import-period`
+const API_USER = `/api/user` // api user ( khách hàng)
+
+
+
 var stt = 1;
 function logout()
 {
@@ -22,7 +40,13 @@ function getTime()
         current:date.getFullYear() +"-" +addZero(date.getMonth()+1)+"-"+addZero(date.getDate()),
     }
 }
-
+function formatDate(time = new Date()) {
+    time = new Date(time)
+    return {
+        fulldate: time.getFullYear() + "-" + addZero(time.getMonth() + 1) + "-" + addZero(time.getDate()),
+        fulldatetime:time.getFullYear() + "-" + addZero(time.getMonth() + 1) + "-" + addZero(time.getDate()) +" "+addZero(time.getHours())+":"+addZero(time.getMinutes())+":"+addZero(time.getSeconds()),
+    }
+}
 function setCookie(name, value, days=30) {
 
     if (days) {
@@ -318,7 +342,6 @@ function inputNumber(input ,typeNumber='int')
         $(input).val(tryParseInt($(input).val()));
     if(typeNumber == 'float')
     {
-        console.log($(input).val())
         $(input).val(parseFloat($(input).val()));
 
     }
@@ -490,4 +513,40 @@ function errAjax(data)
     if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
     if(data!= null && data.status != 503 && data.status != 502)
         info(data.responseText);
+}
+
+function callAPI(method='GET',url, data, successAjax, errorAjax=errAjax, isFile=false, isLoad=true)
+{
+    var ObjectAjax = {
+        type: method,
+        url: url,
+        headers: {
+            token: ACCESS_TOKEN,
+        },
+        data: data,
+        cache:false,
+        success: function(data) {
+            isLoading(false);
+            successAjax(data)
+
+        },
+        error: function(data) {
+
+            errorAjax(data)
+        }
+    }
+    if(isFile){
+        ObjectAjax = {
+            ...ObjectAjax,
+            contentType: false,
+            processData: false,
+        }
+    } 
+
+    isLoading(isLoad)
+    $.ajax(ObjectAjax)
+}
+
+function totalMoney(price = 0, vat = 0 , ck = 0 , discount = 0, number = 1 ){
+    return (tryParseInt(price) + tryParseInt(price)/100*tryParseInt(vat) - tryParseInt(price)/100*tryParseInt(ck) - tryParseInt(discount))*tryParseInt(number)
 }

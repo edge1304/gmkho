@@ -45,10 +45,13 @@ export const subcategory = async (req, res) => {
     return res.render("SystemsManagement/SubCategory/index", { ...header_url(req), id_category: id_category })
 }
 
-export const asset = async (req, res) => {
-    // console.log("🚀 ~ file: ControllerAdmin.js ~ line 43 ~ asset ~ req", req)
-    return res.render("SystemsManagement/Asset/index", { ...header_url(req) })
-}
+export const asset = async (req, res) =>
+    res.render("SystemsManagement/Asset/index", { ...header_url(req) })
+
+
+export const user = async (req, res) =>
+    res.render("SystemsManagement/User/index", { ...header_url(req) })
+
 
 export const category = async (req, res) => {
     var id_super_category = "";
@@ -57,7 +60,11 @@ export const category = async (req, res) => {
     }
     return res.render("SystemsManagement/Category/index", { ...header_url(req), id_super_category: id_super_category })
 }
-
+export const accounting_entry = async (req, res) => {
+    var type = ""
+    if (validator.isDefine(req.query.type) && req.query.type.length > 0) type = req.query.type
+    return res.render("SystemsManagement/AccountingEntry/index", { ...header_url(req), type: type })
+}
 export const warranty_combo = async (req, res) => {
     return res.render("ContentsManagement/Combo/warranty", { ...header_url(req) })
 }
@@ -76,57 +83,94 @@ export const up_subcategory = async (req, res) => {
 
     var subcategory_status = req.query.subcategory_status
     if (!validator.isDefine(subcategory_status)) subcategory_status = ""
-    if(!validator.ObjectId.isValid(id_subcategory)) {
-        return res.render("ContentsManagement/SubCategory/index",{...header_url(req),id_category:id_category, subcategory_status:subcategory_status})
+    if (!validator.ObjectId.isValid(id_subcategory)) {
+        return res.render("ContentsManagement/SubCategory/index", { ...header_url(req), id_category: id_category, subcategory_status: subcategory_status })
     }
-    return res.render("ContentsManagement/SubCategory/uptowebsite", {id_subcategory:id_subcategory })
+    return res.render("ContentsManagement/SubCategory/uptowebsite", { id_subcategory: id_subcategory })
 }
 
-export const timekeeping_work = async (req,res)=>{
+export const timekeeping_work = async (req, res) => {
     let fromdate = validator.timeString().fulldate;
-   
-    if(validator.isDefine(req.query.fromdate))
-    {
+
+    if (validator.isDefine(req.query.fromdate)) {
         fromdate = req.query.fromdate;
     }
-    return res.render("ReportsManagement/Timekeeping/work",{fromdate:fromdate})
+    return res.render("ReportsManagement/Timekeeping/work", { fromdate: fromdate })
 }
-export const timekeeping_schedule = async (req,res)=>{
+export const timekeeping_schedule = async (req, res) => {
     let fromdate = validator.timeString().fulldate;
-   
-    if(validator.isDefine(req.query.fromdate) && req.query.fromdate.length > 0)
-    {
+
+    if (validator.isDefine(req.query.fromdate) && req.query.fromdate.length > 0) {
         fromdate = req.query.fromdate;
     }
-    return res.render("ReportsManagement/Timekeeping/schedule",{fromdate:fromdate})
+    return res.render("ReportsManagement/Timekeeping/schedule", { fromdate: fromdate })
 }
-export const calendar = async (req,res)=>{
+export const calendar = async (req, res) => {
     let fromdate = validator.timeString().fulldate;
-    if(validator.isDefine(req.query.fromdate))
-    {
+    if (validator.isDefine(req.query.fromdate)) {
         fromdate = req.query.fromdate;
     }
-    return res.render("ReportsManagement/Calendar/index",{fromdate:fromdate})
+    return res.render("ReportsManagement/Calendar/index", { fromdate: fromdate })
 }
 
 
-export const import_supplier = async (req,res)=>{
-   
-    return res.render("BusinessManagement/ImportProduct/Import-Supplier/index")
+export const import_supplier = async (req, res) => {
+    let fromdate = validator.timeString().fulldate;
+
+    if (validator.isDefine(req.query.fromdate)) {
+        fromdate = req.query.fromdate;
+    }
+    let todate = validator.timeString().fulldate;
+    if (validator.isDefine(req.query.todate)) {
+        todate = req.query.todate;
+    }
+    
+    return res.render("BusinessManagement/ImportProduct/Import-Supplier/index",{...header_url(req), fromdate:fromdate, todate:todate})
 }
-export const add_import_supplier = async (req,res)=>{
-   
+
+export const import_period = async (req, res) => {
+    let fromdate = validator.timeString().fulldate;
+
+    if (validator.isDefine(req.query.fromdate)) {
+        fromdate = req.query.fromdate;
+    }
+    let todate = validator.timeString().fulldate;
+    if (validator.isDefine(req.query.todate)) {
+        todate = req.query.todate;
+    }
+    
+    return res.render("BusinessManagement/ImportProduct/Import-Period/index",{...header_url(req), fromdate:fromdate, todate:todate})
+}
+export const add_import_supplier = async (req, res) => {
     return res.render("BusinessManagement/ImportProduct/Import-Supplier/add")
 }
 
-export const fundbook = async (req,res)=>{
-   
+export const print_import_supplier = async (req, res) => {
+    return res.render("BusinessManagement/ImportProduct/Import-Supplier/print",{...header_url(req)})
+}
+
+export const add_import_period = async (req, res) => {
+    return res.render("BusinessManagement/ImportProduct/Import-Period/add")
+}
+
+
+export const more_import_supplier = async (req, res) => {
+
+    return res.render("BusinessManagement/ImportProduct/Import-Supplier/more",{id_import:req.params.id_import})
+}
+export const more_import_period = async (req, res) => {
+
+    return res.render("BusinessManagement/ImportProduct/Import-Period/more",{id_import:req.params.id_import})
+}
+export const fundbook = async (req, res) => {
+
     return res.render("ReportsManagement/FundBook/index")
 }
-export const fundbook_report = async (req,res)=>{
-   
+export const fundbook_report = async (req, res) => {
+
     return res.render("ReportsManagement/FundBook/report")
 }
+
 export default createControllerAdmin;
 
 

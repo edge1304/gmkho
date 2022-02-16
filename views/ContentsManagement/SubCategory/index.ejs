@@ -1,18 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Required meta tags -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="stylesheet" href="/assets/dataTable/buttons.dataTables.min.css">
-<link rel="stylesheet" href="/assets/dataTable/jquery.dataTables.min.css">
 
-<link rel="stylesheet" href="/css/subcategory.css">
-<%- include("../../header",{title:"Quản lý sản phẩm | Website"}) %>
-<div class="main-panel">
-  <div class="content-wrapper">
-    <div class="div-header-table">
-      <div class="row">
+
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="/css/subcategory.css">
+    <%- include('../../header',{title:"Quản lý bài viết"}) %>
+
+        <div class="page-content">
+            <div class="header-table">
+                   <div class="row">
         <div class="col-4 col-md-2 col-lg-2">
           <label>Hiển thị</label>
           <select onchange="getData()" id="selectLimit">
@@ -48,35 +45,29 @@
         </div> -->
 
       </div>
-    </div>
-    <div class="row">
-    <div class="col-lg-12 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <div id="divTable" class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>STT</th>
-                        <th>Tên sản phẩm</th>
-                        <th>Giá bán</th>
-                        <th>Đang giảm giá</th>
-                        <th>Ảnh sản phẩm</th>
-                        <th>Tứ tự hiện thị</th>
-                        <th>Trạng thái hiển thị</th>
-                        <th>Chỉnh sửa</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbodyTable"></tbody>
-                </table>
             </div>
-          </div>
-          <div id="divPagination"></div>
+            <div class="container-fluid">
+                <div id="divTable" class="div-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>STT</th>
+                          <th>Tên sản phẩm</th>
+                          <th>Giá bán</th>
+                          <th>Đang giảm giá</th>
+                          <th>Ảnh sản phẩm</th>
+                          <th>Tứ tự hiện thị</th>
+                          <th>Trạng thái hiển thị</th>
+                          <th>Chỉnh sửa</th>
+                        </tr>
+                      </thead>
+                        <tbody id="tbodyTable"></tbody>
+                    </table>
+                </div>
+                <div id="divPagination"></div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-
+        <!-- POPUP ====================================-->
 <!-- Popup thêm mới -->
 <div id="popupAdd" class="modal" tabindex="-1" role="dialog">
   <div class="modal-dialog model-90" role="document">
@@ -197,23 +188,20 @@
   </div>
 </div>
 <!--  -->
+        <!-- ====================================== -->
+        <%- include('../../footer') %>
+        <script>
+          var limit = '<%- limit %>'
+          var page = '<%- page %>'
+          var key = '<%- key %>'
+          var id_category = '<%- id_category %>'
+          var subcategory_status = '<%- subcategory_status %>'
+      
+      </script>
+      <script src="/js/ContentsManagement/SubCategory/index.js"></script>
+      <script>
+        $("#selectStatus").val(subcategory_status).change()
+      </script>
+            </body>
 
-
-<!-- =============== -->
-<%- include("../../footer") %>
-
-
-<script>
-    var limit = '<%- limit %>'
-    var page = '<%- page %>'
-    var key = '<%- key %>'
-    var id_category = '<%- id_category %>'
-    var subcategory_status = '<%- subcategory_status %>'
-
-</script>
-<script src="/js/ContentsManagement/SubCategory/index.js"></script>
-<script>
-  $("#selectStatus").val(subcategory_status).change()
-</script>
-</body>
 </html>

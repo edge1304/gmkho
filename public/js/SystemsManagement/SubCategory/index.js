@@ -14,48 +14,33 @@ function getData(isLoad=true)
     limit = $("#selectLimit option:selected").val();
     key = $("#keyFind").val()
 
-    $.ajax({
-        type: 'GET',
-        url: `../api/subcategory?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            limit:tryParseInt(limit),
-            page: tryParseInt(page),
-            id_category: id_category,
-            key: key,
-            getOther:getOther
-        },
-      
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            if(getOther)
-            {
-                arrCategory= []
-                $("#selectCategory").append(`<option value="">Tất cả</option>`)
-                data.arrCategory.map( category =>{
-                    arrCategory.push(category)
-                    if(id_category == category._id)
-                    {
-                        $("select[name=selectCategory]").append(`<option selected value="${category._id}">${category.category_name}</option>`)
-                    }
-                    else
-                    {
-                        $("select[name=selectCategory]").append(`<option value="${category._id}">${category.category_name}</option>`)
-                    }
-                })
-                getOther = false
-            }
-            drawTable(data.data);
-            pagination(data.count,data.data.length)
-            changeURL(`?limit=${limit}&page=${page}&subcategory_name=${key}&id_category=${id_category}`)
-          
-        },
-        error: function (data) {
-            errAjax(data) 
+    callAPI('GET',`${API_SUBCATEGORY}?`,{
+        limit:tryParseInt(limit),
+        page: tryParseInt(page),
+        id_category: id_category,
+        key: key,
+        getOther:getOther
+    },(data)=>{
+        if(getOther)
+        {
+            arrCategory= []
+            $("#selectCategory").append(`<option value="">Tất cả</option>`)
+            data.arrCategory.map( category =>{
+                arrCategory.push(category)
+                if(id_category == category._id)
+                {
+                    $("select[name=selectCategory]").append(`<option selected value="${category._id}">${category.category_name}</option>`)
+                }
+                else
+                {
+                    $("select[name=selectCategory]").append(`<option value="${category._id}">${category.category_name}</option>`)
+                }
+            })
+            getOther = false
         }
+        drawTable(data.data);
+        pagination(data.count,data.data.length)
+        changeURL(`?limit=${limit}&page=${page}&subcategory_name=${key}&id_category=${id_category}`)
     })
 }
 
@@ -126,39 +111,24 @@ function confirmAdd()
     }
 
     hidePopup('popupAdd')
-    isLoading()
-    $.ajax({
-        type: 'post',
-        url: `../api/subcategory`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            subcategory_name:subcategory_name,
-            subcategory_import_price:subcategory_import_price,
-            subcategory_export_price:subcategory_export_price,
-            subcategory_vat:subcategory_vat,
-            subcategory_ck:subcategory_ck,
-            subcategory_discount:subcategory_discount,
-            subcategory_warranty:subcategory_warranty,
-            subcategory_part:subcategory_part,
-            subcategory_point:subcategory_point,
-            subcategory_unit:subcategory_unit,
-            number_warning:number_warning,
-            id_category:id_category,
-        },
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-          
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
+    callAPI('post',`${API_SUBCATEGORY}`,{
+        subcategory_name:subcategory_name,
+        subcategory_import_price:subcategory_import_price,
+        subcategory_export_price:subcategory_export_price,
+        subcategory_vat:subcategory_vat,
+        subcategory_ck:subcategory_ck,
+        subcategory_discount:subcategory_discount,
+        subcategory_warranty:subcategory_warranty,
+        subcategory_part:subcategory_part,
+        subcategory_point:subcategory_point,
+        subcategory_unit:subcategory_unit,
+        number_warning:number_warning,
+        id_category:id_category,
+    },()=>{
+        success("Thành công")
+        getData()
     })
-
+  
 }
 
 function downloadTemplate()
@@ -330,29 +300,12 @@ function confirmAddExcel(){
         info("Số lượng sản phẩm quá lớn - số lượng tối đa là 100 sản phẩm")
         return
     }
-
     hidePopup('popupAddExcel')
-    isLoading()
-    $.ajax({
-        type: 'post',
-        url: `../api/subcategory/excel`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            arrayExcel:arrayExcel
-        },
-        caches:false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-          
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
+    callAPI('post',`${API_SUBCATEGORY}/excel`,{arrayExcel:arrayExcel} , (data)=>{
+        success("Thành công")
+        getData()
     })
+
 }
 
 function detailSubCategory(index)
@@ -399,36 +352,22 @@ function confirmSaveEdit(index)
     }
 
     hidePopup('popupEdit')
-    isLoading()
-    $.ajax({
-        type: 'put',
-        url: `../api/subcategory`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            subcategory_name:subcategory_name,
-            subcategory_import_price:subcategory_import_price,
-            subcategory_export_price:subcategory_export_price,
-            subcategory_vat:subcategory_vat,
-            subcategory_ck:subcategory_ck,
-            subcategory_discount:subcategory_discount,
-            subcategory_warranty:subcategory_warranty,
-            subcategory_part:subcategory_part,
-            subcategory_point:subcategory_point,
-            subcategory_unit:subcategory_unit,
-            id_category:id_category,
-            id_subcategory:arrData[index]._id
-        },
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-          
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
+    callAPI('put',`${API_SUBCATEGORY}`,{
+        subcategory_name:subcategory_name,
+        subcategory_import_price:subcategory_import_price,
+        subcategory_export_price:subcategory_export_price,
+        subcategory_vat:subcategory_vat,
+        subcategory_ck:subcategory_ck,
+        subcategory_discount:subcategory_discount,
+        subcategory_warranty:subcategory_warranty,
+        subcategory_part:subcategory_part,
+        subcategory_point:subcategory_point,
+        subcategory_unit:subcategory_unit,
+        id_category:id_category,
+        id_subcategory:arrData[index]._id
+    } , (data)=>{
+        success("Thành công")
+        getData()
     })
+  
 }

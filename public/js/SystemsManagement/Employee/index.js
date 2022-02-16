@@ -12,42 +12,25 @@ function getData(isLoad = true) {
     limit = $("#selectLimit option:selected").val();
     key = $("#keyFind").val()
 
-    $.ajax({
-        type: 'GET',
-        url: `../api/employee?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            limit: tryParseInt(limit),
-            page: tryParseInt(page),
-            key: key,
-            id_employee_group: id_employee_group,
-            getGroup: getAllUser
-        },
+    callAPI('GET', `${API_EMPLOYEE}?`, {
+        limit: tryParseInt(limit),
+        page: tryParseInt(page),
+        key: key,
+        id_employee_group: id_employee_group,
+        getGroup: getAllUser
+    }, (data) => {
+        drawTable(data.data);
+        pagination(data.count, data.data.length)
+        changeURL(`?limit=${limit}&page=${page}&key=${key}&id_employee_group=${id_employee_group}`)
 
-        cache: false,
-        success: function (data) {
+        if (getAllUser) {
+            data.arrGroup.forEach(group => {
+                if (group._id == id_employee_group)
+                    $("select[name=selectGroup]").append(`<option value="${group._id}" selected>${group.employee_group_name}</option>`)
+                else $("select[name=selectGroup]").append(`<option value="${group._id}">${group.employee_group_name}</option>`)
 
-            isLoading(false);
-            drawTable(data.data);
-            pagination(data.count, data.data.length)
-            changeURL(`?limit=${limit}&page=${page}&key=${key}&id_employee_group=${id_employee_group}`)
-
-            if (getAllUser) {
-                data.arrGroup.forEach(group => {
-                    if (group._id == id_employee_group)
-                        $("select[name=selectGroup]").append(`<option value="${group._id}" selected>${group.employee_group_name}</option>`)
-                    else $("select[name=selectGroup]").append(`<option value="${group._id}">${group.employee_group_name}</option>`)
-
-                })
-                getAllUser = false
-            }
-
-        },
-        error: function (data) {
-            errAjax(data) 
-
+            })
+            getAllUser = false
         }
     })
 }
@@ -67,7 +50,7 @@ function drawTable(data) {
                 <td>${data[i].employee_address}</td>
                 <td>${data[i].employee_group_name}</td>
                 <td>${data[i].employee_status ? "Đang hoạt động" : "Đã nghỉ"}</td>
-                <td><button onclick="showPopupEdit(${i})" class="badge badge-info"><i class="mdi mdi-information"></i> Chi tiết</button></td>
+                <td><button onclick="showPopupEdit(${i})" class="btn btn-primary"><i class="mdi mdi-information"></i> Chi tiết</button></td>
             </tr>
         `)
     }
@@ -154,27 +137,11 @@ function confirmEdit(index) {
     data.append('id_employee', arrData[index]._id)
 
     hidePopup('popupEdit')
-    isLoading();
-    $.ajax({
-        type: 'put',
-        url: `../api/employee`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: data,
-        contentType: false,
-        caches: false,
-        processData: false,
+    callAPI('PUT', `${API_EMPLOYEE}`, data, () => {
+        success("Thành công")
+        getData()
+    }, undefined, true)
 
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
-    })
 }
 
 function confirmAdd() {
@@ -217,25 +184,9 @@ function confirmAdd() {
     // data.append('employee_status',employee_status)
 
     hidePopup('popupAdd')
-    isLoading();
-    $.ajax({
-        type: 'post',
-        url: `../api/employee`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: data,
-        contentType: false,
-        caches: false,
-        processData: false,
+    callAPI('post', `${API_EMPLOYEE}`, data, () => {
+        success("Thành công")
+        getData()
+    }, undefined, true)
 
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
-    })
 }

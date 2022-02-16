@@ -83,6 +83,10 @@ body {
     margin-bottom: 16px;
 }
 
+.post__title button {
+    right: 177px;
+}
+
 .post__form {
     padding: 0 30px;
 }
@@ -288,7 +292,8 @@ label {
     border-radius: 5px ;
     padding: 15px ;
     margin: 10px;
-    /* position: relative !important; */
+    max-width: 100%;
+    position: relative !important;
 }
 
 .div-related-product i
@@ -307,10 +312,12 @@ label {
     color: rgb(218, 28, 28);
 }
 
+.div-sub-relative{
+    display: flex;
+}
 .btn-add-relative
 {
-    top: 28px;
-    right: 14px;
+    margin-top: 26px !important;
 }
 .div-main-related
 {
@@ -346,12 +353,11 @@ label {
 #div_load_related_product{
     font-size: 15px;
     background-color: white;
-    width: 95%;
-    max-width: 95%;
+  
     max-height: 200px;
     position: absolute;
     overflow: auto;
-    border: 1px dotted;
+    /* border: 1px dotted; */
     z-index: 10;
 }
 

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <link rel="stylesheet" href="/css/employee.css">
+    <%- include('../../header',{title:"Quản lý khách hàng"}) %>
+
+      <div class="page-content">
+        <div class="header-table">
+          <div class="row">
+            <div class="col-4 col-md-2 col-lg-2">
+              <label>Hiển thị</label>
+              <select onchange="getData()" id="selectLimit">
+                <option value="<%- limit %>">
+                  <%- limit %>
+                </option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+            <div class="col-8 col-md-3">
+              <label>Tìm kiếm</label>
+              <input id="keyFind" value="<%- key %>" placeholder="Nhập SĐT hoặc tên khách hàng . . ." type="text"
+                class="form-control">
+            </div>
+            <div class="col-sm-12 col-md-4 d-block">
+              <button id="btnAdd" onclick="showPopup('popupAdd',true)" class="col-sm-5 col-md-4 btn btn-success">
+                <i class="mdi mdi-account-plus"></i>&nbsp;<span class="hide-on-mobile">Thêm mới</span>
+              </button>
+              <button id="btnMultiAdd" onclick="showPopup('popupAdd',true)" class="col-sm-5 col-md-4 btn btn-success">
+                <i class="mdi mdi-account-multiple-plus"></i>&nbsp;<span class="hide-on-mobile">Thêm nhiều</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="container-fluid">
+          <div class="div-table">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Tên khách hàng</th>
+                  <th>SĐT</th>
+                  <th>Địa chỉ</th>
+                  <th>Ngày sinh</th>
+                  <th>Giới tính</th>
+                  <th>Điểm</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyTable"></tbody>
+            </table>
+          </div>
+          <div id="divPagination"></div>
+        </div>
+      </div>
+      <!-- POPUP ====================================-->
+      <div id="popupAdd" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog model-80" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Thêm khách hàng<i class="mdi mdi-account-minus"></i> </h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-sm-6">
+                  <label for="addUserFullname">Tên khách hàng</label>
+                  <input type="text" class="form-control" name="addUserFullname" id="addUserFullname"
+                    aria-describedby="helpId" placeholder="Nhập tên khách hàng" autocomplete="off">
+                </div>
+                <div class="col-sm-12 col-md-3">
+                  <label for="addUserBirthday">Ngày sinh</label>
+                  <input type="date" class="form-control" name="addUserBirthday" id="addUserBirthday">
+                  </input>
+                </div>
+                <div class="col-sm-12 col-md-3">
+                  <label for="addUserGender">Giới tính</label>
+                  <select class="form-control" name="addUserGender" id="addUserGender">
+                    <option value="Nam" selected>Nam</option>
+                    <option value="Nữ">Nữ</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label for="addUserPassword">Mật khẩu</label>
+                  <input type="password" class="form-control" name="addUserPassword" id="addUserPassword"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="col-sm-6">
+                  <label for="addUserPassword2">Nhập lại mật khẩu</label>
+                  <input type="password" class="form-control" name="addUserPassword2" id="addUserPassword2"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="col-sm-4">
+                  <label for="addUserEmail">Email</label>
+                  <input type="text" class="form-control" name="addUserEmail" id="addUserEmail"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="col-sm-4">
+                  <label for="addUserPhone">SĐT</label>
+                  <input type="text" class="form-control" name="addUserPhone" id="addUserPhone"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="col-sm-4">
+                  <label for="addUserAddress">Địa chỉ</label>
+                  <input type="text" class="form-control" name="addUserAddress" id="addUserAddress"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="confirmAdd()" class="btn btn-primary">Thêm mới</button>
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Popup -->
+      <!-- Popup edit -->
+      <div id="popupEdit" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog model-80" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Sửa khách hàng<i class="mdi mdi-account-minus"></i> </h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-sm-6">
+                  <label for="editUserFullname">Tên khách hàng</label>
+                  <input type="text" class="form-control" name="editUserFullname" id="editUserFullname"
+                    aria-describedby="helpId" placeholder="Nhập tên khách hàng" autocomplete="off">
+                </div>
+                <div class="col-sm-12 col-md-3">
+                  <label for="editUserBirthday">Ngày sinh</label>
+                  <input type="date" class="form-control" name="editUserBirthday" id="editUserBirthday">
+                  </input>
+                </div>
+                <div class="col-sm-12 col-md-3">
+                  <label for="editUserGender">Giới tính</label>
+                  <select class="form-control" name="editUserGender" id="editUserGender">
+                    <option value="Nam" selected>Nam</option>
+                    <option value="Nữ">Nữ</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label for="editUserPassword">Mật khẩu</label>
+                  <input type="password" class="form-control" name="editUserPassword" id="editUserPassword"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="col-sm-6">
+                  <label for="editUserPassword2">Nhập lại mật khẩu</label>
+                  <input type="password" class="form-control" name="editUserPassword2" id="editUserPassword2"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="col-sm-4">
+                  <label for="editUserEmail">Email</label>
+                  <input type="text" class="form-control" name="editUserEmail" id="editUserEmail"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="col-sm-4">
+                  <label for="editUserPhone">SĐT</label>
+                  <input type="text" class="form-control" name="editUserPhone" id="editUserPhone"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="col-sm-4">
+                  <label for="editUserAddress">Địa chỉ</label>
+                  <input type="text" class="form-control" name="editUserAddress" id="editUserAddress"
+                    aria-describedby="helpId" autocomplete="off">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" onclick="confirmEdit()" class="btn btn-primary">Xác nhận</button>
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================================== -->
+      <%- include('../../footer') %>
+        <script src="css-login/js/sha512.min.js"></script>
+
+        <script>
+          var limit = '<%- limit %>'
+          var page = '<%- page %>'
+          var key = '<%- key %>'
+        </script>
+        //
+        <script src="/js/SystemsManagement/User/index.js"></script>
+
+        </body>
+
+</html>

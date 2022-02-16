@@ -178,22 +178,25 @@ export const addKey = async (app)=>{
         {
             if(!await helper.checkPermission("61e15772f8bf2521b16be20c", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             const id_category = req.body.id_category
-            const category_key = req.body.category_key.trim()
-            const values = req.body.values
+            const category_options_alt = req.body.category_options_alt.trim()
+            const category_options_name = req.body.category_options_name.trim()
+            const category_options_values = req.body.category_options_values
 
-            if(category_key.length == 0) return res.status(400).send("Thất bại! Từ khóa không được để trống")
-            if(values.length == 0) return res.status(400).send("Thất bại! Giá trị không được để trống")
+            if(category_options_name.length == 0) return res.status(400).send("Thất bại! Từ khóa không được để trống")
+            if(category_options_alt.length == 0) return res.status(400).send("Thất bại! Tên thay thế không được để trống")
+            if(category_options_values.length == 0) return res.status(400).send("Thất bại! Giá trị không được để trống")
             const dataCategory = await ModelCategory.findById(id_category)
+            if(!dataCategory) return res.status(400).send("Thất bại! Không tìm thấy danh mục")
 
-            var category_options = dataCategory.category_options
-            if (category_options == null) category_options = {}
-            category_options = {
-                ...category_options,
-                [category_key]: values
-            }
             try
             {
-                const updateKey = await ModelCategory.findByIdAndUpdate(dataCategory._id, {category_options:category_options})
+                const updateKey = await ModelCategory.findByIdAndUpdate(dataCategory._id, {$push:{
+                    category_options:{
+                        category_options_name:category_options_name,
+                        category_options_alt:category_options_alt,
+                        category_options_values:category_options_values
+                    }
+                }})
                 return res.json(updateKey)
             }
             catch(e)
@@ -218,25 +221,26 @@ export const updateKey = async (app)=>{
         {
             if(!await helper.checkPermission("61e15772f8bf2521b16be20c", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             const id_category = req.body.id_category
-            const category_key = req.body.category_key.trim()
-            const values = req.body.values
-            const oldKey = req.body.oldKey
-            if(category_key.length == 0) return res.status(400).send("Thất bại! Từ khóa không được để trống")
-            if(values.length == 0) return res.status(400).send("Thất bại! Giá trị không được để trống")
+            const category_options_name = req.body.category_options_name.trim()
+            const category_options_alt = req.body.category_options_alt.trim()
+            const category_options_values = req.body.category_options_values
+            const indexOption = validator.tryParseInt(req.body.indexOption)
+            if(category_options_name.length == 0) return res.status(400).send("Thất bại! Từ khóa không được để trống")
+            if(category_options_alt.length == 0) return res.status(400).send("Thất bại! Từ thay thế không được để trống")
+            if(category_options_values.length == 0) return res.status(400).send("Thất bại! Giá trị không được để trống")
             const dataCategory = await ModelCategory.findById(id_category)
 
-            var category_options = dataCategory.category_options
-            if (category_options == null) category_options = {}
-
-            delete category_options[oldKey]
-
-            category_options = {
-                ...category_options,
-                [category_key]: values
+            if(!dataCategory) return res.status(400).send("Thất bại! Không tìm thấy danh mục")
+            if(dataCategory.category_options.length < indexOption) return res.status(400).send("Thất bai, Không tìm thấy option cần chỉnh sửa")
+            dataCategory.category_options[indexOption] = {
+                category_options_name:category_options_name,
+                category_options_alt:category_options_alt,
+                category_options_values:category_options_values
             }
+           
             try
             {
-                const updateKey = await ModelCategory.findByIdAndUpdate(dataCategory._id, {category_options:category_options})
+                const updateKey = await ModelCategory.findByIdAndUpdate(dataCategory._id, {category_options:dataCategory.category_options})
                 return res.json(updateKey)
             }
             catch(e)
@@ -260,18 +264,14 @@ export const deleteKey = async (app)=>{
         {
             if(!await helper.checkPermission("61e15772f8bf2521b16be20c", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             const id_category = req.body.id_category
-            const category_key = req.body.category_key
+            const indexOption = validator.tryParseInt(req.body.indexOption)
            
             const dataCategory = await ModelCategory.findById(id_category)
-
-            var category_options = dataCategory.category_options
-            if (!category_options) return res.status(400).send("Không tìm thấy từ khóa")
-            delete category_options[category_key]
-            if( category_options == {}) category_options = null
-            
+            dataCategory.category_options.splice(indexOption, 1)
+           
             try
             {
-                const updateKey = await ModelCategory.findByIdAndUpdate(dataCategory._id, {category_options:category_options})
+                const updateKey = await ModelCategory.findByIdAndUpdate(dataCategory._id, {category_options:dataCategory.category_options})
                 return res.json(updateKey)
             }
             catch(e)

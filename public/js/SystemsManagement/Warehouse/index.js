@@ -4,22 +4,8 @@ getData()
 
 function getData()
 {
-    isLoading();
-    $.ajax({
-        type: 'GET',
-        url: `../api/warehouse?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: null,
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            drawTable(data)
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
+    callAPI('GET',`${API_WAREHOUSE}?`,null, (data)=>{
+        drawTable(data)
     })
 }
 
@@ -86,29 +72,15 @@ function confirmEdit(index)
     }
    
     hidePopup('popupEdit')
-    isLoading();
-    $.ajax({
-        type: 'put',
-        url: `../api/warehouse`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            warehouse_name:warehouse_name,
-            warehouse_phone:warehouse_phone,
-            warehouse_address:warehouse_address,
-            warehouse_status:warehouse_status,
-            id_warehouse:arrData[index]._id
-        },
-        caches:false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
+    callAPI('PUT',`${API_WAREHOUSE}`,{
+        warehouse_name:warehouse_name,
+        warehouse_phone:warehouse_phone,
+        warehouse_address:warehouse_address,
+        warehouse_status:warehouse_status,
+        id_warehouse:arrData[index]._id
+    }, ()=>{
+        success("Thành công")
+        getData()
     })
 }
 
@@ -123,28 +95,13 @@ function confirmAdd()
         info("Tên kho không được để trống!")
         return ;
     }
-   
     hidePopup('popupAdd')
-    isLoading();
-    $.ajax({
-        type: 'post',
-        url: `../api/warehouse`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            warehouse_name:warehouse_name,
-            warehouse_phone:warehouse_phone,
-            warehouse_address:warehouse_address,
-        },
-        caches:false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-        },
-        error: function (data) {
-            errAjax(data)   
-        }
+    callAPI('post',`${API_WAREHOUSE}`,{
+        warehouse_name:warehouse_name,
+        warehouse_phone:warehouse_phone,
+        warehouse_address:warehouse_address,
+    }, ()=>{
+        success("Thành công")
+        getData()
     })
 }

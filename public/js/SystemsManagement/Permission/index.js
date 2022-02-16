@@ -6,41 +6,22 @@ getData()
 function getData()
 {
     isLoading();
-    $.ajax({
-        type: 'GET',
-        url: `../api/permission/groupAndFunction?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            getOther:getOther
-        },
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-           
-            if(getOther)
+    callAPI('GET',`${API_PERMISSION}/groupAndFunction?`,{getOther:getOther},(data)=>{
+        if(getOther)
             {
                 data.functions.forEach(func => {
                     arrFunction.push(func)
                 });
                 drawTablePermission()
-
                 data.dataSuper.forEach(group => {
                     $(`select[name=selectSuperGroup]`).append(`<option value="${group._id}">${group.employee_super_group_name}</option>`)
                     arrSuperGroup.push(group)
                 });
                 getOther = false
-                
             }
             drawTable(data.dataGroups)
-            
-        },
-        error: function (data) {
-            errAjax(data) 
-            
-        }
     })
+  
 }
 
 function  drawTable(data) {
@@ -148,57 +129,25 @@ function confirmEditGroup(index)
     }
   
     hidePopup('popupEditGroup')
-    isLoading();
-    $.ajax({
-        type: 'put',
-        url: `../api/permission/group`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            id_group:arrGroup[index]._id,
-            employee_group_name: employee_group_name,
-            id_super_group: $('#editSuperGroup option:selected').val()
-        },
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            success("Chỉnh sửa thành công")
-            getData()
-            
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
+    callAPI('PUT', `${API_PERMISSION}/group`,{
+        id_group:arrGroup[index]._id,
+        employee_group_name: employee_group_name,
+        id_super_group: $('#editSuperGroup option:selected').val()
+    },()=>{
+        success("Chỉnh sửa thành công")
+        getData()
     })
+
 }
 
 function detailPermission(index) {
-    isLoading();
-    $.ajax({
-        type: 'GET',
-        url: `../api/permission?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            id_employee_group:arrGroup[index]._id
-        },
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-   
-            editPermission(data,index)
 
-        },
-        error: function (data) {
-            isLoading(false);
-            if(data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if(data!= null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-            
-        }
+    callAPI('GET', `${API_PERMISSION}?`,{
+        id_employee_group:arrGroup[index]._id
+    },(data)=>{
+        editPermission(data,index)
     })
+
 }
 
 function  changePermission(input, index) {
@@ -207,25 +156,12 @@ function  changePermission(input, index) {
     {
         permission_status = true
     }
-
-    $.ajax({
-        type: 'PUT',
-        url: `../api/permission`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            permission_status:permission_status,
-            id_function:$(input).val(),
-            id_employee_group:arrGroup[index]._id
-        },
-        cache: false,
-        success: function (data) {
-           
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
-    })
-    
+    callAPI('PUT', `${API_PERMISSION}`,{
+        permission_status:permission_status,
+        id_function:$(input).val(),
+        id_employee_group:arrGroup[index]._id
+    },(data)=>{
+       
+    },undefined,false,false)
+  
 }

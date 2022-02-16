@@ -8,51 +8,34 @@ function getData(isLoad = true) {
     if (!getOther) {
         id_super_category = $("#selectSuperCategory option:selected").val()
     }
-
     limit = $("#selectLimit option:selected").val();
     key = $("#keyFind").val()
 
-    $.ajax({
-        type: 'GET',
-        url: `../api/category?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            limit: tryParseInt(limit),
-            page: tryParseInt(page),
-            category_name: key,
-            id_super_category: id_super_category,
-            getOther: getOther
-        },
+    let data = {
+        limit: tryParseInt(limit),
+        page: tryParseInt(page),
+        category_name: key,
+        id_super_category: id_super_category,
+        getOther: getOther
+    }
 
-        cache: false,
-        success: function (data) {
-            isLoading(false);
+    callAPI('GET',`${API_CATEGORY}?`,data,(data)=>{
+        if (getOther) {
+            arrSuperCategory = []
+            $("select[name=selectSuper]").empty()
+            $("#selectSuperCategory").append(`<option value="" selected>Tất cả</option>`)
+            data.arrSuperCategory.forEach(supers => {
+                arrSuperCategory.push(supers)
+                if (supers._id == id_super_category)
+                    $("select[name=selectSuper]").append(`<option value="${supers._id}" selected>${supers.super_category_name}</option>`)
+                else $("select[name=selectSuper]").append(`<option value="${supers._id}">${supers.super_category_name}</option>`)
 
-
-            if (getOther) {
-                arrSuperCategory = []
-                $("select[name=selectSuper]").empty()
-                $("#selectSuperCategory").append(`<option value="" selected>Tất cả</option>`)
-                data.arrSuperCategory.forEach(supers => {
-                    arrSuperCategory.push(supers)
-                    if (supers._id == id_super_category)
-                        $("select[name=selectSuper]").append(`<option value="${supers._id}" selected>${supers.super_category_name}</option>`)
-                    else $("select[name=selectSuper]").append(`<option value="${supers._id}">${supers.super_category_name}</option>`)
-
-                })
-                getOther = false
-            }
-            drawTable(data.data);
-            pagination(data.count, data.data.length)
-            changeURL(`?limit=${limit}&page=${page}&category_name=${key}&id_super_category=${id_super_category}`)
-
-        },
-        error: function (data) {
-            errAjax(data) 
-
+            })
+            getOther = false
         }
+        drawTable(data.data);
+        pagination(data.count, data.data.length)
+        changeURL(`?limit=${limit}&page=${page}&category_name=${key}&id_super_category=${id_super_category}`)
     })
 }
 
@@ -76,8 +59,8 @@ function drawTable(data) {
                 <td>${data[i].category_status ? "Đang hiển thị" : "Đã ẩn"}</td>
                 <td>${data[i].super_category_name}</td>
                 <td>
-                    <button onclick="showPopupEdit(${i})" class="badge badge-info"><i class="mdi mdi-information"></i> Chi tiết</button>
-                    <button onclick="showKeys(${i})" class="badge badge-success"><i class="mdi mdi-key-minus"></i> Từ khóa</button>
+                    <button onclick="showPopupEdit(${i})" class="btn btn-primary"><i class="mdi mdi-information"></i> Chi tiết</button>
+                    <button onclick="showKeys(${i})" class="btn btn-success"><i class="mdi mdi-key-minus"></i> Từ khóa</button>
                 </td>
             </tr>
         `)
@@ -137,28 +120,11 @@ function confirmEdit(index) {
     data.append('id_category', arrData[index]._id)
 
     hidePopup('popupEdit')
-    isLoading();
-    $.ajax({
-        type: 'put',
-        url: `../api/category`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: data,
-        contentType: false,
-        caches: false,
-        processData: false,
-
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-        },
-        error: function (data) {
-            errAjax(data) 
-
-        }
-    })
+    callAPI('put',API_CATEGORY,data,()=>{
+        success("Thành công")
+        getData()
+    },undefined ,true)
+   
 }
 
 function confirmAdd() {
@@ -184,28 +150,10 @@ function confirmAdd() {
     data.append('id_super_category', id_super_category)
 
     hidePopup('popupAdd')
-    isLoading();
-    $.ajax({
-        type: 'post',
-        url: `../api/category`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: data,
-        contentType: false,
-        caches: false,
-        processData: false,
-
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getData()
-        },
-        error: function (data) {
-            errAjax(data) 
-
-        }
-    })
+    callAPI('post',API_CATEGORY,data,()=>{
+        success("Thành công")
+        getData()
+    },undefined ,true)
 }
 
 function confirmAddSuper() {
@@ -216,46 +164,36 @@ function confirmAddSuper() {
     }
 
     hidePopup('popupAddSuper')
-    isLoading();
-    $.ajax({
-        type: 'post',
-        url: `../api/supercategory`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            super_category_name: super_category_name
-        },
-        caches: false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            getOther = true
-            getData()
-        },
-        error: function (data) {
-            errAjax(data) 
-
-        }
+    callAPI('post',`../api/supercategory`,{super_category_name: super_category_name},()=>{
+        success("Thành công")
+        getOther = true
+        getData()
     })
+  
 }
 
 function showKeys(index) {
 
     $("#tbodyKey").empty()
     if (arrData[index].category_options) {
-        var stt2 = 1
-        Object.keys(arrData[index].category_options).map(key => {
-            let html = `<tr><td>${stt2++}</td><td>${key}</td><td>`
-            for (let i = 0; i < arrData[index].category_options[key].length; i++) {
-                html += `${arrData[index].category_options[key][i]}, `
-            }
-            html += `</td><td>
-                        <i onclick="editKey(${index},'${key}')" class="mdi mdi-tooltip-edit text-primary"></i>
-                        <i onclick="showPopupDeleteKey(${index},'${key}')" class="mdi mdi-delete-forever text-danger"></i>
-                    </td></tr>`
-            $("#tbodyKey").append(html)
-        })
+        let html = ''
+        for(let i =0;i<arrData[index].category_options.length;i++)
+        {
+            html += `<tr>
+                        <td class="center">${i}</td>
+                        <td >${arrData[index].category_options[i].category_options_name}</td>
+                        <td>${arrData[index].category_options[i].category_options_alt}</td>
+                        <td>`
+            arrData[index].category_options[i].category_options_values.forEach(val =>{
+                html += `${val}, `
+            })
+            html += `</td>
+                <td>
+                    <i onclick="editKey(${index},${i})" class="fas fa-edit text-primary"></i>
+                    <i onclick="showPopupDeleteKey(${index},${i})" class="fas fa-trash text-danger"></i>
+                </td></tr>`
+        }
+        $("#tbodyKey").append(html)
     }
     $("#confirmAddKey").attr("onclick", `confirmSaveAddKey(${index})`)
     showPopup('popupDetailKey')
@@ -279,16 +217,20 @@ function confirmSaveAddKey(index) {
 
     var arrKey = []
 
-    const key = $("#addKey").val().trim()
-    if (key.length == 0) {
+    const category_options_name = $("#add_category_options_name").val().trim()
+    if (category_options_name.length == 0) {
         info("Từ khóa không được để trống")
         return
     }
-
-    const str = $("#addValueKey").val().trim().split(' /')
-    for (let i = 0; i < str.length; i++) {
-        if (str[i].trim() != '/' && str[i].trim().length > 0) {
-            arrKey.push(str[i].trim())
+    const category_options_alt = $("#add_category_options_alt").val().trim()
+    if (category_options_alt.length == 0) {
+        info("Tên thay thế không được để trống")
+        return
+    }
+    const category_options_values = $("#add_category_options_values").val().trim().split(' /')
+    for (let i = 0; i < category_options_values.length; i++) {
+        if (category_options_values[i].trim() != '/' && category_options_values[i].trim().length > 0) {
+            arrKey.push(category_options_values[i].trim())
         }
     }
     if (arrKey.length == 0) {
@@ -297,54 +239,47 @@ function confirmSaveAddKey(index) {
     }
     hidePopup('popupAddKey')
     hidePopup('popupDetailKey')
-    isLoading();
-    $.ajax({
-        type: 'post',
-        url: `../api/category/key`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            category_key: key,
-            values: arrKey,
-            id_category: arrData[index]._id
-        },
 
-        caches: false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            arrData[index].category_options = data.category_options
-            showKeys(index)
-
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
-    })
+    callAPI('POST',`../api/category/key`,{
+                category_options_name: category_options_name,
+                category_options_alt: category_options_alt,
+                category_options_values: arrKey,
+                id_category: arrData[index]._id
+            },(data)=>{
+                success("Thành công")
+                arrData[index].category_options = data.category_options
+                showKeys(index)
+            })
+    
 }
 
 
-function editKey(index, key) {
-    $("#editKey").val(key)
+function editKey(index, indexOption) {
+    $("#edit_category_options_name").val(arrData[index].category_options[indexOption].category_options_name)
+    $("#edit_category_options_alt").val(arrData[index].category_options[indexOption].category_options_alt)
     var strVal = ''
-    for (let i = 0; i < arrData[index].category_options[key].length; i++) {
-        strVal += arrData[index].category_options[key][i] + " / "
+    for (let i = 0; i < arrData[index].category_options[indexOption].category_options_values.length; i++) {
+        strVal += arrData[index].category_options[indexOption].category_options_values[i] + " / "
     }
-    $("#editValueKey").val(strVal)
-    $("#btnconfirmEditKey").attr("onclick", `confirmEditKey(${index},'${key}')`)
+    $("#edit_category_options_values").val(strVal)
+    $("#btnconfirmEditKey").attr("onclick", `confirmEditKey(${index},'${indexOption}')`)
     showPopup('popupEditKey', false, 'popupDetailKey')
 }
 
-function confirmEditKey(index, oldKey) {
+function confirmEditKey(index, indexOption) {
     var arrKey = []
-    const key = $("#editKey").val().trim()
-    if (key.length == 0) {
+    const category_options_name = $("#edit_category_options_name").val().trim()
+    const category_options_alt = $("#edit_category_options_alt").val().trim()
+    if (category_options_name.length == 0) {
         info("Từ khóa không được để trống")
         return
     }
+    if (category_options_alt.length == 0) {
+        info("Tên thay thế không được để trống")
+        return
+    }
 
-    const str = $("#editValueKey").val().split(' /')
+    const str = $("#edit_category_options_values").val().split(' /')
     for (let i = 0; i < str.length; i++) {
         if (str[i].trim() != '/' && str[i].trim().length > 0) {
             arrKey.push(str[i].trim())
@@ -355,66 +290,39 @@ function confirmEditKey(index, oldKey) {
         return
     }
     hidePopup('popupEditKey')
-    isLoading();
-    $.ajax({
-        type: 'put',
-        url: `../api/category/key`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            category_key: key,
-            values: arrKey,
-            oldKey: oldKey,
-            id_category: arrData[index]._id,
-        },
+    var data = {
+        category_options_name: category_options_name,
+        category_options_alt: category_options_alt,
+        category_options_values: arrKey,
+        indexOption: indexOption,
+        id_category: arrData[index]._id,
+    }
 
-        caches: false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
-            arrData[index].category_options = data.category_options
-            showKeys(index)
-
-        },
-        error: function (data) {
-            errAjax(data) 
-
-        }
+    callAPI('PUT', `../api/category/key`,data, (data)=>{
+        success("Thành công")
+        arrData[index].category_options = data.category_options
+        showKeys(index)
     })
+   
 }
 
-function showPopupDeleteKey(index, key) {
-    $("#btnconfirmDeleteKey").attr("onclick", `confirmDeleteKey(${index},'${key}')`)
+function showPopupDeleteKey(index, indexOption) {
+    $("#btnconfirmDeleteKey").attr("onclick", `confirmDeleteKey(${index},${indexOption})`)
     showPopup('popupDeleteKey')
 }
 
-function confirmDeleteKey(index, key) {
+function confirmDeleteKey(index, indexOption) {
 
     hidePopup('popupDeleteKey')
     isLoading();
-    $.ajax({
-        type: 'delete',
-        url: `../api/category/key`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            category_key: key,
-            id_category: arrData[index]._id,
-        },
-
-        caches: false,
-        success: function (data) {
-            isLoading(false);
-            success("Thành công")
+    var data = {
+        indexOption: indexOption,
+        id_category: arrData[index]._id,
+    }
+    callAPI('DELETE',`../api/category/key`,data,(data)=>{
+        success("Thành công")
             arrData[index].category_options = data.category_options
             showKeys(index)
-
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
     })
 }
 

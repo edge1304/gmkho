@@ -110,3 +110,15 @@ export const update = async (app)=>{
         return res.status(500).send("Thất bại! Có lỗi xảy ra")
     }
 }
+
+export const getWarehouseByBranch = async (idbranch) =>{
+    try{
+        const data = await ModelWarehouse.find({id_branch:idbranch})
+        return data
+    }
+    catch(e){
+        console.log(e)
+        return []
+    }
+}
+

@@ -19,7 +19,7 @@ const SchemaCategory = new mongoose.Schema(
 
         },
         category_image:{...validator.schemaString},
-        category_options:{...validator.schemaJson},
+        category_options:{...validator.schemaArray},
     },
     { timestamps: true }
 );

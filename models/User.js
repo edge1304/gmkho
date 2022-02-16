@@ -1,37 +1,42 @@
 import mongoose from "mongoose"
 import * as validator from "./../helper/validator.js"
 const SchemaUser = new mongoose.Schema({
-    user_fullname:{
+    user_fullname: {
         ...validator.schemaString,
         ...validator.schemaTextIndex,
     },
-    user_phone:{
+    user_phone: {
         ...validator.schemaString,
-        ...validator.schemaTextIndex,
-        ...validator.schemaUnique
+        ...validator.schemaRequired,
+        ...validator.schemaUnique,
     },
-    user_password:{
-        ...validator.schemaString,
-    },
-    user_address:{
+    user_password: {
         ...validator.schemaString,
     },
-    user_point:{
+    user_address: {
         ...validator.schemaString,
     },
-    user_image:{
+    user_point: {
+        ...validator.schemaNumber,
+    },
+    user_image: {
         ...validator.schemaString,
     },
-    user_gender:{
+    user_gender: {
         ...validator.schemaString,
     },
-    user_email:{
+    user_email: {
         ...validator.schemaString,
+    },
+    user_debt: {
+        ...validator.schemaNumber,
+    },
+    user_birthday: {
+        ...validator.schemaDatetime,
     }
-
-},{timestamps: true });
+}, { timestamps: true });
 
 
 validator.schePre(SchemaUser);
 
-export const  ModelCart = mongoose.model("User",SchemaUser);
+export const ModelUser = mongoose.model("User", SchemaUser);

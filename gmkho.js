@@ -10,7 +10,7 @@ import * as connectDB from "./connectDB.js";
 import routerAdmin from "./routers/RoutersAdmin.js";
 import moment from 'moment-timezone';
 import admin from 'firebase-admin';
-import cron from 'node-cron';
+
 
 const app = express();
 
@@ -67,6 +67,18 @@ createControllerMenu(app)
 import createControllerFundBook from "./controllers/ControllerFundBook.js";
 createControllerFundBook(app)
 
+import createControllerAccountingEntry from "./controllers/ControllerAccountingEntry.js";
+createControllerAccountingEntry(app)
+
+import createControllerImportSupplier from "./controllers/ControllerImport/import-supplier/index.js";
+createControllerImportSupplier(app)
+
+import createControllerImportPeriod from "./controllers/ControllerImport/import-period/index.js";
+createControllerImportPeriod(app)
+
+import createControllerUser from "./controllers/ControllerUser.js";
+createControllerUser(app)
+
 app.use(routerAdmin);
 
 
@@ -118,6 +130,13 @@ import { ModelWarrantyCombo } from "./models/WarrantyCombo.js"
 import { ModelMenu } from "./models/Menu.js"
 import { ModelCalendar } from "./models/Calendar.js"
 import { ModelFundBook } from "./models/FundBook.js"
+import { ModelAccountingEntry } from "./models/AccountingEntry.js"
+import { ModelUser } from "./models/User.js"
+import { ModelProduct } from "./models/Product.js"
+import { ModelImportForm } from "./models/ImportForm.js"
+import { ModelPayment } from "./models/Payment.js"
+import { ModelDebt } from "./models/Debt.js"
+
 
 app.get("/lay:name", async (req, res) => {
     var db = ModelBranch;
@@ -149,7 +168,19 @@ app.get("/lay:name", async (req, res) => {
         db = ModelCalendar 
     if (req.params.name == "FundBook")
         db = ModelFundBook  
-    const data = await db.find().sort({ _id: -1 });
+    if (req.params.name == "AccountingEntry")
+        db = ModelAccountingEntry
+    if (req.params.name == "User")
+        db = ModelUser
+    if (req.params.name == "Product")
+        db = ModelProduct
+    if (req.params.name == "Import")
+        db = ModelImportForm
+    if (req.params.name == "Payment")
+        db = ModelPayment
+    if (req.params.name == "Debt")
+        db = ModelDebt
+    const data = await db.find();
     return res.json(data)
 })
 
@@ -171,10 +202,23 @@ app.get("/empty/:name", async (req, res) => {
         db = ModelSubCategory
     if (req.params.name == "Asset")
         db = ModelAsset
+    if (req.params.name == "AccountingEntry")
+        db = ModelAccountingEntry
+    if (req.params.name == "User")
+        db = ModelUser
+    if (req.params.name == "Product")
+        db = ModelProduct
+    if (req.params.name == "Import")
+        db = ModelImportForm
+    if (req.params.name == "Payment")
+        db = ModelPayment
+    if (req.params.name == "Debt")
+        db = ModelDebt
     const data = await db.deleteMany({})
     return res.json(data)
 })
 import { ModelPermission } from "./models/Permission.js"
+
 app.get("/addPermission/:group/:function", async (req, res) => {
     const data = await new ModelPermission({
         id_employee_group: req.params.group,
@@ -185,44 +229,50 @@ app.get("/addPermission/:group/:function", async (req, res) => {
 
 
 app.get("/addEmployee/1", async (req, res) => {
-    const data = await new ModelEmployee({
-        employee_fullname: "Phạm Văn Vụ",
-        employee_phone: "0356388433",
-        employee_datebirth: new Date(),
-        employee_image: null,
-        employee_address: "Hoàng lâu - hồng phong - an dương",
-        id_branch: "61e15300a4665e6a0db700e8",
-        password: "4dff4ea340f0a823f15d3f4f01ab62eae0e5da579ccb851f8db9dfe84c58b2b37b89903a740e1ee172da793a6e79d560e5f7f9bd058a12a280433ed6fa46510a",
-        employee_salary: 10000,
-        employee_salary_duty: 5000,
-        employee_status: true, // trạng thái của nhân viên : 0: đang 
-        employee_bank_number: "102872722091",
-        employee_bank_name: "Vietinbank",
-        id_employee_group: "61e156a67dc2ff811e02ccb1",
-        employee_history_work: [],
-        employee_history_salary: [],
-        employee_lunch_allowance: 0,
-        employee_revenue_percent: 0,
-        employee_level: "đẠI HỌC"
-    }).save()
+    await ModelAccountingEntry.updateMany({},{$set:{accounting_entry_create_debt:true}})
     return res.json(data)
 })
 
 app.get("/ABC", async (req, res) => {
-    
-    // // const newData = await new ModelMenu({
-    // //     menu_name:"Menu danh mục website",
-    // //     menu_content:[
-    // //         "61ea21d9ccd4a03c0d639a62",
-    // //         "61ea0f2afa61600ddfedbeab",
-    // //         "61ea0f20fa61600ddfedbea3",
-    // //         "61ea0f13fa61600ddfedbe9b",
-    // //     ],
-    // //     menu_type:"Category"
-    // // }).save()
-    // return res.json(newData)
+    // await new ModelProduct({
+    //     "id_product2": null,
+    //     "id_subcategory": "6200c13cb8d3ac8432ed9cb4",
+    //     "subcategory_name": "demo 31",
+    //     "product_index": 1,
+    //     "id_warehouse": "61f0fb7f234e581dc77887c0",
+    //     "id_import_form": "620b05da00946ba560c9b226",
+    //     "product_status": false,
+    //     "id_export_form": null,
+    //     "product_warranty": 12,
+    // }).save()
+    await ModelSubCategory.updateMany({}, {
+        subcategory_warehouses: [
+            {
+            id_warehouse: "61f0fb7f234e581dc77887c0",
+            limit_inventory: 0,
+            current_inventory: 0
+            },
+            {
+            id_warehouse: "61ebccb2f755c27494d67d6e",
+            limit_inventory: 0,
+            current_inventory: 0
+            },
+            {
+            id_warehouse: "61ebc7a43fd9f20e004d09d8",
+            limit_inventory: 0,
+            current_inventory: 0
+            },
+            {
+            id_warehouse: "61e635f406c24a9d47558f8f",
+            limit_inventory: 0,
+            current_inventory: 0
+            }
+            ],
+    })
+    return res.json("ok")
 })
 
 app.get("/*", async (req, res) => {
-    return res.render('pages/samples/error-404')
+    return res.status(404).render('pages/samples/error-404')
 })
+

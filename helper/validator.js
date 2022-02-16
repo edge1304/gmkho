@@ -367,19 +367,19 @@ export const time_now = () => {
         sorttime: `${padValue(d.getMonth() + 1)}${padValue(d.getDate())}${padValue(d.getHours())}${padValue(d.getMinutes())}${padValue(d.getSeconds())}`,
     };
 };
-export const timeString = () => {
-    const current = new Date();
+export const timeString = (time = new Date()) => {
+    const current = time;
     return {
         fulldate: addZero(current.getFullYear()) + "-" + addZero(current.getMonth() + 1) + "-" + addZero(current.getDate()),
         startOfDay: new Date(current.getFullYear() + "-" + addZero(current.getMonth() + 1) + "-" + addZero(current.getDate()) + " 00:00:00"),
         endOfDay: new Date(current.getFullYear() + "-" + addZero(current.getMonth() + 1) + "-" + addZero(current.getDate()) + " 23:59:59"),
     };
 };
-export const dateTimeZone = (timezone = "GMT +07:00") => {
+export const dateTimeZone = (timezone = "GMT +07:00", date= Date.now()) => {
     const time = timezone.replace("UTC", "").replace("GMT", "").replace("GTM", "").trim().split(":");
     const timeZonemHours = tryParseInt(time[0]) * 60;
     const timeZoneminutes = tryParseInt(time[0]) < 0 ? -1 * tryParseInt(time[1]) : tryParseInt(time[1]);
-    const current = Date.now() + (timeZonemHours + timeZoneminutes) * 60 * 1000;
+    const current = date + (timeZonemHours + timeZoneminutes) * 60 * 1000;
     const now = new Date(current);
     return {
         currentTime: now,
@@ -439,8 +439,16 @@ function getMoney(money) {
     return money;
 }
 function setJsonObject(json) {
-    return tryParseJson(json);
+    const results = tryParseJson(json)
+    
+    if (isArray(results)) {
+        return results
+    }
+
+    return []
 }
+
+
 function setJsonArray(json) {
     const results = tryParseJson(json);
 
@@ -554,6 +562,9 @@ export const schemaPoint = {
         required: true,
     },
 };
+
+
+
 export const schemaJson = {
     type: JSON,
     trim: true,
@@ -563,11 +574,11 @@ export const schemaJson = {
 };
 export const schemaArray = {
     type: Array,
-    trim: true,
     default: [],
     maxLength: 10000,
     set: setJsonArray,
 };
+
 export const schemaIndex = {
     index: true,
     sparse: true,
@@ -632,81 +643,7 @@ export const schemaSchedule = {
     },
 };
 
-export const schemaProduct = {
-    id_subcategory: {
-        type: ObjectId,
-        required: true
-    },
-    id_product: {
-        type: ObjectId,
-    },
-    money_import_notvat: {
-        type: Number,
-        default: 0
-    },
-    id_product2: {
-        type: String
-    },
-    subcategory_name: {
-        type: String,
-        text: true,
-    },
-    export_price: {
-        type: Number,
-        default: 0
-    },
-    subcategory_discount: {
-        type: Number,
-        default: 0
-    },
-    subcategory_vat: {
-        type: Number,
-        default: 0
-    },
-    subcategory_ck: {
-        type: Number,
-        default: 0
-    },
-    subcategory_part: {
-        type: Number,
-        default: 0
-    },
-    subcategory_warranty: {
-        type: Number,
-        default: 0
-    },
-    subcategory_point: {
-        type: Number,
-        default: 0
-    },
-    quantity: {
-        type: Number,
-        default: 0
-    },
-    id_employee: {
-        type: ObjectId
-    },
-    employee_fullname: {
-        type: String
-    },
-    index: {
-        type: Number,
-        default: 0
-    },
-    status_proposal: {
-        type: String,
-        default: "Chưa đề xuất"
-    },
-    note: {
-        type: String,
-        default: null
-    },
-    image: {
-        type: String,
-        default: null
-    }
 
-}
 //#endregion schema ===============================================================
 
 
@@ -719,7 +656,11 @@ export const schePre = (Schema) => {
         this.sort({ _id: -1 })
         return next()
     })
+    Schema.pre(['aggregate'], async function (next) {
 
+        this.sort({ _id: -1 })
+        return next()
+    })
     Schema.pre(['findOneAndUpdate', 'findByIdAndUpdate'], async function (next) {
         this.options.runValidators = true
         this.options.new = true
@@ -784,4 +725,21 @@ export const removeFile = async (url) => {
     catch (e) {
 
     }
+}
+
+export const totalMoney = (price = 0, vat = 0, ck = 0, discount = 0, number = 1) =>{
+    return (tryParseInt(price) + tryParseInt(price)/100*tryParseInt(vat) - tryParseInt(price)/100*tryParseInt(ck) + tryParseInt(discount))*tryParseInt(number)
+}
+
+export const calculateMoney =  (data) => {
+    let total = 0
+    if (Array.isArray(data)) {
+        data.map(product => {
+            total += totalMoney(product.product_import_price, product.product_vat, product.product_ck, product.product_discount, product.product_quantity)
+        })
+    }
+    else {
+        total += totalMoney(data.product_import_price, data.product_vat, data.product_ck, data.product_discount, data.product_quantity)
+    }
+    return total
 }

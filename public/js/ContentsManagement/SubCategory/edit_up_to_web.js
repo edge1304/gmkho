@@ -72,27 +72,38 @@ function drawTable(dataSub, dataCategory, dataWarranty, dataPromotion)
    
     if(dataCategory.category_options )
     {
-        Object.keys(dataCategory.category_options).map( key =>  // option của danh mục
+        for(let i =0;i<dataCategory.category_options.length;i++){
+            var htmlCategory_options = `<tr><td>${dataCategory.category_options[i].category_options_name}</td><td>`
+            
+            for(let j = 0 ;j<dataCategory.category_options[i].category_options_values.length;j++)
             {
-                var htmlCategory_options = `<tr><td>${key}</td><td>`
                 var isCheched = ""
-                for(let i = 0 ;i<dataCategory.category_options[key].length;i++)
-                {
-                    
-                    if(dataSub.subcategory_options != null && typeof dataSub.subcategory_options[key] != 'undefined' && dataCategory.category_options[key][i] == dataSub.subcategory_options[key]) isCheched = "checked"
-                    htmlCategory_options += `
-                        <div class="form-check">
-                        <input ${isCheched} class="form-check-input" type="radio" name="${key}" value="${dataCategory.category_options[key][i]}" id="category_options${stt}">
-                        <label class="form-check-label" for="category_options${stt}">
-                            ${dataCategory.category_options[key][i]}
-                        </label>
-                        </div>`
-                    stt++
-                    isCheched = ""
+                for(let g= 0 ;g<dataSub.subcategory_options.length;g++){
+                    if(dataSub.subcategory_options[g].category_options_name == dataCategory.category_options[i].category_options_name 
+                        && dataSub.subcategory_options[g].category_options_values == dataCategory.category_options[i].category_options_values[j]){
+                            isCheched = "checked"
+                            break
+                    }
                 }
-                htmlCategory_options += `</td><td><i onclick="cancelCategoryOpiton(this)" class="mdi mdi-delete-forever text-danger"></i></td></tr>`
-                $("#table_category_specifications").append(htmlCategory_options)
-            })
+
+                // if(dataSub.subcategory_options != null && typeof dataSub.subcategory_options[key] != 'undefined' && dataCategory.category_options[key][i] == dataSub.subcategory_options[key]) isCheched = "checked"
+                htmlCategory_options += `
+                    <div class="form-check">
+                    <input ${isCheched} class="form-check-input" type="radio" name="${dataCategory.category_options[i].category_options_alt}" value="${dataCategory.category_options[i].category_options_values[j]}" id="category_options${stt}">
+                    <input value="${dataCategory.category_options[i].category_options_alt}" name="category_options_alt" style="display:none" type="text">
+                    <label class="form-check-label" for="category_options${stt}">
+                        ${dataCategory.category_options[i].category_options_values[j]}
+                    </label>
+                    </div>`
+                stt++
+                // isCheched = ""
+
+            }
+            htmlCategory_options += `</td><td><i onclick="cancelCategoryOpiton(this)" class="mdi mdi-delete-forever text-danger"></i></td></tr>`
+            $("#table_category_specifications").append(htmlCategory_options)
+             
+        }
+        
     }
   
         
@@ -252,7 +263,7 @@ function drawSubcategory_related()
     {
         $(".div-related-product").append(`
             <a class="col-6 col-md-5 col-lg-4 col-xl-2 center">
-                <i onclick="removeRelated(${i})" class="mdi mdi-bookmark-remove text-danger"></i>
+                <i onclick="removeRelated(${i})" class="mdi mdi-delete-forever text-danger"></i>
                 <span class="name_related-product">${subcategory_related[i].replace_name}</span>
             </a>
         `)
@@ -400,22 +411,23 @@ function getSpecifications()
 function getOptions()
 {
     const options = $("#table_category_specifications").find('tr')
-    var arrOptions = {}
+    var arrOptions = []
     for(let i =0;i<options.length;i++)
     {
         const key = $($($(options[i]).find('td'))[0]).html()
 
-        
         const values = $($($($(options[i]).find('td'))[1]).find('input[type=radio]'))
+        const alts = $($($($(options[i]).find('td'))[1]).find('input[type=text][name=category_options_alt]'))
         // console.log(values)
         for(let i =0;i<values.length;i++)
         {
             if($(values[i]).is(":checked"))
             {
-                arrOptions = {
-                        ...arrOptions,
-                        [key]:$(values[i]).val()
-                    }
+                arrOptions.push({
+                    category_options_name:key,
+                    category_options_alt : $(alts[i]).val(),
+                    category_options_values: $(values[i]).val(),
+                }) 
             }
         }
     }

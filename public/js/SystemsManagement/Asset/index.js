@@ -1,26 +1,31 @@
 let hasGetUser = false;
-let users, assets;
+let employee, assets;
 const elementSelectUser = $("select[name=selectUser]");
 const elementTable = $("#tbodyTable");
 
 
 $("#addAssetTime").val(new Date().toISOString().slice(0, 10))
 
-const rerenderTable = (users, assets) => {
+const rerenderEmployee = (data) => {
+  employee = data;
   if (!hasGetUser) {
-    users.data.forEach(item => {
-      elementSelectUser.append(`<option value="${item._id}" selected>${item.employee_fullname}</option>`)
+    data.data.forEach(item => {
+      elementSelectUser.append(`<option value="${item._id}">${item.employee_fullname}</option>`)
     })
     hasGetUser = true
   }
+}
+const rerenderTable = (data) => {
+  assets = data;
   elementTable.empty()
 
-  assets.forEach((element, index) => {
+  data.data.forEach((element, index) => {
     const startAt = new Date(element.asset_time)
     const now = new Date()
 
     const numOfDayPassed = Math.floor((now - startAt) / (1000 * 60 * 60 * 24))
-    const fee = Math.round(element.asset_price / element.asset_expiry) * Math.round(numOfDayPassed / 30)
+    const fee = Math.max(
+      Math.round(element.asset_price / element.asset_expiry) * Math.round(numOfDayPassed / 30), 0)
 
     elementTable.append(`
             <tr>
@@ -35,16 +40,19 @@ const rerenderTable = (users, assets) => {
                 <td class="right">${money(Math.max(element.asset_price - fee, 0))}</td>
                 <td>${element.id_employee}</td>
                 <td>${element.asset_note}</td>
-                <td><button onclick="showPopupEdit(${index})" class="badge badge-info"><i class="mdi mdi-information"></i> Chi tiết</button></td>
+                <td><button onclick="showPopupEdit(${index})" class="btn btn-primary"><i class="mdi mdi-information"></i> Chi tiết</button></td>
             </tr>`)
+    pagination(data.count, data.data.length);
   });
 }
 
 const showPopupEdit = (index) => {
-  const user = users.data.find(ele => ele.employee_fullname === assets[index].id_employee)
-  const asset = assets[index];
-  // const asset = assets
-  $("#editAssetUser").val(user._id).change()
+  const asset = assets.data[index];
+  const user = employee.data.find(ele => ele.employee_fullname === asset.id_employee)
+  // console.log("🚀 ~ file: index.js ~ line 52 ~ showPopupEdit ~ users", users)
+  // console.log("🚀 ~ file: index.js ~ line 51 ~ showPopupEdit ~ user", user._id)
+
+  $("#selectEditUser").val(user._id).change()
   $("#editAssetTime").val(asset.asset_time.slice(0, 10))
   $("#editAssetExpiry").val(asset.asset_expiry)
   $("#editIdAsset").val(asset.id_asset)
@@ -53,79 +61,34 @@ const showPopupEdit = (index) => {
   $("#editAssetPrice").val(asset.asset_price)
   $("#editAssetNote").val(asset.asset_note)
 
-  // console.log("🚀 ~ file: index.js ~ line 58 ~ showPopupEdit ~ asset", `confirmEdit(${asset._id})`)
   $("#confirmEdit").attr("onclick", `confirmEdit(${index})`)
   showPopup('popupEdit')
-}
-
-const callAPI = {
-  getUser: () => $.ajax({
-    type: 'GET',
-    url: `/api/employee?`,
-    headers: {
-      token: ACCESS_TOKEN,
-    },
-    data: {
-      limit: 1000,
-      page: 1,
-      key: '',
-    },
-    cache: false,
-  }),
-  getAsset: () => $.ajax({
-    type: 'GET',
-    url: `/api/asset?`,
-    headers: {
-      token: ACCESS_TOKEN,
-    },
-    data: {
-      limit: tryParseInt(limit),
-      page: tryParseInt(page),
-      key: key,
-    },
-    cache: false,
-  }),
-  createAsset: (data) => $.ajax({
-    type: 'POST',
-    url: `/api/asset?`,
-    headers: {
-      token: ACCESS_TOKEN,
-    },
-    data: data,
-    cache: false,
-  }),
-  updateAsset: (data) => $.ajax({
-    type: 'PUT',
-    url: `/api/asset?`,
-    headers: {
-      token: ACCESS_TOKEN,
-    },
-    data: data,
-    cache: false,
-  }),
-  // deleteAsset: (id) => $.ajax({
-  //   type: 'DELETE',
-  //   url: `/api/asset/${id}`,
-  //   headers: {
-  //     token: ACCESS_TOKEN,
-  //   },
-  //   cache: false,
-  // }),
 }
 
 const getData = async (isLoad = true) => {
   isLoading(isLoad);
 
-  limit = $("#selectLimit option:selected").val();
-  key = $("#keyFind").val()
+  const limit = $("#selectLimit option:selected").val();
+  const key = $("#keyFind").val()
+
+  const dataEmployee = {
+    limit: 1000,
+    page: 1,
+    key: '',
+  }
+  const dataAsset = {
+    limit: tryParseInt(limit),
+    page: tryParseInt(page),
+    key: key,
+  }
 
   try {
-    [users, assets] = await Promise.all([callAPI.getUser(), callAPI.getAsset()]);
+    await Promise.all([
+      callAPI('GET', `${API_EMPLOYEE}?`, dataEmployee, rerenderEmployee),
+      callAPI('GET', `${API_ASSETS}?`, dataAsset, rerenderTable)
+    ]);
 
-    isLoading(false);
-    rerenderTable(users, assets);
-    console.log("🚀 ~ file: index.js ~ line 127 ~ getData ~ assets", assets)
-    pagination(10, assets.length)
+    // isLoading(false);
   }
   catch (error) {
     isLoading(false);
@@ -135,10 +98,8 @@ const getData = async (isLoad = true) => {
   }
 }
 
-getData(true);
-
 const confirmAdd = async () => {
-  const id_user = $("#addAssetUser").val()
+  const id_user = $("#selectUser").val()
   const assetTime = $("#addAssetTime").val()
   const assetExpiry = $("#addAssetExpiry").val()
   const idAsset = $("#addIdAsset").val()
@@ -146,12 +107,12 @@ const confirmAdd = async () => {
   const assetPosition = $("#addAssetPosition").val()
   const assetPrice = $("#addAssetPrice").val()
   const assetNote = $("#addAssetNote").val()
-  if (!assetName) {
-    info("Tên sản phẩm không được để trốngs")
-    return
-  }
   if (!idAsset) {
     info("Mã sản phẩm không được để trống")
+    return
+  }
+  if (!assetName) {
+    info("Tên sản phẩm không được để trống")
     return
   }
   if (!assetExpiry) {
@@ -171,22 +132,17 @@ const confirmAdd = async () => {
 
   hidePopup('popupAdd')
   isLoading(true);
-  try {
-    await callAPI.createAsset(data)
-    info("Thêm thành công")
+  callAPI('POST', `${API_ASSETS}?`, data, () => {
+    success("Thêm thành công");
     isLoading(false);
     getData(true);
-  }
-  catch (error) {
-    isLoading(false);
-    if (error.status == 503 || error.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-    if (error != null && error.status != 503 && error.status != 502)
-      info(error.responseText);
-  }
+  })
 }
+
 const confirmEdit = async (index) => {
-  const id = assets[index]._id
-  const id_user = $("#editAssetUser").val()
+  const id = assets.data[index]._id
+  // console.log("🚀 ~ file: index.js ~ line 142 ~ confirmEdit ~ id", id)
+  const id_user = $("#selectEditUser").val()
   const assetTime = $("#editAssetTime").val()
   const assetExpiry = $("#editAssetExpiry").val()
   const idAsset = $("#editIdAsset").val()
@@ -195,7 +151,7 @@ const confirmEdit = async (index) => {
   const assetPrice = $("#editAssetPrice").val()
   const assetNote = $("#editAssetNote").val()
   if (!assetName) {
-    info("Tên sản phẩm không được để trốngs")
+    info("Tên sản phẩm không được để trống")
     return
   }
   if (!idAsset) {
@@ -217,19 +173,15 @@ const confirmEdit = async (index) => {
     'asset_time': assetTime,
     'id_asset': idAsset,
   }
+  // console.log("🚀 ~ file: index.js ~ line 176 ~ confirmEdit ~ data", data)
 
   hidePopup('popupEdit')
   isLoading(true);
-  try {
-    await callAPI.updateAsset(data)
-    info("Sửa thành công")
+  callAPI('PUT', `${API_ASSETS}?`, data, () => {
+    success("Sửa thành công")
     isLoading(false);
     getData(true);
-  }
-  catch (error) {
-    isLoading(false);
-    if (error.status == 503 || error.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-    if (error != null && error.status != 503 && error.status != 502)
-      info(error.responseText);
-  }
+  })
 }
+
+getData(true);

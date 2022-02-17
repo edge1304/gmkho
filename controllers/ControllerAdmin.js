@@ -171,7 +171,68 @@ export const fundbook_report = async (req, res) => {
     return res.render("ReportsManagement/FundBook/report")
 }
 
+export const export_sale = async (req, res) => {
+    let fromdate = validator.timeString().fulldate;
+
+    if (validator.isDefine(req.query.fromdate)) {
+        fromdate = req.query.fromdate;
+    }
+    let todate = validator.timeString().fulldate;
+    if (validator.isDefine(req.query.todate)) {
+        todate = req.query.todate;
+    }
+    
+    return res.render("BusinessManagement/ExportProduct/export-sale/index",{...header_url(req), fromdate:fromdate, todate:todate})
+}
+export const add_export_sale = async (req, res) => {
+    return res.render("BusinessManagement/ExportProduct/export-sale/add")
+}
+
+export const point = async (req, res) => {
+    return res.render("SystemsManagement/Point/index")
+}
+
+export const voucher = async (req, res) => {
+    let fromdate = validator.timeString().fulldate;
+
+    if (validator.isDefine(req.query.fromdate)) {
+        fromdate = req.query.fromdate;
+    }
+    let todate = validator.timeString().fulldate;
+    if (validator.isDefine(req.query.todate)) {
+        todate = req.query.todate;
+    }
+    return res.render("SystemsManagement/Voucher/index",{...header_url(req),fromdate:fromdate, todate:todate})
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export default createControllerAdmin;
+
 
 
 const header_url = (req) => {

@@ -19,6 +19,7 @@ routerAdmin.get("/timekeeping-work-management", router.timekeeping_work);
 routerAdmin.get("/timekeeping-schedule-management", router.timekeeping_schedule);
 routerAdmin.get("/calendar-management", router.calendar);
 routerAdmin.get("/menu-management", router.menu);
+
 routerAdmin.get("/import-product-from-supplier/find", router.import_supplier);
 routerAdmin.get("/import-product-from-supplier/print", router.print_import_supplier);
 routerAdmin.get("/import-product-from-supplier/add", router.add_import_supplier);
@@ -27,6 +28,12 @@ routerAdmin.get("/import-product-from-period/add/:id_import", router.more_import
 routerAdmin.get("/import-product-from-period/add", router.add_import_period);
 routerAdmin.get("/import-product-from-period/find", router.import_period);
 
+routerAdmin.get("/export-product-to-sale/find", router.export_sale);
+routerAdmin.get("/export-product-to-sale/add", router.add_export_sale);
+
+
+routerAdmin.get("/point-management", router.point);
+routerAdmin.get("/voucher-management", router.voucher);
 
 routerAdmin.get("/fundbook-management", router.fundbook);
 routerAdmin.get("/fundbook-management/report", router.fundbook_report);

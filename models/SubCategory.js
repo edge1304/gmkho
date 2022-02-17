@@ -111,7 +111,9 @@ const schemaSubCategory = new mongoose.Schema({
     subcategory_ck: { // chiết khấu theo % (giảm giá)
         ...validator.schemaNumber
     },
-
+    subcategory_discount: { // chiết khấu theo tiền (giảm giá)
+        ...validator.schemaNumber
+    },
     subcategory_warranty: { // thời gian bảo hành (tính theo tháng)
         ...validator.schemaNumber
     },

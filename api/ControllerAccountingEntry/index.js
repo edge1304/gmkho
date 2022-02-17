@@ -19,7 +19,7 @@ export const management = async (app) => {
         query = {...query, accounting_entry_type: req.query.type}
       }
       const data = await ModelAccountingEntry.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
-      const count = await ModelAccountingEntry.find(query).estimatedDocumentCount()
+      const count = await ModelAccountingEntry.find(query).countDocuments()
       return res.json({data:data,count:count})
     }
     catch (e) {

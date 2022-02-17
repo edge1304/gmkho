@@ -11,7 +11,7 @@ import routerAdmin from "./routers/RoutersAdmin.js";
 import moment from 'moment-timezone';
 import admin from 'firebase-admin';
 
-
+import * as validator from "./helper/validator.js"
 const app = express();
 
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -76,9 +76,23 @@ createControllerImportSupplier(app)
 import createControllerImportPeriod from "./controllers/ControllerImport/import-period/index.js";
 createControllerImportPeriod(app)
 
+import createControllerExportSale from "./controllers/ControllerExport/export-sale/index.js";
+createControllerExportSale(app)
+
+import createControllerExportReturn from "./controllers/ControllerExport/export-return/index.js";
+createControllerExportReturn(app)
+
 import createControllerUser from "./controllers/ControllerUser.js";
 createControllerUser(app)
 
+import createControllerPoint from "./controllers/ControllerPoint.js";
+createControllerPoint(app)
+
+import createControllerVoucher from "./controllers/ControllerVoucher.js";
+createControllerVoucher(app)
+
+import createControllerProduct from "./controllers/ControllerProduct.js";
+createControllerProduct(app)
 app.use(routerAdmin);
 
 
@@ -136,9 +150,20 @@ import { ModelProduct } from "./models/Product.js"
 import { ModelImportForm } from "./models/ImportForm.js"
 import { ModelPayment } from "./models/Payment.js"
 import { ModelDebt } from "./models/Debt.js"
+import { ModelPoint } from "./models/Point.js"
+import { ModelVoucher } from "./models/Voucher.js"
 
 
 app.get("/lay:name", async (req, res) => {
+    let query = {}
+    Object.keys(req.query).map(key => {
+        if (key != 'limit' && key != 'page') {
+            query = {
+                ...query,
+                [key]:req.query[key]
+            }
+        }
+    })
     var db = ModelBranch;
     if (req.params.name == "Function")
         db = ModelFunction
@@ -180,11 +205,17 @@ app.get("/lay:name", async (req, res) => {
         db = ModelPayment
     if (req.params.name == "Debt")
         db = ModelDebt
-    const data = await db.find();
+    if (req.params.name == "Point")
+        db = ModelPoint
+    if (req.params.name == "Voucher")
+        db = ModelVoucher
+    const data = await db.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req));
     return res.json(data)
 })
 
 app.get("/empty/:name", async (req, res) => {
+   
+    
     var db = ModelBranch;
     if (req.params.name == "Function")
         db = ModelFunction
@@ -214,6 +245,10 @@ app.get("/empty/:name", async (req, res) => {
         db = ModelPayment
     if (req.params.name == "Debt")
         db = ModelDebt
+    if (req.params.name == "Point")
+        db = ModelPoint
+    if (req.params.name == "Voucher")
+        db = ModelVoucher
     const data = await db.deleteMany({})
     return res.json(data)
 })
@@ -234,41 +269,10 @@ app.get("/addEmployee/1", async (req, res) => {
 })
 
 app.get("/ABC", async (req, res) => {
-    // await new ModelProduct({
-    //     "id_product2": null,
-    //     "id_subcategory": "6200c13cb8d3ac8432ed9cb4",
-    //     "subcategory_name": "demo 31",
-    //     "product_index": 1,
-    //     "id_warehouse": "61f0fb7f234e581dc77887c0",
-    //     "id_import_form": "620b05da00946ba560c9b226",
-    //     "product_status": false,
-    //     "id_export_form": null,
-    //     "product_warranty": 12,
-    // }).save()
-    await ModelSubCategory.updateMany({}, {
-        subcategory_warehouses: [
-            {
-            id_warehouse: "61f0fb7f234e581dc77887c0",
-            limit_inventory: 0,
-            current_inventory: 0
-            },
-            {
-            id_warehouse: "61ebccb2f755c27494d67d6e",
-            limit_inventory: 0,
-            current_inventory: 0
-            },
-            {
-            id_warehouse: "61ebc7a43fd9f20e004d09d8",
-            limit_inventory: 0,
-            current_inventory: 0
-            },
-            {
-            id_warehouse: "61e635f406c24a9d47558f8f",
-            limit_inventory: 0,
-            current_inventory: 0
-            }
-            ],
+    await ModelUser.findByIdAndUpdate("620b7e96cafc31ae3659708b",{
+        user_point:100
     })
+    
     return res.json("ok")
 })
 

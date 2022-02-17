@@ -22,8 +22,10 @@ const API_ACCOUNTING_ENTRY = `/api/accounting-entry` // api bút toán thu chi
 const API_IMPORT_SUPPLIER = `/api/import-supplier` // api NHẬP hàng từ nhà cung cấp
 const API_IMPORT_PERIOD = `/api/import-period`
 const API_USER = `/api/user` // api user ( khách hàng)
-
-
+const API_POINT = `/api/point` // api tích điểm ( khách hàng)
+const API_VOUCHER = `/api/voucher` // api mã giảm giá 
+const API_PRODUCT = `/api/product` // api sản phẩm
+const API_EXPORT = `/api/export`
 
 var stt = 1;
 function logout()
@@ -517,6 +519,7 @@ function errAjax(data)
 
 function callAPI(method='GET',url, data, successAjax, errorAjax=errAjax, isFile=false, isLoad=true)
 {
+    
     var ObjectAjax = {
         type: method,
         url: url,
@@ -550,3 +553,4 @@ function callAPI(method='GET',url, data, successAjax, errorAjax=errAjax, isFile=
 function totalMoney(price = 0, vat = 0 , ck = 0 , discount = 0, number = 1 ){
     return (tryParseInt(price) + tryParseInt(price)/100*tryParseInt(vat) - tryParseInt(price)/100*tryParseInt(ck) - tryParseInt(discount))*tryParseInt(number)
 }
+

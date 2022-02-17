@@ -210,7 +210,7 @@ export const insertMore = async (app)=>{
             if (!dataFundBook) return res.status(400).send("Thất bại! Không tồn tại hình thưc thanh toán")
             
             const arrProduct = JSON.parse(req.body.arrProduct)
-        
+         
             for (let i = 0; i < arrProduct.length; i++){ // kiểm tra trùng mã sp phụ trong mảng
                 for (let j = 0; j < arrProduct.length; j++){
                     if (j != i) {
@@ -240,10 +240,10 @@ export const insertMore = async (app)=>{
                     product_vat: arrProduct[i].product_vat,
                     product_ck: arrProduct[i].product_ck,
                     product_discount: arrProduct[i].product_discount,
-                    product_quantity: arrProduct[i].product_quantity
+                    product_quantity: arrProduct[i].product_quantity,
                 })
             } 
-           
+    
             var arrProductForModal = [] // mảng này là dùng để insert product many
             const totalMoney = validator.calculateMoney(arrProductFormImport);
             for (let i = 0; i < arrProductFormImport.length; i++){
@@ -253,11 +253,11 @@ export const insertMore = async (app)=>{
                             ... arrProductFormImport[i],
                             id_import_form: dataImport._id,
                             id_warehouse: dataImport.id_warehouse,
-                        
                         })
                     )
                 }
             }
+
             try {
                 const insertProducts = await ModelProduct.insertMany(arrProductForModal)
                 const updateDebt = await ModelDebt.findByIdAndUpdate(dataDebt._id, {

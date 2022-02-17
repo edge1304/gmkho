@@ -33,7 +33,7 @@ File: Main Js File
         // === following js will activate the menu in left side bar based on url ====
         $("#sidebar-menu a").each(function () {
             const origin = window.location.origin
-            var pageUrl = window.location.href.replace(origin, '').split('/')[1];
+            var pageUrl = window.location.href.replace(origin, '').split('?')[0].split('/')[1];
            
             if (this.href.replace(origin, '').split('/')[1] === pageUrl) {
                

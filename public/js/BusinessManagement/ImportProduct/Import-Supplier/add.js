@@ -313,7 +313,7 @@ $("#btnConfirm").click(e => {
             const number = tryParseInt($(inputs[5]).val())
             const warranty = tryParseInt($(inputs[6]).val())
             const discount = tryParseInt(0)
-
+        
             if (id_subcategory.length > 0) {
                 if (id_product2s.length > 0) {
                     let stringid =  id_product2s.split('/')
@@ -325,10 +325,10 @@ $("#btnConfirm").click(e => {
                                 product_import_price: import_price,
                                 product_vat: vat,
                                 product_ck: ck,
-                                product_quantity: 1,
                                 product_discount: discount,
                                 product_quantity: 1,
-                                product_warranty:warranty
+                                product_warranty: warranty,
+                        
                             })
                         }
                     })
@@ -340,10 +340,10 @@ $("#btnConfirm").click(e => {
                         product_import_price: import_price,
                         product_vat: vat,
                         product_ck: ck,
-                        product_quantity: 1,
                         product_discount: discount,
                         product_quantity: number,
-                        product_warranty:warranty
+                        product_warranty: warranty,
+                   
                     })
                 }
             }
@@ -365,6 +365,7 @@ $("#btnConfirm").click(e => {
         info("Hãy chọn kho để nhập hàng")
         return
     }
+    console.log(arrProduct)
     const payment_form = tryParseInt($("#paid").val())
     const import_form_note = $("input[name=note]").val()
     const url_api = type_import == "Nhập hàng từ nhà cung cấp" ? `${API_IMPORT_SUPPLIER}/add` : `${API_IMPORT_PERIOD}/add`

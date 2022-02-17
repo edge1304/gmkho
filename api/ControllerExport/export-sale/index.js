@@ -1,4 +1,4 @@
-const prefixApi = '/api/import-supplier';
+const prefixApi = '/api/export';
 import sanitize from "mongo-sanitize";
 import * as helper from '../../../helper/helper.js'
 import * as validator from '../../../helper/validator.js'
@@ -62,9 +62,6 @@ export const management = async (app)=>{
                 {
                     $match:query
                 },
-                {
-                    $sort:{_id:-1}
-                }
                
             ]).skip(validator.getOffset(req)).limit(validator.getLimit(req))
 

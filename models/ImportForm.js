@@ -44,7 +44,8 @@ const schemaProduct = new mongoose.Schema({
     product_index: {
         type: Number,
         default:0
-    }
+    },
+  
 })
 const SchemaImportForm = new mongoose.Schema(
     {

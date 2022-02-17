@@ -90,10 +90,11 @@ export const update = async (app) => {
 export const getUser = async (app) => {
     app.get(prefixApi + "/findOther", helper.authenToken, async (req, res) => {
         try {
+
             let query = {}
             if (validator.isDefine(req.query.key)) {
                 query = {
-                    $or: [{ user_fullname: { $regex: ".*" + req.query.key + ".*", $options: "$i" } }, { user_phone: { $regex: ".*" + req.query.key + ".*", $options: "$i" } }]
+                    $or: [{ user_fullname: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } }, { user_phone: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } }]
                 }
             }
             const data = await ModelUser.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))

@@ -1,0 +1,23 @@
+#tbodyTable td:first-child {
+    text-align: center;
+}
+#tbodyTable td:nth-child(6) {
+    text-align: right;
+}
+
+#popupEdit .col.col-md-12:first-child table tr:nth-child(5) td {
+    color: red;
+}
+
+#popupEdit .col.col-md-12:first-child table tr:nth-child(4) td {
+    color: blue;
+}
+
+.div-payment:has(input[type="checkbox"]) {
+    position: relative;
+}
+#payment_zero {
+    position: absolute;
+    top: 22px;
+    right: 0;
+}

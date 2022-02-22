@@ -1,4 +1,4 @@
-const prefixApi = '/api/import-period/add';
+const prefixApi = '/api/import/import-period';
 import sanitize from "mongo-sanitize";
 import * as helper from '../../../helper/helper.js'
 import * as validator from '../../../helper/validator.js'
@@ -13,19 +13,19 @@ import { ModelSubCategory } from '../../../models/SubCategory.js'
 import { ModelDebt } from '../../../models/Debt.js'
 import { ModelPayment } from '../../../models/Payment.js'
 
-export const checkPermission = async (app)=>{
-    app.get(prefixApi,helper.authenToken, async (req, res)=>{
-        try{
-            if(!await helper.checkPermission("61ee7394fc3b22e001d48eae", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
-            const warehouses = await warehouse.getWarehouseByBranch(req.body._caller.id_branch_login)
-            const fundbooks = await fundbook.getFundbookByBranch(req.body._caller.id_branch_login)
-            return res.json({warehouses: warehouses,fundbooks:fundbooks})
-        }
-        catch(e){
-            return res.status(500).send("Thất bại! Có lỗi xảy ra")
-        }
-    })
-}
+// export const checkPermission = async (app)=>{
+//     app.get(prefixApi,helper.authenToken, async (req, res)=>{
+//         try{
+//             if(!await helper.checkPermission("61ee7394fc3b22e001d48eae", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+//             const warehouses = await warehouse.getWarehouseByBranch(req.body._caller.id_branch_login)
+//             const fundbooks = await fundbook.getFundbookByBranch(req.body._caller.id_branch_login)
+//             return res.json({warehouses: warehouses,fundbooks:fundbooks})
+//         }
+//         catch(e){
+//             return res.status(500).send("Thất bại! Có lỗi xảy ra")
+//         }
+//     })
+// }
 export const insert = async (app)=>{
     app.post(prefixApi,helper.authenToken, async (req, res)=>{
         try{
@@ -114,7 +114,7 @@ export const createFormImport = async (req, res) => {
                 }
             }
             const insertProducts = await ModelProduct.insertMany(arrProductForModal)
-            const totalMoney = validator.calculateMoney(insertImport.import_form_product);
+            const totalMoney = validator.calculateMoneyImport(insertImport.import_form_product);
             return {insertImport:insertImport, insertProducts:insertProducts, totalMoney:totalMoney}
         }
         catch (e) {
@@ -133,7 +133,7 @@ export const createFormImport = async (req, res) => {
 
 
 export const insertMore = async (app)=>{
-    app.post(prefixApi+"/more",helper.authenToken, async (req, res)=>{
+    app.post(prefixApi+"/add/more",helper.authenToken, async (req, res)=>{
         try{
             if (!await helper.checkPermission("61ee7394fc3b22e001d48eae", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             const id_import = req.body.id_import

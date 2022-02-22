@@ -168,3 +168,10 @@ export const checkCodeDiscount = async (voucher_code, money, res) => {
     }
    
 }
+
+export const update_status_voucher = async (voucher_code) => {
+    await ModelVoucher.findOneAndUpdate({ voucher_code: voucher_code }, {
+        $inc: {
+            voucher_limit_user:-1
+    }})
+}

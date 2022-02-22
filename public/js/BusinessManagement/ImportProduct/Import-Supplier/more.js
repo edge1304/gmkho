@@ -7,7 +7,7 @@ checkPermission()
 function checkPermission()
 {
     drawTable()
-    callAPI('GET', `${API_IMPORT_SUPPLIER}/add/more/${id_import}`, null, (data) => {
+    callAPI('GET', `${API_IMPORT}/import-supplier/more/${id_import}`, null, (data) => {
         arrSupplier.push({  // cho khách hàng cũ vào mảng và ko cho nhân viên chọn nữa
             _id: data.dataImport.id_user,
             user_fullname:data.dataImport.user_fullname,
@@ -376,7 +376,7 @@ $("#btnConfirm").click(e => {  // xác nhận nhập
     }
     const payment_form = tryParseInt($("#paid").val()) // giá trị đã thanh toán
     const import_form_note = $("input[name=note]").val() // ghi chú của nhân viên
-    const url_api = type_import == "Nhập hàng từ nhà cung cấp" ? `${API_IMPORT_SUPPLIER}/add/more` : `${API_IMPORT_PERIOD}/add/more`
+    const url_api = `${API_IMPORT}/${type_import == "Nhập hàng từ nhà cung cấp"?'import-supplier':`import-period`}/add/more` 
     hidePopup('popupConfirm')
     callAPI('POST', url_api, {
         type_import: type_import,

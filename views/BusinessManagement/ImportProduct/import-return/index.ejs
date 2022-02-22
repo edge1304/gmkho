@@ -4,17 +4,17 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="/css/export_product/find_export_supplier.css">
-    <%- include('../../../header',{title:"Xuất hàng | Tìm kiếm phiếu xuất hàng để bán"}) %>
+    <link rel="stylesheet" href="/css/import_product/find_import_supplier.css">
+    <%- include('../../../header',{title:"Nhập hàng | Nhập hàng khách trả lại"}) %>
         <div class="page-content">
             <div class="header-table">
               <div>
                 <ul class="nav nav-tabs">
                   <li class="nav-item">
-                    <a class="nav-link" href="/export-product-to-sale/add">Xuất mới</a>
+                    <a class="nav-link" href="/import-product-from-return/add">Thêm mới</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link active" href="/export-product-to-sale/find">Tìm kiếm</a>
+                    <a class="nav-link active" href="/import-product-from-return/find">Tìm kiếm</a>
                   </li>
                 </ul>
               </div>
@@ -97,8 +97,8 @@
                                   <tr>
                                     <th>STT</th>                             
                                     <th>Tên SP</th>
-                                    <th>Mã sp</th>
-                                    <th>Giá xuất</th>
+                                    <th>Mã phụ</th>
+                                    <th>Giá nhập</th>
                                     <th>VAT</th>
                                     <th>CK</th>
                                     <th>Số lượng</th>
@@ -137,7 +137,7 @@
                   <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                       <button type="button" id="btnSaveEdit" class="btn btn-danger" >Lưu thay đổi</button>
-                      <a type="button" id="btnAddMore" target="_blank" class="btn btn-primary">Xuất thêm</a>
+                      <a type="button" style="display:none" id="btnAddMore" target="_blank" class="btn btn-primary">Nhập thêm</a>
                   </div>
               </div>
           </div>
@@ -151,10 +151,12 @@
               var key = '<%- key %>'
               var fromdate = '<%- fromdate %>'
               var todate = '<%- todate %>'
-              const type_export = "Xuất hàng để bán"
+              const type_import = "Nhập hàng khách trả lại"
         </script>
-
-        <script src="/js/BusinessManagement/ExportProduct/export-sale/index.js"></script>
+        
+       <script src="https://cdn.jsdelivr.net/alasql/0.3/alasql.min.js"></script>
+        <script src="/assets/js/xlsx.core.min.js"></script>
+        <script src="/js/BusinessManagement/ImportProduct/Import-Supplier/index.js"></script>
           </body>
 
 </html>

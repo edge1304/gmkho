@@ -1,4 +1,4 @@
-const prefixApi = '/api/import-period';
+const prefixApi = '/api/import/import-period';
 import sanitize from "mongo-sanitize";
 import * as helper from '../../../helper/helper.js'
 import * as validator from '../../../helper/validator.js'

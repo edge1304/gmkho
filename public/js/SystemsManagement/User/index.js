@@ -34,7 +34,7 @@ const rerenderTable = (data) => {
                 <td>${element.user_phone}</td>
                 <td>${element.user_address}</td>
                 <td class="right">${(new Date(element.user_birthday)).toLocaleDateString()}</td>
-                <td>${element.id_employee}</td>
+                <td>${element.user_gender}</td>
                 <td>${element.user_point}</td>
                 <td><button onclick="showPopupEdit(${index})" class="btn btn-primary"><i class="mdi mdi-information"></i> Chi tiết</button></td>
             </tr>`)

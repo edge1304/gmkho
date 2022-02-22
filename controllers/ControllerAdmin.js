@@ -187,6 +187,29 @@ export const export_sale = async (req, res) => {
 export const add_export_sale = async (req, res) => {
     return res.render("BusinessManagement/ExportProduct/export-sale/add")
 }
+export const more_export_sale = async (req, res) => {
+    return res.render("BusinessManagement/ExportProduct/export-sale/more",{...header_url(req)})
+}
+
+export const export_return = async (req, res) => {
+    let fromdate = validator.timeString().fulldate;
+
+    if (validator.isDefine(req.query.fromdate)) {
+        fromdate = req.query.fromdate;
+    }
+    let todate = validator.timeString().fulldate;
+    if (validator.isDefine(req.query.todate)) {
+        todate = req.query.todate;
+    }
+    
+    return res.render("BusinessManagement/ExportProduct/export-return/index",{...header_url(req), fromdate:fromdate, todate:todate})
+}
+export const add_export_return = async (req, res) => {
+    return res.render("BusinessManagement/ExportProduct/export-return/add")
+}
+export const more_export_return = async (req, res) => {
+    return res.render("BusinessManagement/ExportProduct/export-return/more",{...header_url(req)})
+}
 
 export const point = async (req, res) => {
     return res.render("SystemsManagement/Point/index")
@@ -206,10 +229,30 @@ export const voucher = async (req, res) => {
 }
 
 
+export const import_return = async (req, res) => {
+    let fromdate = validator.timeString().fulldate;
+
+    if (validator.isDefine(req.query.fromdate)) {
+        fromdate = req.query.fromdate;
+    }
+    let todate = validator.timeString().fulldate;
+    if (validator.isDefine(req.query.todate)) {
+        todate = req.query.todate;
+    }
+    
+    return res.render("BusinessManagement/ImportProduct/import-return/index",{...header_url(req), fromdate:fromdate, todate:todate})
+}
+export const add_import_return = async (req, res) => {
+    return res.render("BusinessManagement/ImportProduct/import-return/add")
+}
+export const more_import_return = async (req, res) => {
+    return res.render("BusinessManagement/ImportProduct/import-return/more",{...header_url(req)})
+}
 
 
-
-
+export const internal_order = async (req, res) => {
+    return res.render("BusinessManagement/InternalOrder/index",{...header_url(req)})
+}
 
 
 
@@ -250,11 +293,21 @@ const header_url = (req) => {
 
     Object.keys(req.query).map(key => {
         if (key != 'limit' && key != 'page')
-            if (isNaN(parseInt(req.query[key]))) {
+            if (isNaN(parseInt(req.query[key])) ||validator.ObjectId.isValid(req.query[key])) {
                 query = { ...query, [key]: req.query[key] }
             }
             else {
                 query = { ...query, [key]: parseInt(req.query[key]) }
+            }
+    })
+
+    Object.keys(req.params).map(key => {
+        if (key != 'limit' && key != 'page')
+            if (isNaN(parseInt(req.params[key])) || validator.ObjectId.isValid(req.params[key])) {
+                query = { ...query, [key]: req.params[key] }
+            }
+            else {
+                query = { ...query, [key]: parseInt(req.params[key]) }
             }
     })
     return query

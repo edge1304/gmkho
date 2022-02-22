@@ -2,17 +2,32 @@
 var id_user = null
 var pageSupplier = 1
 var arrSupplier = []
-var money_code_discount = 0;
+var money_voucher_code = 0;
 var money_point = 0;
 var is_click_discount = false
 var dataPoint = null
 var offsetEmployee = 0
 var arrEmployee = []
+var arrOld = []
 checkPermission()
 function checkPermission()
 {
     drawTable()
-    callAPI('GET',`${API_EXPORT}/export-sale/checkPermission?`,null,(data)=>{
+    callAPI('GET', `${API_EXPORT}/export-sale/checkPermission/more?`, {id_export:id_export}, (data) => {
+        const inputs = $(".header-table input")
+        $(inputs[0]).val(data.dataExport.user_fullname)
+        $(inputs[1]).val(data.dataExport.user_phone)
+        $(inputs[2]).val(data.dataExport.user_address)
+        $(inputs[3]).val(data.dataExport.user_point)
+
+        money_point = data.dataExport.money_point
+        money_voucher_code = data.dataExport.money_voucher_code
+        id_user = data.dataExport.id_user
+        arrOld = data.dataExport.export_form_product
+
+        $("#input_code_discount").val(data.dataExport.voucher_code)
+        $("#input_point").val(data.dataExport.point_number)
+        changeMoney()
         data.warehouses.map(warehouse =>{
             $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
         })
@@ -112,11 +127,11 @@ function findProduct() {
                 $(input).val(null)
                 return
             }
-           
             $(div_loading).hide()
             $(input).val(data._id)
             $(input).attr("name",data.subcategory_name)
             $(input).prop("disabled", true)
+            
             if(type_export == "Xuất hàng để bán"){
                 $($(tr).find('input')[1]).val(money(data.subcategory_export_price))
                 $($(tr).find('input')[2]).val(money(data.subcategory_vat))
@@ -161,34 +176,43 @@ function changeMoney() {
         
         const subcategory_name = $(inputs[0]).attr("name")
         if (subcategory_name.length > 0) {
-            const subcategory_export_price = $(inputs[1]).val()
-            const subcategory_vat = $(inputs[2]).val()
-            const subcategory_ck = $(inputs[3]).val()
-            const subcategory_discount = $(inputs[4]).val()
+            const product_export_price = tryParseInt($(inputs[1]).val())
+            const product_vat = tryParseInt($(inputs[2]).val())
+            const product_ck =tryParseInt($(inputs[3]).val())
+            const product_discount = tryParseInt($(inputs[4]).val())
 
-            total += totalMoney(subcategory_export_price, subcategory_vat, subcategory_ck, subcategory_discount, 1)
+            total += totalMoney(product_export_price, product_vat, product_ck, product_discount, 1)
             arrProduct.push({
                 subcategory_name: subcategory_name,
-                subcategory_export_price: subcategory_export_price,
-                subcategory_vat: subcategory_vat,
-                subcategory_ck: subcategory_ck,
-                subcategory_discount: subcategory_discount,
-                money_total: totalMoney(subcategory_export_price, subcategory_vat, subcategory_ck, subcategory_discount, 1),
-                subcategory_quantity:1
+                product_export_price: product_export_price,
+                product_vat: product_vat,
+                product_ck: product_ck,
+                product_discount: product_discount,
+                money_total: totalMoney(product_export_price, product_vat, product_ck, product_discount, 1),
+                product_quantity:1
             })
         }
         
     }
+    arrOld.map(product => {
+        
+        arrProduct.push({
+            ...product,
+            money_total: totalMoney(product.product_export_price, product.product_vat, product.product_ck, product.product_discount, 1),
+        })
+        total += totalMoney(product.product_export_price, product.product_vat, product.product_ck, product.product_discount, 1)
+    })
+
     for (let i = 0; i < arrProduct.length; i++){  // gộp mảng sp để vẽ vào bảng bên cạnh
         for (let j = i + 1; j < arrProduct.length; j++){
            
             if (arrProduct[i].subcategory_name == arrProduct[j].subcategory_name &&
-                arrProduct[i].subcategory_ck == arrProduct[j].subcategory_ck &&
-                arrProduct[i].subcategory_vat == arrProduct[j].subcategory_vat &&
-                arrProduct[i].subcategory_discount == arrProduct[j].subcategory_discount &&
-                arrProduct[i].subcategory_export_price == arrProduct[j].subcategory_export_price 
+                arrProduct[i].product_ck == arrProduct[j].product_ck &&
+                arrProduct[i].product_vat == arrProduct[j].product_vat &&
+                arrProduct[i].product_discount == arrProduct[j].product_discount &&
+                arrProduct[i].product_export_price == arrProduct[j].product_export_price 
             ) {
-                arrProduct[i].subcategory_quantity += arrProduct[j].subcategory_quantity
+                arrProduct[i].product_quantity += arrProduct[j].product_quantity
                 arrProduct[i].money_total += arrProduct[j].money_total
                 arrProduct.splice(j,1)
                 j--
@@ -200,16 +224,16 @@ function changeMoney() {
         $("#tbodySmall").append(`
             <tr>
                 <td>${arrProduct[i].subcategory_name}</td>
-                <td class="center">${arrProduct[i].subcategory_quantity}</td>
+                <td class="center">${arrProduct[i].product_quantity}</td>
                 <td>${money(arrProduct[i].money_total)}</td>
             </tr>
         `)
     }
 
-    $("#totalMoney").val(money(total-money_code_discount))
+    $("#totalMoney").val(money(total-money_voucher_code))
     const paid = tryParseInt($("#paid").val()) // số tiền đã thanh toán
-    $("#debt").val(money(total - money_code_discount - money_point - paid))
-    $("#divPagination td[colspan=3] span").html(`Mã giảm giá: ${money(money_code_discount)}         &emsp;&emsp; &emsp;&emsp;     Điểm: ${money(money_point)}`) // hiển thị lại giá đã giảm giá,  tiền đổi điểm
+    $("#debt").val(money(total - money_voucher_code - money_point - paid))
+    $("#divPagination td[colspan=3] span").html(`Mã giảm giá: ${money(money_voucher_code)}         &emsp;&emsp; &emsp;&emsp;     Điểm: ${money(money_point)}`) // hiển thị lại giá đã giảm giá,  tiền đổi điểm
     return total
 }
 
@@ -304,7 +328,7 @@ $("#btnConfirm").click(e => {
     const point_number = tryParseInt($("#input_point").val())
     const receive_money = tryParseInt($("#paid").val())  // số tiền khách hàng đã trả
     const export_form_note = $("input[name=note]").val()
-    const url_api = `${API_EXPORT}/export-sale` 
+    const url_api =  `${API_EXPORT}/export-sale/more` 
     hidePopup('popupConfirm')
     callAPI('POST', url_api, {
         arrProduct: JSON.stringify(arrProduct),
@@ -314,7 +338,8 @@ $("#btnConfirm").click(e => {
         code_discount: code_discount,
         point_number: point_number,
         type_export: type_export,
-        id_fundbook:id_fundbook
+        id_fundbook: id_fundbook,
+        id_export:id_export
     }, (data) => {
         success("Thành công")
         resetPage()
@@ -334,7 +359,7 @@ function getValueCodeDiscount() {
     }, (data) => {
 
         is_click_discount = true
-        money_code_discount = data
+        money_voucher_code = data
         $(input).prop("disabled",true)
         success(`Áp dụng thành công, bạn được giảm ${money(data)}`)
         disAble()
@@ -342,7 +367,7 @@ function getValueCodeDiscount() {
         changeMoney()
     }, (err) => {
         is_click_discount = false
-        money_code_discount = 0
+        money_voucher_code = 0
         errAjax(err)
     })
 }
@@ -389,7 +414,7 @@ function getMoneyPoint() {
 }
 
 function error_change_point() {
-    money_code_discount = 0
+    money_voucher_code = 0
     $("#input_point").val(0)
     changeMoney()
 }
@@ -462,7 +487,7 @@ function resetPage() {
     id_user = null
     pageSupplier = 1
     arrSupplier = []
-    money_code_discount = 0;
+    money_voucher_code = 0;
     money_point = 0;
     is_click_discount = false
     dataPoint = null

@@ -19,13 +19,13 @@ export const timekeeping_schedule = (app)=>{
             const id_employee = req.body._caller._id;
             const branch_ipwifi = req.body.branch_ipwifi;
        
-            const branch = await ModelBranch.findById(id_branch).lean();
+            const branch = await ModelBranch.findById(id_branch);
        
             if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
             if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
 
             let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
-            const dataSchedule = await ModelTimekeepingSchedule.findOne(query).lean();
+            const dataSchedule = await ModelTimekeepingSchedule.findOne(query);
             if(dataSchedule) return res.status(400).send("Thất bại! Bạn đã chấm vào trưa hoặc các giờ khác, không thể chấm lại vào trưa.")
 
              if((branch.out_noon_schedule.hours * 60 + branch.out_noon_schedule.minutes) < (dateZone.hours*60+ dateZone.minutes )) return res.status(400).send("Thất bại!Bạn đã vượt quá giờ trực chưa"); // kiểm tra còn trong giờ sáng hay không
@@ -69,14 +69,14 @@ export const timekeeping_schedule = (app)=>{
             const id_employee = req.body._caller._id;
             const branch_ipwifi = req.body.branch_ipwifi;
 
-            const branch = await ModelBranch.findById(id_branch).lean();
+            const branch = await ModelBranch.findById(id_branch);
 
             if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
         
 
             if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
             let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
-            const timeKeeping = await ModelTimekeepingSchedule.findOne(query).lean();
+            const timeKeeping = await ModelTimekeepingSchedule.findOne(query);
             if(!timeKeeping) return res.status(400).send("Thất bại! Bạn chưa chấm vào sáng"); // chưa tạo bao h
             // kiểm tra đã kiểm chấm vào sáng chưa
             if(!validator.isChecked(timeKeeping.in_noon)) return res.status(400).send("Thất bại! Bạn chưa chấm công vào sáng");
@@ -118,7 +118,7 @@ export const timekeeping_schedule = (app)=>{
             const id_employee = req.body._caller._id;
             const branch_ipwifi = req.body.branch_ipwifi;
 
-            const branch = await ModelBranch.findById(id_branch).lean();
+            const branch = await ModelBranch.findById(id_branch);
 
             if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
         
@@ -138,7 +138,7 @@ export const timekeeping_schedule = (app)=>{
                 late_night = {hours: validator.tryParseInt(late/60), minutes:validator.tryParseInt(late%60), seconds:0}
             }
 
-            const timeKeeping = await ModelTimekeepingSchedule.findOne(query).lean();
+            const timeKeeping = await ModelTimekeepingSchedule.findOne(query);
 
             if(!timeKeeping)  // lần đầu chấm
             {
@@ -177,7 +177,7 @@ export const timekeeping_schedule = (app)=>{
             const id_employee = req.body._caller._id;
             const branch_ipwifi = req.body.branch_ipwifi;
 
-            const branch = await ModelBranch.findById(id_branch).lean();
+            const branch = await ModelBranch.findById(id_branch);
 
             if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
         
@@ -185,7 +185,7 @@ export const timekeeping_schedule = (app)=>{
             if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
             let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
             // kiểm tra giờ chấm phải > giờ ra sáng
-            const timeKeeping = await ModelTimekeepingSchedule.findOne(query).lean();
+            const timeKeeping = await ModelTimekeepingSchedule.findOne(query);
 
             if(!timeKeeping)  return res.status(400).send("Thất bại! Bạn chưa chấm công vào tối") 
             if(!validator.isChecked(timeKeeping.in_night))  return res.status(400).send("Thất bại! Bạn chưa chấm công vào tối")
@@ -231,11 +231,11 @@ export const management_schedule = async (app)=>{
             {
                 if(! await helper.checkPermission("61e6e38607faee0053c02ecb", req.body._caller.id_employee_group)) return res.status(400).send("Thất bại! Bạn không có quyền sử dụng chức năng này!")
 
-                const dataEmployee = await ModelEmployee.find({id_branch:req.body._caller.id_branch_login}).lean();
+                const dataEmployee = await ModelEmployee.find({id_branch:req.body._caller.id_branch_login});
     
                 for(let i = 0 ; i <dataEmployee.length ; i++)
                 {
-                    const dataTime = await ModelTimekeepingSchedule.findOne({$and:[{id_employee:dataEmployee[i]._id},{createdAt:{$gte:new Date(req.query.fromdate+" 00:00:00")}},{createdAt:{$lte:new Date(req.query.fromdate+" 23:59:59")}}]}).lean();
+                    const dataTime = await ModelTimekeepingSchedule.findOne({$and:[{id_employee:dataEmployee[i]._id},{createdAt:{$gte:new Date(req.query.fromdate+" 00:00:00")}},{createdAt:{$lte:new Date(req.query.fromdate+" 23:59:59")}}]});
                     dataEmployee[i] = {...dataEmployee[i], data:dataTime}
          
                 }
@@ -267,12 +267,12 @@ export const report_schedule = async (app)=>{
             {
                 if(! await helper.checkPermission("61e6e38607faee0053c02ecb", req.body._caller.id_employee_group)) return res.status(400).send("Thất bại! Bạn không có quyền sử dụng chức năng này!")
 
-                const dataEmployee = await ModelEmployee.find({id_branch:req.body._caller.id_branch_login}).lean();
+                const dataEmployee = await ModelEmployee.find({id_branch:req.body._caller.id_branch_login});
                 const fromdate = sanitize(req.query.fromdate)
                 const todate = sanitize(req.query.todate)
                 for(let i = 0 ; i <dataEmployee.length ; i++)
                 {
-                    const dataTime = await ModelTimekeepingSchedule.find({$and:[{id_employee:dataEmployee[i]._id},{createdAt:{$gte:new Date(fromdate+" 00:00:00")}},{createdAt:{$lte:new Date(todate+" 23:59:59")}}]}).lean();
+                    const dataTime = await ModelTimekeepingSchedule.find({$and:[{id_employee:dataEmployee[i]._id},{createdAt:{$gte:new Date(fromdate+" 00:00:00")}},{createdAt:{$lte:new Date(todate+" 23:59:59")}}]});
                     dataEmployee[i] = {...dataEmployee[i], data:dataTime}
          
                 }
@@ -316,7 +316,7 @@ export const getDataSchedule = async (app)=>{
             {
                 offset = validator.tryParseInt(req.query.offset)
             }
-            const dataTime = await ModelTimekeepingSchedule.find(query).lean().sort({createdAt:-1}).skip(offset).limit(limit)
+            const dataTime = await ModelTimekeepingSchedule.find(query).sort({createdAt:-1}).skip(offset).limit(limit)
             return res.json(dataTime)
         })
     }
@@ -336,10 +336,10 @@ export const addTimekeepingSchedule_byAdmin = async (app)=>{
     {
         app.post(prefixApi+"/admin", helper.authenToken, async (req,res)=>{
             const id_employee = sanitize(req.body.id_employee)
-            const dataEm = await ModelEmployee.findById(id_employee).lean()
+            const dataEm = await ModelEmployee.findById(id_employee)
             if(!dataEm) return res.status(400).send("Thất bại! Không tìm thấy sản phẩm")
             
-            const dataWork = await ModelTimekeepingSchedule.findOne({id_employee:id_employee,$and:[{createdAt:{$gte:validator.dateTimeZone().startOfDay}},{createdAt:{$lte:validator.dateTimeZone().endOfDay}}]}).lean()
+            const dataWork = await ModelTimekeepingSchedule.findOne({id_employee:id_employee,$and:[{createdAt:{$gte:validator.dateTimeZone().startOfDay}},{createdAt:{$lte:validator.dateTimeZone().endOfDay}}]})
             if(dataWork) return res.status(400).send("Thất bại! Nhân viên này đã chấm công hôm nay")
 
             const in_noon = sanitize(req.body.in_noon)
@@ -347,7 +347,7 @@ export const addTimekeepingSchedule_byAdmin = async (app)=>{
             const in_night = sanitize(req.body.in_night)
             const out_night = sanitize(req.body.out_night)
 
-            const dataBranch = await ModelBranch.findById(req.body._caller.id_branch_login).lean()
+            const dataBranch = await ModelBranch.findById(req.body._caller.id_branch_login)
             if(!dataBranch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh")
 
             var late_noon = {hours:0,minutes:0,seconds:0}

@@ -7,7 +7,7 @@ checkPermission()
 function checkPermission()
 {
     drawTable()
-    callAPI('GET',`${API_IMPORT_SUPPLIER}/add?`,null,(data)=>{
+    callAPI('GET',`${API_IMPORT}/import-supplier/checkPermission`,null,(data)=>{
         data.warehouses.map(warehouse =>{
             $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
         })
@@ -355,20 +355,20 @@ $("#btnConfirm").click(e => {
         info("Hãy chọn ít nhật một sản phẩm")
         return
     }
-    const id_fundbook = $("#selectTypePayment option:selected").val().trim()
-    if (id_fundbook.length == 0) {
+    const id_fundbook = $("#selectTypePayment option:selected").val()
+    if (!id_fundbook) {
         info("Hãy chọn hình thức thanh toán")
         return
     }
-    const id_warehouse = $("#selectWarehouse option:selected").val().trim()
-    if (id_warehouse.length == 0) {
+    const id_warehouse = $("#selectWarehouse option:selected").val()
+    if (!id_warehouse) {
         info("Hãy chọn kho để nhập hàng")
         return
     }
-    console.log(arrProduct)
+
     const payment_form = tryParseInt($("#paid").val())
     const import_form_note = $("input[name=note]").val()
-    const url_api = type_import == "Nhập hàng từ nhà cung cấp" ? `${API_IMPORT_SUPPLIER}/add` : `${API_IMPORT_PERIOD}/add`
+    const url_api = `${API_IMPORT}/${ type_import == "Nhập hàng từ nhà cung cấp" ?'import-supplier':'import-period'}`
     hidePopup('popupConfirm')
     callAPI('POST', url_api, {
         type_import: type_import,

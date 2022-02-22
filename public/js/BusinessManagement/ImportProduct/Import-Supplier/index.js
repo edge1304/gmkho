@@ -2,7 +2,7 @@ var getOther = true
 var arrData = []
 checkPermission()
 function checkPermission() {
-    callAPI('GET', `${API_IMPORT_SUPPLIER}/add?`, null, (data) => {
+    callAPI('GET',`${API_IMPORT}/import-supplier/checkPermission`,null,(data)=>{
         data.warehouses.map(warehouse => {
             $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
         })
@@ -16,14 +16,14 @@ function checkPermission() {
 function getData() {
     limit = tryParseInt($("#selectLimit option:selected").val())
     key = $("#inputFind").val()
-    callAPI('GET', API_IMPORT_SUPPLIER, {
+    callAPI('GET', `${API_IMPORT}/import-supplier`, {
         limit: limit,
         key: key,
         id_warehouse: $("#selectWarehouse option:selected").val(),
         fromdate: $("#fromdate").val(),
         todate: $("#todate").val(),
         page: page,
-        import_form_type:"Nhập hàng từ nhà cung cấp"
+        import_form_type:type_import
     }, data => {
       
         drawTable(data.data)
@@ -37,7 +37,7 @@ function drawTable(data) {
     for (let i = 0; i < data.length; i++){
         
         
-        let total = calculateMoney(data[i].import_form_product)
+        let total = calculateMoneyImport(data[i].import_form_product)
         arrData.push(data[i])
         $("#tbodyTable").append(`
             <tr>
@@ -85,11 +85,11 @@ function showEdit(index) {
         </tr>
         <tr>
             <th>Tổng tiền</th>
-            <td >${money(calculateMoney(arrData[index].import_form_product))}</td>
+            <td >${money(calculateMoneyImport(arrData[index].import_form_product))}</td>
         </tr>
         <tr>
             <th>Còn nợ</th>
-            <td>${money(calculateMoney(arrData[index].import_form_product )- arrData[index].payment_form_money)}</td>
+            <td>${money(calculateMoneyImport(arrData[index].import_form_product )- arrData[index].payment_form_money)}</td>
         </tr>
         <tr>
             <th>HT thanh toán</th>
@@ -117,7 +117,7 @@ function showEdit(index) {
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].import_form_product[i].product_warranty)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].import_form_product[i].product_discount)}" disabled></td>
 
-                <td>${money(calculateMoney(arrData[index].import_form_product[i]))}</td>
+                <td>${money(calculateMoneyImport(arrData[index].import_form_product[i]))}</td>
             </tr>
         `)
     }
@@ -127,13 +127,20 @@ function showEdit(index) {
         $(".div-payment").hide()
     }
     else {
-        $("#btnAddMore").show()
-        $("#btnSaveEdit").show()
-        $(".div-payment").show()
-        $("#payment_zero").val('false')
-        $("#payment_zero").prop('checked',false)
-        $("#btnSaveEdit").attr("onclick",`confirmSaveEdit(${index})`)
-        $("#btnAddMore").attr("href",`/import-product-from-supplier/add/${arrData[index]._id}`)
+        if (type_import == "Nhập hàng khách trả lại") {
+            $("#btnAddMore").hide()
+        }
+        else {
+            $("#btnAddMore").show()
+        }
+            $("#btnSaveEdit").show()
+            $(".div-payment").show()
+            $("#payment_zero").val('false')
+            $("#payment_zero").prop('checked',false)
+            $("#btnSaveEdit").attr("onclick",`confirmSaveEdit(${index})`)
+            $("#btnAddMore").attr("href",`/import-product-from-supplier/import/import-supplier/add/${arrData[index]._id}`)
+        
+        
     } 
     changeMoney()
     formatNumber()
@@ -141,18 +148,7 @@ function showEdit(index) {
     showPopup('popupEdit')
 }
 
-function calculateMoney(data) {
-    let total = 0
-    if (Array.isArray(data)) {
-        data.map(product => {
-            total += totalMoney(product.product_import_price, product.product_vat, product.product_ck, product.product_discount, product.product_quantity)
-        })
-    }
-    else {
-        total += totalMoney(data.product_import_price, data.product_vat, data.product_ck, data.product_discount, data.product_quantity)
-    }
-    return total
-}
+
 
 function confirmSaveEdit(index) {
     const modelBoby = $("#popupEdit .modal-body")
@@ -189,7 +185,8 @@ function confirmSaveEdit(index) {
     const is_payment_zero = $("#payment_zero").val()
    
     hidePopup('popupEdit')
-    callAPI('PUT', API_IMPORT_SUPPLIER, {
+    
+    callAPI('PUT', `${API_IMPORT}/import-supplier`, {
         arrProduct: JSON.stringify(arrProduct),
         id_fundbook: id_fundbook,
         payment_form_money: payment_form,

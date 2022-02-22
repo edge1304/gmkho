@@ -3,49 +3,51 @@ import * as validator from "./../helper/validator.js";
 const schemaProduct = new mongoose.Schema({
     id_subcategory: {
         type: validator.ObjectId,
-        required: true,
+        ...validator.schemaRequired
     },
     id_product2: {
-        type: String,
-        default:null
+        ...validator.schemaString,
     },
     subcategory_name: {
-        type: String,
-        default:null
+        ...validator.schemaString,
     },
     product_import_price: {
-        type: Number,
-        default:0
+        ...validator.schemaNumber,
     },
     product_import_price_return: {
-        type: Number,
-        default:0
+        ...validator.schemaNumber,
     },
     product_vat: {
-        type: Number,
-        default:0
+        ...validator.schemaNumber,
     },
     product_ck: {
-        type: Number,
-        default:0
+        ...validator.schemaNumber,
     },
     product_discount: {
-        type: Number,
-        default:0
+        ...validator.schemaNumber,
     },
     product_quantity: {
-        type: Number,
+        ...validator.schemaNumber,
         default:1
     },
     product_warranty: {
-        type: Number,
-        default:0
+        ...validator.schemaNumber,
     },
     product_index: {
-        type: Number,
-        default:0
+        ...validator.schemaNumber,
     },
-  
+    subcategory_point: {
+        ...validator.schemaNumber,
+    },
+    subcategory_part: {
+        ...validator.schemaNumber,
+    },
+    id_employee: {
+        ...validator.schemaObjectId
+    },
+    id_form_export: {
+        ...validator.schemaObjectId
+    }
 })
 const SchemaImportForm = new mongoose.Schema(
     {

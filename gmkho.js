@@ -76,6 +76,9 @@ createControllerImportSupplier(app)
 import createControllerImportPeriod from "./controllers/ControllerImport/import-period/index.js";
 createControllerImportPeriod(app)
 
+import createControllerImportReturn from "./controllers/ControllerImport/import-return/index.js";
+createControllerImportReturn(app)
+
 import createControllerExportSale from "./controllers/ControllerExport/export-sale/index.js";
 createControllerExportSale(app)
 
@@ -93,6 +96,9 @@ createControllerVoucher(app)
 
 import createControllerProduct from "./controllers/ControllerProduct.js";
 createControllerProduct(app)
+
+
+
 app.use(routerAdmin);
 
 
@@ -152,6 +158,9 @@ import { ModelPayment } from "./models/Payment.js"
 import { ModelDebt } from "./models/Debt.js"
 import { ModelPoint } from "./models/Point.js"
 import { ModelVoucher } from "./models/Voucher.js"
+import { ModelExportForm } from "./models/ExportForm.js"
+import { ModelReceive } from "./models/Receive.js"
+import { ModelPart } from "./models/Part.js"
 
 
 app.get("/lay:name", async (req, res) => {
@@ -209,6 +218,12 @@ app.get("/lay:name", async (req, res) => {
         db = ModelPoint
     if (req.params.name == "Voucher")
         db = ModelVoucher
+    if (req.params.name == "Export")
+        db = ModelExportForm
+    if (req.params.name == "Receive")
+        db = ModelReceive
+    if (req.params.name == "Part")
+        db = ModelPart
     const data = await db.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req));
     return res.json(data)
 })
@@ -249,6 +264,12 @@ app.get("/empty/:name", async (req, res) => {
         db = ModelPoint
     if (req.params.name == "Voucher")
         db = ModelVoucher
+    if (req.params.name == "Export")
+        db = ModelExportForm
+    if (req.params.name == "Receive")
+        db = ModelReceive
+    if (req.params.name == "Part")
+        db = ModelPart
     const data = await db.deleteMany({})
     return res.json(data)
 })
@@ -269,9 +290,28 @@ app.get("/addEmployee/1", async (req, res) => {
 })
 
 app.get("/ABC", async (req, res) => {
-    await ModelUser.findByIdAndUpdate("620b7e96cafc31ae3659708b",{
-        user_point:100
-    })
+    for (let i = 0; i < 15; i++){
+        await new ModelEmployee({
+            "employee_fullname": `Ngô Tú Vĩ${i}`,
+            "employee_phone": `058742554${i}`,
+            "employee_image": null,
+            "employee_address": null,
+            "id_branch": "61e15300a4665e6a0db700e8",
+            "password": null,
+            "employee_salary": 0,
+            "employee_salary_duty": 0,
+            "employee_status": false,
+            "employee_bank_number": null,
+            "employee_bank_name": null,
+            "id_employee_group": "61e156b47dc2ff811e02ccb3",
+            "employee_history_work": [],
+            "employee_history_salary": [],
+            "employee_lunch_allowance": 0,
+            "employee_revenue_percent": 0,
+            "employee_level": null,
+            "employee_datebirth": "2022-01-21T08:41:05.917Z",
+        }).save()
+    }
     
     return res.json("ok")
 })

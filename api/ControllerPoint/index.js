@@ -50,7 +50,7 @@ export const update = async (app)=>{
 
 export const update_point_user = async (id_user , point) =>{
     try{
-        console.log("haha")
+        
     }
     catch(e){
         console.log(e)
@@ -78,14 +78,15 @@ export const checkValuePoint = async (app) => {
 }
 export const checkPoint = async (id_user, point_number, res) => {
     try
-    {
+    {  
         if(! validator.ObjectId.isValid(id_user)) return res.status(400).send("Thất bại! Không tìm thấy khách hàng")
         point_number = validator.tryParseInt(point_number)
         const dataPoint = await ModelPoint.findOne()
         if (!dataPoint) return res.status(400).send("Không tìm thấy chỉ số quy đổi")
         const data_user = await ModelUser.findById(id_user)
-        if(!data_user) return res.status(400).send("Thất bại! Không tìm thấy khách hàng")
+        if (!data_user) return res.status(400).send("Thất bại! Không tìm thấy khách hàng")
         if (point_number > data_user.user_point) return res.status(400).send(`Khách hàng không đủ ${point_number} điểm để thực hiện quy đổi`)
+      
         return (dataPoint.point_value/ dataPoint.point_number)*point_number
     }
     catch (e) {

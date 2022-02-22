@@ -5,16 +5,16 @@
 
 <head>
     <link rel="stylesheet" href="/css/export_product/find_export_supplier.css">
-    <%- include('../../../header',{title:"Xuất hàng | Tìm kiếm phiếu xuất hàng để bán"}) %>
+    <%- include('../../../header',{title:"Xuất hàng | Tìm kiếm phiếu xuất hàng trả lại nhà cc"}) %>
         <div class="page-content">
             <div class="header-table">
               <div>
                 <ul class="nav nav-tabs">
                   <li class="nav-item">
-                    <a class="nav-link" href="/export-product-to-sale/add">Xuất mới</a>
+                    <a class="nav-link" href="/export-product-to-return/add">Xuất mới</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link active" href="/export-product-to-sale/find">Tìm kiếm</a>
+                    <a class="nav-link active" href="/export-product-to-return/find">Tìm kiếm</a>
                   </li>
                 </ul>
               </div>
@@ -151,7 +151,7 @@
               var key = '<%- key %>'
               var fromdate = '<%- fromdate %>'
               var todate = '<%- todate %>'
-              const type_export = "Xuất hàng để bán"
+              const type_export = "Xuất hàng trả lại nhà cung cấp"
         </script>
 
         <script src="/js/BusinessManagement/ExportProduct/export-sale/index.js"></script>

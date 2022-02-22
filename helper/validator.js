@@ -113,7 +113,7 @@ export const throwValue = (val) => {
 export const tryParseInt = function (str) {
     try {
         if (!isDefine(str)) return 0;
-        return parseInt(str.toString().replaceAll(",", "")) || 0;
+        return Math.round(str.toString().replaceAll(",", "")) || 0;
     } catch (e) {
         return 0;
     }
@@ -727,11 +727,11 @@ export const removeFile = async (url) => {
     }
 }
 
-export const totalMoney = (price = 0, vat = 0, ck = 0, discount = 0, number = 1) =>{
-    return (tryParseInt(price) + tryParseInt(price)/100*tryParseInt(vat) - tryParseInt(price)/100*tryParseInt(ck) + tryParseInt(discount))*tryParseInt(number)
+export const totalMoney = (price = 0, vat = 0, ck = 0, discount = 0, number = 1) => {
+    return (tryParseInt(price) + tryParseInt(price)/100*tryParseInt(vat) - tryParseInt(price)/100*tryParseInt(ck) - tryParseInt(discount))*tryParseInt(number)
 }
 
-export const calculateMoney =  (data) => {
+export const calculateMoneyImport = (data) => {
     let total = 0
     if (Array.isArray(data)) {
         data.map(product => {
@@ -740,6 +740,19 @@ export const calculateMoney =  (data) => {
     }
     else {
         total += totalMoney(data.product_import_price, data.product_vat, data.product_ck, data.product_discount, data.product_quantity)
+    }
+    return total
+}
+
+export const calculateMoneyExport = (data)=>{
+    let total = 0
+    if (Array.isArray(data)) {
+        data.map(product => {
+            total += totalMoney(product.product_export_price, product.product_vat, product.product_ck, product.product_discount, product.product_quantity)
+        })
+    }
+    else {
+        total += totalMoney(data.product_export_price, data.product_vat, data.product_ck, data.product_discount, data.product_quantity)
     }
     return total
 }

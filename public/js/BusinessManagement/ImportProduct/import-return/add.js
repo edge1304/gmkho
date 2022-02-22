@@ -12,13 +12,15 @@ checkPermission()
 function checkPermission()
 {
     drawTable()
-    callAPI('GET',`${API_EXPORT}/export-sale/checkPermission?`,null,(data)=>{
-        data.warehouses.map(warehouse =>{
-            $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
-        })
-
-        data.fundbooks.map(fund =>{
-            $("#selectTypePayment").append(`<option value="${fund._id}">${fund.fundbook_name}</option>`)
+    callAPI('GET',`${API_IMPORT}/import-supplier?`,null,(data)=>{
+        callAPI('GET',`${API_IMPORT}/import-supplier/checkPermission`,null,(data)=>{
+            data.warehouses.map(warehouse => {
+                $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
+            })
+      
+            data.fundbooks.map(fund => {
+                $("#selectTypePayment").append(`<option value="${fund._id}">${fund.fundbook_name}</option>`)
+            })
         })
     })
 }
@@ -39,7 +41,7 @@ function drawTable(){
         <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập giảm giá. . ."></td>
         <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập bảo hành . . ."></td>
         <td>
-            <input oninput="findEmployee()" value="" class="form-control" placeholder="Nhập tên nhân viên . . .">
+            <input oninput="findEmployee()" value="" class="form-control" disabled placeholder="Nhập tên nhân viên . . .">
             <div class="spinner-border" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
@@ -106,8 +108,8 @@ function findProduct() {
         callAPI('GET',API_PRODUCT,{
             key:key,
         }, data => {
-            if (data.product_status) {
-                info("Sản phẩm này đã xuất kho")
+            if (!data.product_status) {
+                info("Sản phẩm này chưa xuất kho")
                 $(div_loading).hide()
                 $(input).val(null)
                 return
@@ -117,20 +119,13 @@ function findProduct() {
             $(input).val(data._id)
             $(input).attr("name",data.subcategory_name)
             $(input).prop("disabled", true)
-            if(type_export == "Xuất hàng để bán"){
-                $($(tr).find('input')[1]).val(money(data.subcategory_export_price))
-                $($(tr).find('input')[2]).val(money(data.subcategory_vat))
-                $($(tr).find('input')[3]).val(money(data.subcategory_ck))
-                $($(tr).find('input')[4]).val(money(data.subcategory_discount))
-                $($(tr).find('input')[5]).val(money(data.product_warranty))
-            }
-            else{
-                $($(tr).find('input')[1]).val(money(data.subcategory_import_price))
-                $($(tr).find('input')[2]).val(money(data.subcategory_vat))
-                $($(tr).find('input')[3]).val(money(data.subcategory_ck))
-                $($(tr).find('input')[4]).val(money(data.subcategory_discount))
-                $($(tr).find('input')[5]).val(money(data.product_warranty))
-            }
+         
+            $($(tr).find('input')[1]).val(money(data.product_export_price))
+            $($(tr).find('input')[2]).val(money(data.product_export_vat))
+            $($(tr).find('input')[3]).val(money(data.product_export_ck))
+            $($(tr).find('input')[4]).val(money(data.product_export_discount))
+            $($(tr).find('input')[5]).val(money(data.product_export_warranty))
+            
 
             changeMoney()
             drawTable()
@@ -269,7 +264,7 @@ $("#btnConfirm").click(e => {
         if ($(inputs[0]).val().length == 24 ) {
 
             const id_product = $(inputs[0]).val().trim()
-            const product_export_price = tryParseInt($(inputs[1]).val())
+            const product_import_price = tryParseInt($(inputs[1]).val())
             const product_vat = tryParseInt($(inputs[2]).val())
             const product_ck = tryParseInt($(inputs[3]).val())
             const product_discount = tryParseInt($(inputs[4]).val())
@@ -279,7 +274,7 @@ $("#btnConfirm").click(e => {
     
             arrProduct.push({
                 id_product:id_product,
-                product_export_price:product_export_price,
+                product_import_price:product_import_price,
                 product_vat:product_vat,
                 product_ck:product_ck,
                 product_discount:product_discount,
@@ -302,23 +297,24 @@ $("#btnConfirm").click(e => {
     }
     const code_discount = is_click_discount ? $("#input_code_discount").val().trim() : null
     const point_number = tryParseInt($("#input_point").val())
-    const receive_money = tryParseInt($("#paid").val())  // số tiền khách hàng đã trả
-    const export_form_note = $("input[name=note]").val()
-    const url_api = `${API_EXPORT}/export-sale` 
+    const payment_money = tryParseInt($("#paid").val())  // số tiền khách hàng đã trả
+    const import_form_note = $("input[name=note]").val()
+    const id_warehouse = $("#selectWarehouse option:selected").val()
     hidePopup('popupConfirm')
-    callAPI('POST', url_api, {
+    callAPI('POST', `${API_IMPORT}/import-return`, {
         arrProduct: JSON.stringify(arrProduct),
         id_user: id_user,
-        receive_money: receive_money,
-        export_form_note: export_form_note,
-        code_discount: code_discount,
-        point_number: point_number,
-        type_export: type_export,
-        id_fundbook:id_fundbook
+        payment_money: payment_money,
+        import_form_note: import_form_note,
+        // code_discount: code_discount,
+        // point_number: point_number,
+        type_import: type_import,
+        id_fundbook: id_fundbook,
+        id_warehouse: id_warehouse
     }, (data) => {
         success("Thành công")
         resetPage()
-        newPage(`/export/print/${data._id}`)
+        newPage(`/import/print/${data._id}`)
     })
 })
 
@@ -476,8 +472,8 @@ function resetPage() {
     $("#paid").val(0)
     $("input[name=note]").val(null)
     $("#input_code_discount").val(null)
-    $("#input_code_discount").prop("disabled",false)
-    $("#input_point").prop("disabled",false)
+    $("#input_code_discount").prop("disabled",true)
+    $("#input_point").prop("disabled",true)
     $("#input_point").val(0)
     drawTable()
     changeMoney()

@@ -19,8 +19,9 @@ const API_TIMEKEEPING_SCHEDULE = `/api/timekeeping/schedule` // api chấm công
 const API_TIMEKEEPING = `/api/timekeeping` // api chấm công đi làm
 const API_FUNDBOOK = `/api/fundbook` // api sổ quỹ
 const API_ACCOUNTING_ENTRY = `/api/accounting-entry` // api bút toán thu chi
-const API_IMPORT_SUPPLIER = `/api/import-supplier` // api NHẬP hàng từ nhà cung cấp
-const API_IMPORT_PERIOD = `/api/import-period`
+const API_IMPORT = `/api/import` // api NHẬP hàng từ nhà cung cấp
+// const API_IMPORT_PERIOD = `/api/import-period`
+// const API_IMPORT_RETURN = `/api/import/return`
 const API_USER = `/api/user` // api user ( khách hàng)
 const API_POINT = `/api/point` // api tích điểm ( khách hàng)
 const API_VOUCHER = `/api/voucher` // api mã giảm giá 
@@ -554,3 +555,36 @@ function totalMoney(price = 0, vat = 0 , ck = 0 , discount = 0, number = 1 ){
     return (tryParseInt(price) + tryParseInt(price)/100*tryParseInt(vat) - tryParseInt(price)/100*tryParseInt(ck) - tryParseInt(discount))*tryParseInt(number)
 }
 
+function newPage(link) {
+    const a = document.createElement('a')
+    a.setAttribute("href", link)
+    a.setAttribute("target", `_blank`)
+    a.click()
+}
+
+function calculateMoneyExport(data) {
+    let total = 0
+    if (Array.isArray(data)) {
+        data.map(product => {
+            total += totalMoney(product.product_export_price, product.product_vat, product.product_ck, product.product_discount, product.product_quantity)
+        })
+    }
+    else {
+        total += totalMoney(data.product_export_price, data.product_vat, data.product_ck, data.product_discount, data.product_quantity)
+    }
+    return total
+}
+
+
+function calculateMoneyImport(data) {
+    let total = 0
+    if (Array.isArray(data)) {
+        data.map(product => {
+            total += totalMoney(product.product_import_price, product.product_vat, product.product_ck, product.product_discount, product.product_quantity)
+        })
+    }
+    else {
+        total += totalMoney(data.product_import_price, data.product_vat, data.product_ck, data.product_discount, data.product_quantity)
+    }
+    return total
+}

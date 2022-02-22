@@ -189,3 +189,30 @@ export const insert = async (app) => {
 
     })
 }
+
+export const getInfo = async (app) => {
+    app.get(prefixApi + "/info", helper.authenToken, async (req, res) => {
+        try {
+            var query = {}
+            if (validator.isDefine(req.query.key)) {
+                query = {
+                    ...query,
+                    $or:[{employee_fullname:{$regex:".*"+req.query.key+".*" , $options:"$i"}}, {employee_phone:{$regex:".*"+req.query.key+".*" , $options:"$i"}}]
+                }
+            }
+            if (req.query.is_branch === 'true') {
+                query = {
+                    ...query,
+                    id_branch:id_branch_login
+                }
+            }
+            const data = await ModelEmployee.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+            return res.json(data)
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+       
+    })
+}

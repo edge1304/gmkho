@@ -130,6 +130,9 @@
 #table-main th:nth-child(1) {
     width: 24%;
 }
+#table-main th:last-child {
+    width: 4%;
+}
 #table-main th:nth-child(2),
 #table-main th:nth-child(5) {
     width: 16%;
@@ -141,6 +144,7 @@
 }
 #table-main th:nth-child(7) {
     width: 17%;
+    display: none;
 }
 #table-main td:first-child {
     position: relative;
@@ -153,6 +157,7 @@
 }
 #table-main tbody td:nth-child(7) {
     position: relative;
+    display: none;
 }
 #table-main tbody td:nth-child(7) .spinner-border {
     position: absolute;
@@ -170,4 +175,6 @@
     max-height: 110px;
     overflow: auto;
     width: 230px;
+    
 }
+

@@ -2,7 +2,7 @@ var getOther = true
 var arrData = []
 checkPermission()
 function checkPermission() {
-    callAPI('GET', `${API_IMPORT_PERIOD}/add?`, null, (data) => {
+    callAPI('GET', `${API_IMPORT}/import-supplier/checkPermission`, null, (data) => {
         data.warehouses.map(warehouse => {
             $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
         })
@@ -16,7 +16,7 @@ function checkPermission() {
 function getData() {
     limit = tryParseInt($("#selectLimit option:selected").val())
     key = $("#inputFind").val()
-    callAPI('GET', API_IMPORT_PERIOD, {
+    callAPI('GET', `${API_IMPORT}/import-supplier`, {
         limit: limit,
         key: key,
         id_warehouse: $("#selectWarehouse option:selected").val(),
@@ -36,7 +36,7 @@ function drawTable(data) {
     arrData = []
     for (let i = 0; i < data.length; i++){
         
-    let total = calculateMoney(data[i].import_form_product)
+    let total = calculateMoneyImport(data[i].import_form_product)
     arrData.push(data[i])
     $("#tbodyTable").append(`
         <tr>
@@ -84,11 +84,11 @@ function showEdit(index) {
         </tr>
         <tr>
             <th>Tổng tiền</th>
-            <td >${money(calculateMoney(arrData[index].import_form_product))}</td>
+            <td >${money(calculateMoneyImport(arrData[index].import_form_product))}</td>
         </tr>
         <tr>
             <th>Còn nợ</th>
-            <td>${money(calculateMoney(arrData[index].import_form_product )- arrData[index].payment_form_money)}</td>
+            <td>${money(calculateMoneyImport(arrData[index].import_form_product )- arrData[index].payment_form_money)}</td>
         </tr>
         <tr>
             <th>HT thanh toán</th>
@@ -116,7 +116,7 @@ function showEdit(index) {
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].import_form_product[i].product_warranty)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].import_form_product[i].product_discount)}" disabled></td>
 
-                <td>${money(calculateMoney(arrData[index].import_form_product[i]))}</td>
+                <td>${money(calculateMoneyImport(arrData[index].import_form_product[i]))}</td>
             </tr>
         `)
     }
@@ -130,14 +130,14 @@ function showEdit(index) {
         $("#btnSaveEdit").show()
         $(".div-payment").show()
         $("#btnSaveEdit").attr("onclick",`confirmSaveEdit(${index})`)
-        $("#btnAddMore").attr("href",`/import-product-from-period/add/${arrData[index]._id}`)
+        $("#btnAddMore").attr("href",`/import-product-from-period/import/import-period/add/${arrData[index]._id}`)
     } 
     changeMoney()
     formatNumber()
     showPopup('popupEdit')
 }
 
-function calculateMoney(data) {
+function calculateMoneyImport(data) {
     let total = 0
     if (Array.isArray(data)) {
         data.map(product => {
@@ -177,7 +177,7 @@ function confirmSaveEdit(index) {
     }
 
     hidePopup('popupEdit')
-    callAPI('PUT', API_IMPORT_PERIOD, {
+    callAPI('PUT', `${API_IMPORT}/import-period`, {
         arrProduct: JSON.stringify(arrProduct),
         id_import: arrData[index]._id
     }, (data) => {

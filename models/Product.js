@@ -202,7 +202,7 @@ SchemaProduct.pre(['deleteMany'], async function (  next) {
     
 // })
 SchemaProduct.post(['save', 'updateOne', 'updateMany', 'findByIdAndUpdate'], async (docs) => {
-
+   
     if (Array.isArray(docs)) {
         await Promise.all(  docs.map(async product => {
             await updateByCount(product)

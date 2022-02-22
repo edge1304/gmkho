@@ -4,24 +4,24 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="/css/export_product/add_export_sale.css">
-    <%- include('../../../header',{title:"Xuất hàng | Xuất hàng để bán (lần 2)"}) %>
+    <link rel="stylesheet" href="/css/export_product/add_export_return.css">
+    <%- include('../../../header',{title:"Xuất hàng | Xuất hàng trả lại nhà cung cấp"}) %>
         <div class="page-content">
             <div class="header-table">
               <div>
                 <ul class="nav nav-tabs">
                   <li class="nav-item">
-                    <a class="nav-link active" href="/export-product-to-sale/add">Xuất mới</a>
+                    <a class="nav-link active" href="/export-product-to-return/add">Xuất mới</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="/export-product-to-sale/find">Tìm kiếm</a>
+                    <a class="nav-link" href="/export-product-to-return/find">Tìm kiếm</a>
                   </li>
                 </ul>
               </div>
               <div class="row">
                 <div id="div_find_supplier" class="col-6 col-md-3 relative">
                   <label>Khách hàng</label>
-                  <input placeholder="Nhập tên nhà cung cấp hoặc số điện thoại" disabled oninput="findSupplier()" class="form-control">
+                  <input placeholder="Nhập tên nhà cung cấp hoặc số điện thoại" oninput="findSupplier()" class="form-control">
                   <div class="spinner-border text-primary" role="status">
                     <span class="sr-only">Loading...</span>
                   </div>
@@ -100,13 +100,13 @@
                         <tr>
                           <td>Mã giảm giá</td>
                           <td>
-                             <input  class="form-control" value="" id="input_code_discount"  placeholder="Nhập mã giảm giá">
-                             <button class="btn btn-success"  onclick="getValueCodeDiscount()">Áp dụng</button>
+                             <input disabled class="form-control" value="" id="input_code_discount"  placeholder="Nhập mã giảm giá">
+                             <button disabled class="btn btn-success" onclick="getValueCodeDiscount()">Áp dụng</button>
                           </td>
                           <td>Đổi điểm</td>
                           <td>
-                              <input   class="form-control number" oninput="getMoneyPoint()" value="0" id="input_point"  placeholder="Nhập số điểm cần đổi">
-                              <button  onclick="getMoneyPoint()" class="btn btn-success">ÁP Dụng</button>
+                              <input disabled class="form-control number" oninput="getMoneyPoint()" value="0" id="input_point"  placeholder="Nhập số điểm cần đổi">
+                              <button onclick="getMoneyPoint()" class="btn btn-success">ÁP Dụng</button>
                           </td>
                           <td></td>
                           <td colspan="3">
@@ -145,13 +145,11 @@
         <!-- ====================================== -->
         <%- include('../../../footer') %>
         <script>
-            const type_export = "Xuất hàng để bán"
-            const id_export = "<%- id_export %>"
-           
+            const type_export = "Xuất hàng trả lại nhà cung cấp"
         </script>
           <script src="https://cdn.jsdelivr.net/alasql/0.3/alasql.min.js"></script>
         <script src="/assets/js/xlsx.core.min.js"></script>
-        <script src="/js/BusinessManagement/ExportProduct/export-sale/more.js"></script>
+        <script src="/js/BusinessManagement/ExportProduct/export-sale/add.js"></script>
           </body>
 
 </html>

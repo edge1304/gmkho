@@ -42,16 +42,31 @@ const schemaSubCategory = new mongoose.Schema({
     subcategory_number_sale: { // số lượng đã
         ...validator.schemaNumber,
     },
-    subcategory_number_comment: { // số lượng comment
-        ...validator.schemaNumber,
+    subcategory_number_star: {
+        one_star: {
+            ...validator.schemaNumber
+        },
+        two_star: {
+            ...validator.schemaNumber
+        },
+        three_star: {
+            ...validator.schemaNumber
+        },
+        four_star: {
+            ...validator.schemaNumber
+        },
+        five_star: {
+            ...validator.schemaNumber
+        },
     },
-    subcategory_number_star: { // số lượng sao
-        ...validator.schemaNumber,
-    },
+    
     subcategory_import_price: { // giá nhập
         ...validator.schemaNumber,
     },
     subcategory_export_price: { // giá xuất cũng là giá bán
+        ...validator.schemaNumber,
+    },
+    subcategory_export_price_web: { // giá xuất cũng là giá bán
         ...validator.schemaNumber,
     },
     subcategory_code: { // mã máy
@@ -133,8 +148,10 @@ const schemaSubCategory = new mongoose.Schema({
     subcategory_warehouses: { // mảng chu nhánh số lượng tồn
         ...validator.schemaArray,
         type:[schemaInventory]
-    }
-
+    },
+    subcategory_comment_quantity: { // link video
+        ...validator.schemaNumber
+    },
 }, { timestamps: true })
 
 validator.schePre(schemaSubCategory)
@@ -148,7 +165,7 @@ schemaSubCategory.pre(['findByIdAndUpdate', 'findOneAndUpdate'], async function(
 
 schemaSubCategory.pre(['save', 'insertManey'], async function(next) {
     this.subcategory_replace_name = this.subcategory_name,
-        this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name)
+    this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name)
     this.subcategory_slug_link = validator.stringToSlug(this.subcategory_name)
     return next()
 })

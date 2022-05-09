@@ -9,8 +9,8 @@ import logger from "morgan";
 import * as connectDB from "./connectDB.js";
 import routerAdmin from "./routers/RoutersAdmin.js";
 import moment from 'moment-timezone';
-import admin from 'firebase-admin';
 
+import cron from 'node-cron';
 import * as validator from "./helper/validator.js"
 const app = express();
 
@@ -54,7 +54,6 @@ createControllerSubCategory(app);
 
 import createControllerCombo from "./controllers/ControllerCombo.js";
 createControllerCombo(app);
-createControllerBranch(app)
 import createControllerTimekeeping from "./controllers/ControllerTimekeeping.js";
 createControllerTimekeeping(app)
 
@@ -63,6 +62,8 @@ createControllerCalendar(app)
 
 import createControllerMenu from "./controllers/ControllerMenu.js";
 createControllerMenu(app)
+import controller_website_component from "./controllers/ControllerWebsiteComponent.js";
+controller_website_component(app)
 
 import createControllerFundBook from "./controllers/ControllerFundBook.js";
 createControllerFundBook(app)
@@ -97,7 +98,41 @@ createControllerVoucher(app)
 import createControllerProduct from "./controllers/ControllerProduct.js";
 createControllerProduct(app)
 
+import createControllerInternalOrder from "./controllers/ControllerInternalOrder.js";
+createControllerInternalOrder(app)
 
+import createControllerReceive from "./controllers/ControllerReceive.js";
+createControllerReceive(app)
+
+import createControllerPayment from "./controllers/ControllerPayment.js";
+createControllerPayment(app)
+
+import createControllerBorrow from "./controllers/ControllerBorrow.js";
+createControllerBorrow(app)
+
+import createControllerCart from "./controllers/ControllerCart.js";
+createControllerCart(app)
+
+import createControllerOrder from "./controllers/ControllerOrder.js";
+createControllerOrder(app)
+
+import createControllerWarranty from "./controllers/ControllerWarranty.js";
+createControllerWarranty(app)
+
+import createControllerDebt from "./controllers/ControllerDebt.js";
+createControllerDebt(app)
+
+import createControllerInventory from "./controllers/ControllerInventory.js";
+createControllerInventory(app)
+
+import createController_Promotion from "./controllers/ControllerGM-Feed/promotion.js";
+createController_Promotion(app)
+
+import createController_News from "./controllers/ControllerGM-Feed/news.js";
+createController_News(app)
+
+import createControllerNotificationUser from "./controllers/ControllerNotificationUser.js";
+createControllerNotificationUser(app)
 
 app.use(routerAdmin);
 
@@ -148,6 +183,7 @@ import { ModelEmployee } from "./models/Employee.js"
 import { ModelAsset } from "./models/Asset.js"
 import { ModelWarrantyCombo } from "./models/WarrantyCombo.js"
 import { ModelMenu } from "./models/Menu.js"
+import { Model_Website_Component } from "./models/WebsiteComponent.js"
 import { ModelCalendar } from "./models/Calendar.js"
 import { ModelFundBook } from "./models/FundBook.js"
 import { ModelAccountingEntry } from "./models/AccountingEntry.js"
@@ -161,7 +197,14 @@ import { ModelVoucher } from "./models/Voucher.js"
 import { ModelExportForm } from "./models/ExportForm.js"
 import { ModelReceive } from "./models/Receive.js"
 import { ModelPart } from "./models/Part.js"
-
+import { ModelInternalOrder } from "./models/InternalOrder.js"
+import { ModelBorrow } from "./models/Borrow.js"
+import { ModelCart } from "./models/Cart.js"
+import { ModelOrder} from "./models/Order.js"
+import { ModelWarranty} from "./models/Warranty.js"
+import { ModelExportWarranty} from "./models/ExportWarranty.js"
+import { ModelReportInventory} from "./models/ReportInventory.js"
+import { ModelNotificationUser} from "./models/Notification_User.js"
 
 app.get("/lay:name", async (req, res) => {
     let query = {}
@@ -173,103 +216,14 @@ app.get("/lay:name", async (req, res) => {
             }
         }
     })
-    var db = ModelBranch;
-    if (req.params.name == "Function")
-        db = ModelFunction
-    if (req.params.name == "Permission")
-        db = ModelPermission
-    if (req.params.name == "EmployeeGroup")
-        db = ModelEmployeeGroup
-    if (req.params.name == "Employee")
-        db = ModelEmployee
-    if (req.params.name == "EmployeeSuperGroup")
-        db = ModelEmployeeSuperGroup
-    if (req.params.name == "SuperCategory")
-        db = ModelSuperCategory
-    if (req.params.name == "Category")
-        db = ModelCategory
-    if (req.params.name == "Warehouse")
-        db = ModelWarehouse
-    if (req.params.name == "SubCategory")
-        db = ModelSubCategory
-    if (req.params.name == "Asset")
-        db = ModelAsset 
-    if (req.params.name == "WarrantyCombo")
-        db = ModelWarrantyCombo  
-    if (req.params.name == "Menu")
-        db = ModelMenu  
-    if (req.params.name == "Calendar")
-        db = ModelCalendar 
-    if (req.params.name == "FundBook")
-        db = ModelFundBook  
-    if (req.params.name == "AccountingEntry")
-        db = ModelAccountingEntry
-    if (req.params.name == "User")
-        db = ModelUser
-    if (req.params.name == "Product")
-        db = ModelProduct
-    if (req.params.name == "Import")
-        db = ModelImportForm
-    if (req.params.name == "Payment")
-        db = ModelPayment
-    if (req.params.name == "Debt")
-        db = ModelDebt
-    if (req.params.name == "Point")
-        db = ModelPoint
-    if (req.params.name == "Voucher")
-        db = ModelVoucher
-    if (req.params.name == "Export")
-        db = ModelExportForm
-    if (req.params.name == "Receive")
-        db = ModelReceive
-    if (req.params.name == "Part")
-        db = ModelPart
+    var db = get_Model(req);
     const data = await db.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req));
     return res.json(data)
 })
 
 app.get("/empty/:name", async (req, res) => {
-   
     
-    var db = ModelBranch;
-    if (req.params.name == "Function")
-        db = ModelFunction
-    if (req.params.name == "Permission")
-        db = ModelPermission
-    if (req.params.name == "EmployeeGroup")
-        db = ModelEmployeeGroup
-    if (req.params.name == "Employee")
-        db = ModelEmployee
-    if (req.params.name == "EmployeeSuperGroup")
-        db = ModelEmployeeSuperGroup
-    if (req.params.name == "Warehouse")
-        db = ModelWarehouse
-    if (req.params.name == "SubCategory")
-        db = ModelSubCategory
-    if (req.params.name == "Asset")
-        db = ModelAsset
-    if (req.params.name == "AccountingEntry")
-        db = ModelAccountingEntry
-    if (req.params.name == "User")
-        db = ModelUser
-    if (req.params.name == "Product")
-        db = ModelProduct
-    if (req.params.name == "Import")
-        db = ModelImportForm
-    if (req.params.name == "Payment")
-        db = ModelPayment
-    if (req.params.name == "Debt")
-        db = ModelDebt
-    if (req.params.name == "Point")
-        db = ModelPoint
-    if (req.params.name == "Voucher")
-        db = ModelVoucher
-    if (req.params.name == "Export")
-        db = ModelExportForm
-    if (req.params.name == "Receive")
-        db = ModelReceive
-    if (req.params.name == "Part")
-        db = ModelPart
+    var db = get_Model(req);
     const data = await db.deleteMany({})
     return res.json(data)
 })
@@ -284,35 +238,27 @@ app.get("/addPermission/:group/:function", async (req, res) => {
 })
 
 
-app.get("/addEmployee/1", async (req, res) => {
-    await ModelAccountingEntry.updateMany({},{$set:{accounting_entry_create_debt:true}})
-    return res.json(data)
+app.get("/ccc", async (req, res) => {
+    await  ModelPermission.findByIdAndUpdate("61e1580320006610c388a127",{
+        permission_status:true 
+    })
+
+
+    return res.json("ok")
 })
 
-app.get("/ABC", async (req, res) => {
-    for (let i = 0; i < 15; i++){
-        await new ModelEmployee({
-            "employee_fullname": `Ngô Tú Vĩ${i}`,
-            "employee_phone": `058742554${i}`,
-            "employee_image": null,
-            "employee_address": null,
-            "id_branch": "61e15300a4665e6a0db700e8",
-            "password": null,
-            "employee_salary": 0,
-            "employee_salary_duty": 0,
-            "employee_status": false,
-            "employee_bank_number": null,
-            "employee_bank_name": null,
-            "id_employee_group": "61e156b47dc2ff811e02ccb3",
-            "employee_history_work": [],
-            "employee_history_salary": [],
-            "employee_lunch_allowance": 0,
-            "employee_revenue_percent": 0,
-            "employee_level": null,
-            "employee_datebirth": "2022-01-21T08:41:05.917Z",
-        }).save()
-    }
+app.get("/xoa", async (req, res) => {
     
+    await ModelImportForm.deleteMany({})
+    await ModelProduct.deleteMany({})
+    await ModelExportForm.deleteMany({})
+    await ModelDebt.deleteMany({})
+    await ModelReceive.deleteMany({})
+    await ModelPayment.deleteMany({})
+    await ModelOrder.deleteMany({})
+    await ModelWarranty.deleteMany({})
+    await ModelBorrow.deleteMany({})
+    await ModelReportInventory.deleteMany({})
     return res.json("ok")
 })
 
@@ -320,3 +266,306 @@ app.get("/*", async (req, res) => {
     return res.status(404).render('pages/samples/error-404')
 })
 
+
+import {ModelNotification} from './models/Notification.js'
+app.get("/Notification",async ( req,res)=>{
+    const data = await ModelNotification.find().lean()
+    return res.json(data)
+})
+
+
+
+
+cron.schedule('* * * * *', async () =>  {
+    const dataNotifi = await ModelNotification.find().lean()
+    const time = validator.dateTimeZone();
+    for(let i =0;i<dataNotifi.length;i++)
+    {
+        const timeNotifi = new Date(dataNotifi[i].notification_time)
+        if(time.fullyear == timeNotifi.getFullYear() && time.month == timeNotifi.getMonth()+1 && time.date == timeNotifi.getDate())
+        {
+            validator.notifyTopic(dataNotifi[i].notification_topic, dataNotifi[i].notification_title,dataNotifi[i].notification_content)
+            await ModelNotification.findByIdAndRemove(dataNotifi[i]._id)
+        }
+    }
+  }).start();
+  
+
+  function get_Model(req) {
+    const name_model = req.params.name;
+    let db = ModelBranch;
+    switch (name_model) {
+        case `Function`: {
+            db = ModelFunction
+            break;
+        }
+        case `Permission`: {
+            db = ModelPermission
+            break;
+        }
+        case `EmployeeGroup`: {
+            db = ModelEmployeeGroup
+            break;
+        }
+        case `Employee`: {
+            db = ModelEmployee
+            break;
+        }
+        case `EmployeeSuperGroup`: {
+            db = ModelEmployeeSuperGroup
+            break;
+        }
+        case `SuperCategory`: {
+            db = ModelSuperCategory
+            break;
+        }
+        case `Category`: {
+            db = ModelCategory
+            break;
+        }
+        case `Warehouse`: {
+            db = ModelWarehouse
+            break;
+        }
+        case `SubCategory`: {
+            db = ModelSubCategory
+            break;
+        }
+        case `Asset`: {
+            db = ModelAsset 
+            break;
+        }
+        case `WarrantyCombo`: {
+            db = ModelWarrantyCombo  
+            break;
+        }
+        case `Menu`: {
+            db = ModelMenu  
+            break;
+        }
+        case `Calendar`: {
+            db = ModelCalendar 
+            break;
+        }
+        case `FundBook`: {
+            db = ModelFundBook  
+            break;
+        }
+        case `AccountingEntry`: {
+            db = ModelAccountingEntry
+            break;
+        }
+        case `User`: {
+            db = ModelUser
+            break;
+        }
+        case `Product`: {
+            db = ModelProduct
+            break;
+        }
+        case `Import`: {
+            db = ModelImportForm
+            break;
+        }
+        case `Payment`: {
+            db = ModelPayment
+            break;
+        }
+        case `Debt`: {
+            db = ModelDebt
+            break;
+        }
+        case `Point`: {
+            db = ModelPoint
+            break;
+        }
+        case `Voucher`: {
+            db = ModelVoucher
+            break;
+        }
+        case `Export`: {
+            db = ModelExportForm
+            break;
+        }
+        case `Receive`: {
+            db = ModelReceive
+            break;
+        }
+        case `Part`: {
+            db = ModelPart
+            break;
+        }
+        case `Internal`: {
+            db = ModelInternalOrder 
+            break;
+        }
+        case `Borrow`: {
+            db = ModelBorrow  
+            break;
+        }
+        case `Cart`: {
+            db = ModelCart 
+            break;
+        }
+        case `Order`: {
+            db = ModelOrder 
+            break;
+        }
+        case `Warranty`: {
+            db = ModelWarranty
+            break;
+        }
+        case `ExportWarranty`: {
+            db = ModelExportWarranty
+            break;
+        }
+        case `Report`: {
+            db = ModelReportInventory
+            break;
+        }
+        case `Notification`: {
+            db = ModelNotificationUser
+            break;
+        }
+        case `WebsiteComponent`: {
+            db = Model_Website_Component
+            break;
+        }
+        default:
+            break;
+    }
+    return db
+}
+function empty_Model(req) {
+    const name_model = req.params.name;
+    let db = null;
+    switch (name_model) {
+        case `EmployeeGroup`: {
+            db = ModelEmployeeGroup
+            break;
+        }
+        case `Employee`: {
+            db = ModelEmployee
+            break;
+        }
+        case `EmployeeSuperGroup`: {
+            db = ModelEmployeeSuperGroup
+            break;
+        }
+        case `SuperCategory`: {
+            db = ModelSuperCategory
+            break;
+        }
+        case `Category`: {
+            db = ModelCategory
+            break;
+        }
+        case `Warehouse`: {
+            db = ModelWarehouse
+            break;
+        }
+        case `SubCategory`: {
+            db = ModelSubCategory
+            break;
+        }
+        case `Asset`: {
+            db = ModelAsset 
+            break;
+        }
+        case `WarrantyCombo`: {
+            db = ModelWarrantyCombo  
+            break;
+        }
+        case `Menu`: {
+            db = ModelMenu  
+            break;
+        }
+        case `Calendar`: {
+            db = ModelCalendar 
+            break;
+        }
+        case `FundBook`: {
+            db = ModelFundBook  
+            break;
+        }
+        case `AccountingEntry`: {
+            db = ModelAccountingEntry
+            break;
+        }
+        case `User`: {
+            db = ModelUser
+            break;
+        }
+        case `Product`: {
+            db = ModelProduct
+            break;
+        }
+        case `Import`: {
+            db = ModelImportForm
+            break;
+        }
+        case `Payment`: {
+            db = ModelPayment
+            break;
+        }
+        case `Debt`: {
+            db = ModelDebt
+            break;
+        }
+        case `Point`: {
+            db = ModelPoint
+            break;
+        }
+        case `Voucher`: {
+            db = ModelVoucher
+            break;
+        }
+        case `Export`: {
+            db = ModelExportForm
+            break;
+        }
+        case `Receive`: {
+            db = ModelReceive
+            break;
+        }
+        case `Part`: {
+            db = ModelPart
+            break;
+        }
+        case `Internal`: {
+            db = ModelInternalOrder 
+            break;
+        }
+        case `Borrow`: {
+            db = ModelBorrow  
+            break;
+        }
+        case `Cart`: {
+            db = ModelCart 
+            break;
+        }
+        case `Order`: {
+            db = ModelOrder 
+            break;
+        }
+        case `Warranty`: {
+            db = ModelWarranty
+            break;
+        }
+        case `ExportWarranty`: {
+            db = ModelExportWarranty
+            break;
+        }
+        case `Report`: {
+            db = ModelReportInventory
+            break;
+        }
+        case `Notification`: {
+            db = ModelNotificationUser
+            break;
+        }
+        default:
+            break;
+    }
+    return db
+}

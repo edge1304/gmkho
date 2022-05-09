@@ -12,6 +12,7 @@ import { ModelProduct } from '../../../models/Product.js'
 import { ModelSubCategory } from '../../../models/SubCategory.js'
 import { ModelDebt } from '../../../models/Debt.js'
 import { ModelPayment } from '../../../models/Payment.js'
+import { createAndUpdateReport} from '../../ControllerReportInventory/index.js'
 
 // export const checkPermission = async (app)=>{
 //     app.get(prefixApi,helper.authenToken, async (req, res)=>{
@@ -108,10 +109,11 @@ export const createFormImport = async (req, res) => {
                             ... arrProductFormImport[i],
                             id_import_form: insertImport._id,
                             id_warehouse: dataWarehouse._id,
-                        
+                            product_note:[`${new Date()} nhập hàng tồn đầu kì . mã phiếu nhập ${insertImport._id} với giá ${arrProductFormImport[i].product_import_price}`]
                         })
                     )
                 }
+                await createAndUpdateReport(dataWarehouse._id, arrProductFormImport[i].id_subcategory,  arrProductFormImport[i].product_quantity, validator.calculateMoneyImport(arrProductFormImport[i]) )
             }
             const insertProducts = await ModelProduct.insertMany(arrProductForModal)
             const totalMoney = validator.calculateMoneyImport(insertImport.import_form_product);
@@ -203,6 +205,14 @@ export const insertMore = async (app)=>{
                     }    
                     
                 }).lean()
+                for (let i = 0; i < arrProductFormImport.length; i++){
+                    await createAndUpdateReport(
+                        dataImport.id_warehouse,
+                        arrProductFormImport[i].id_subcategory,
+                        arrProductFormImport[i].product_quantity,
+                        validator.calculateMoneyImport(arrProductFormImport[i]),
+                    )
+                }
                 return  res.json({insertImport:dataImportUpdate, insertProducts:insertProducts})
             }
             catch (e) {

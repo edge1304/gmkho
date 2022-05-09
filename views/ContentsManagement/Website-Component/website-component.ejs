@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="/css/menu.css">
+<%- include("../../header",{title:"Quản lý content | Thành phần website"}) %>
+<div class="page-content">
+    <div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="collapseList">
+                <div class="collapseItem">
+                    <div class="btn-collapse" data-toggle="collapse" href="#panelsOpen-One" aria-expanded="false" aria-controls="panelsOpen-One" style="cursor: pointer;">
+                        Website GamingMarket
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="multi-collapse collapse show" id="panelsOpen-One">
+                        <div class="card card-body" id="div_website_component_1">
+                            <ul class="list-group" id="ul_website_component_1">
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="collapseItem">
+                    <div class="btn-collapse" data-toggle="collapse" data-target="#panelsOpen-Two"
+                        aria-expanded="false" aria-controls="panelsOpen-Two">
+                        Website LapTop 24h
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="collapse multi-collapse" id="panelsOpen-Two">
+                        <div class="card card-body">
+                            <ul class="list-group" id="ul_laptop">
+
+                            </ul>
+                        </div>
+                    </div>
+                </div> -->
+
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+<!-- ====================================== -->
+<%- include('../../footer') %>
+<script>
+  var page = '<%- page %>'
+</script>
+<script src="/js/ContentsManagement/Website-Component/website-component.js"></script>
+<script>
+    getData()
+</script>
+</body>
+</html>
+<div id="popup_Title" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-50">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"> Tiêu đề web site</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Tiêu đề</label>
+                <input placeholder="Nhập tiêu đề" id="edit_Title" class="form-control">
+                <label>Logo tiêu đề (click để chọn ảnh)</label>
+                <div class="div-logo">
+                    <img style="width: 300px; height: auto;">
+                    <input type="file" oninput="changeImage(this)" accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_Save_edit_Title">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup_SEO_image" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-50">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">SEO - image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Seo - image</label>
+                <div class="div-logo">
+                    <img style="width: 300px; height: auto;">
+                    <input id="input_seo_image" type="file" oninput="changeImage(this)" accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_Save_edit_seo_img">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

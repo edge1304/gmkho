@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import * as validator from "./../helper/validator.js";
+import {ModelSubCategory} from "./SubCategory.js";
 // import {update_status_voucher} from './../api/ControllerVoucher/index.js'
 // import {ModelProduct} from './Product.js'
-const SchemaProductExportForm = new mongoose.Schema(
+const SchemaProductExportFor = 
     {
         id_product: {
             ...validator.schemaObjectId,
@@ -38,6 +39,9 @@ const SchemaProductExportForm = new mongoose.Schema(
         product_warranty: {
             ...validator.schemaNumber,
         },
+        product_import_price: {
+            ...validator.schemaNumber,
+        },
         subcategory_point: {
             ...validator.schemaNumber,
             ...validator.schemaRequired
@@ -51,8 +55,11 @@ const SchemaProductExportForm = new mongoose.Schema(
         id_employee: {
             ...validator.schemaObjectId,
         },
+        id_import_return: {  // id phiếu nhập trả lại , nếu khi nhập hàng khách trả lại sẽ cập nhập cái này vào phiếu xuất
+            ...validator.schemaObjectId,
+        },
     }
-);
+
 
 const SchemaExportForm = new mongoose.Schema(
     {
@@ -67,22 +74,23 @@ const SchemaExportForm = new mongoose.Schema(
         },
         id_user:{
             ...validator.schemaObjectId,
-            ...validator.schemaRequired
+        },
+        id_employee_setting:{
+            ...validator.schemaObjectId,
         },
 
         export_form_status_paid:{...validator.schemaBooleanFalse},
         export_form_product: {
             ...validator.schemaArray,
-            type:[SchemaProductExportForm]
+            type:[SchemaProductExportFor]
         },
         export_form_note:{...validator.schemeString},
         export_form_type:{...validator.schemeString},
-        
         voucher_code: {
             ...validator.schemeString
         },
         money_voucher_code: {
-            ...validator.schemeNumber
+            ...validator.schemeNumber,
         },
         point_number: {
             ...validator.schemeNumber
@@ -100,29 +108,18 @@ const SchemaExportForm = new mongoose.Schema(
 
 validator.schePre(SchemaExportForm)
 
-// SchemaExportForm.post(['save', 'insertMany','insertOne'], async (docs) => {
 
-//     if (Array.isArray(docs)) {
-//         await Promise.all(  docs.map(async form => {
-//             await updateProduct(form.export_form_product , form._id)
-//             if (form.voucher_code) {
-//                 await update_status_voucher(form.voucher_code)
-//             }
-//         }))
-//     }
-//     else {
-//         await updateProduct(docs.export_form_product, docs._id)
-//         if (docs.voucher_code) {
-//             await update_status_voucher(docs.voucher_code)
-//         }
-//     }
-    
-// })
-// const updateProduct = async (arrProduct , id_export_form) => {
-//     for (let i = 0; i < arrProduct.length; i++){
-//         await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product,{product_status:true, product_warranty: arrProduct[i].product_warranty ,id_export_form: id_export_form})
-//     }
-// }
+SchemaExportForm.post(['save'], async (docs) => {
+    var arrSubcategory = []
+    for (let i = 0; i < docs.export_form_product.length; i++){
+        await ModelSubCategory.findByIdAndUpdate(docs.export_form_product[i].id_subcategory, {
+            $inc: {
+                subcategory_number_sale:1
+            }
+           
+        })
+    }
+})
 
 
 export const ModelExportForm = mongoose.model("ExportForm", SchemaExportForm);

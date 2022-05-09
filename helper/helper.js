@@ -26,7 +26,8 @@ export const authenToken = async (req, res, next) => {
                                 _caller: data,
                             }
                             Object.keys(req.query).map(key => {
-                                if (isNaN(req.query[key])) {
+                               
+                                if (isNaN(parseInt(req.query[key]))) {
                                     req.query[key] = escapehtml(req.query[key])
                                 }
                             })
@@ -91,6 +92,7 @@ export const checkPermission = async (id_function, groupuser) => {
     }
 }
 
-function escapehtml(s) {
+export const escapehtml = (s) => {
     return s.replace(/([.*+?\^$(){}|\[\]\/\\])/g, "\\$1");
 }
+

@@ -1,11 +1,18 @@
 
 getData()
 var arrData = []
+var getOther= true
 function getData()
 {
-    isLoading();
+    
     callAPI('GET',`${API_FUNDBOOK}?`,null, (data)=>{
         drawTable(data)
+        if(getOther){
+            getOther = false
+            data.map( fund =>{
+                $("select[name=select_fundbook]").append(`<option value="${fund._id}">${fund.fundbook_name}</option>`)
+            })
+        }
     })
 }
 
@@ -88,3 +95,20 @@ function confirmEdit(index)
     })
   
 }
+
+$("#popupPeriod .modal-footer button:last-child").click( e =>{
+    const id_fundbook = $("#popupPeriod select[name=select_fundbook] option:selected").val()
+    const createdAt = $("#popupPeriod input[type=date]").val()
+    const receive_money = tryParseInt($("#popupPeriod input[type=text]").val())
+
+    hidePopup('popupPeriod')
+    callAPI('POST',`${API_FUNDBOOK}/period`,{
+        id_fundbook:id_fundbook,
+        createdAt:createdAt,
+        receive_money:receive_money
+    }, () =>{
+        success("Thành công")
+    })
+
+    
+})

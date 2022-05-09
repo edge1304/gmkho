@@ -83,8 +83,8 @@ export const update = async (app) => {
   })
 }
 
-export const getAllAccountingEntry = async ()=>{
-    const data = await ModelAccountingEntry.find()
+export const getAllAccountingEntry = async (query = {})=>{
+    const data = await ModelAccountingEntry.find(query)
     return data
 }
 

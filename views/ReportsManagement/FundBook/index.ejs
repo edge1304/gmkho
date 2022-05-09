@@ -13,7 +13,10 @@
             <div class="header-table">
                 <div class="page-header">
                     <button onclick="showPopup('popupAdd',true)" class="btn btn-primary">Thêm mới <i class="mdi mdi-plus-circle"></i></button>
+                    <a href="/fundbook-management/report" class="btn btn-success">Báo cáo <i class="fas fa-file-chart-pie"></i></a>
+                    <button class="btn btn-warning" onclick="showPopup('popupPeriod',true)" >Nhập tồn quỹ</button>
                 </div>
+                
             </div>
             <div class="container-fluid">
                 <div id="divTable" class="div-table">
@@ -111,6 +114,37 @@
             </div>
           </div>
         </div>
+
+        <div id="popupPeriod" data-keyboard="true" data-backdrop="static" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title">Nhập tồn quỹ đầu kỳ</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-12 col-md-12">
+                        <label>Chọn sổ quỹ</label>
+                        <select name="select_fundbook"></select>
+                      </div>
+                      <div class="col-12 col-md-12">
+                        <label>Tồn từ ngày</label>
+                        <input class="form-control" type="date" >
+                      </div>
+                      <div class="col-12 col-md-12">
+                        <label>Giá trị tồn</label>
+                        <input oninput="inputNumber()" class="form-control number" type="text" >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                      <button type="button" class="btn btn-danger" >Lưu</button>
+                  </div>
+              </div>
+          </div>
+      </div>
         <!-- ====================================== -->
         <%- include('../../footer') %>
             <script src="/assets/dataTable/jquery.dataTables.min.js"></script>

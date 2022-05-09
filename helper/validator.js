@@ -17,20 +17,27 @@ const format_ISO = date_fns.formatISO;
 import sanitize from "mongo-sanitize";
 import { unlink } from 'fs/promises';
 //
+import admin from 'firebase-admin';
 const maxNumber = 10000000000;
 const minNumber = -10000000000;
 const maxLength = 10000;
 const limit_query = 100;
 //
 //#region check validate
+
+export const TYPE_IMPORT_WARRANTY = "Nhập bảo hành"
+export const TYPE_EXPORT_WARRANTY = "Xuất bảo hành"
 //limit - page
 export const URL_IMAGE_CATEGORY = 'public/images/images_category'
 export const URL_IMAGE_EMPLOYEE = 'public/images/images_employee'
 export const URL_IMAGE_PRODUCT = 'public/images/images_product'
+export const URL_IMAGE_PROMOTION = 'public/images/images_promotion'
+export const URL_IMAGE_NEWS = 'public/images/images_news'
+export const URL_IMAGE_WEBSITE_COMPONENT = "public/images/images_website_component"
 
 export const isDefine = function (val) {
     try {
-        if (val == undefined || val == `undefined` || val == null || val == `null` || val.toString().length == 0 || typeof val == 'undefined') return false;
+        if (val == undefined || val == `undefined` || val == null || val == `null` || val.toString().length == 0 || typeof val == 'undefined' || val.length == 0) return false;
         return true;
     } catch (err) {
         return false;
@@ -128,20 +135,15 @@ export const tryParseFloat = function (str) {
     }
 };
 export const tryParseJson = function (str) {
-    if (!isDefine(str)) return null;
     try {
-        if (isJson(str)) {
-            try {
-                return JSON.parse(str);
-            } catch (e) {
-                return str;
-            }
-        }
-        return JSON.parse(str.toString());
-    } catch (e) {
-        helper.throwError(e);
-        return null;
+        if (!str) return null
+        return JSON.parse(str)
     }
+    catch (e) {
+        console.log(e)
+        return null
+    }
+    
 };
 
 export const tryParseBoolean = (str) => {
@@ -368,14 +370,18 @@ export const time_now = () => {
     };
 };
 export const timeString = (time = new Date()) => {
-    const current = time;
+    const current = new Date(time);
+   
+    
     return {
+        startOfWeek:addZero(startOfWeek(current).getFullYear())+"-" +addZero(startOfWeek(current).getMonth()+1)+"-" +addZero(startOfWeek(current).getDate()),
         fulldate: addZero(current.getFullYear()) + "-" + addZero(current.getMonth() + 1) + "-" + addZero(current.getDate()),
         startOfDay: new Date(current.getFullYear() + "-" + addZero(current.getMonth() + 1) + "-" + addZero(current.getDate()) + " 00:00:00"),
         endOfDay: new Date(current.getFullYear() + "-" + addZero(current.getMonth() + 1) + "-" + addZero(current.getDate()) + " 23:59:59"),
     };
 };
-export const dateTimeZone = (timezone = "GMT +07:00", date= Date.now()) => {
+// GMT +07:00
+export const dateTimeZone = (timezone = "GMT +00:00", date= Date.now()) => {
     const time = timezone.replace("UTC", "").replace("GMT", "").replace("GTM", "").trim().split(":");
     const timeZonemHours = tryParseInt(time[0]) * 60;
     const timeZoneminutes = tryParseInt(time[0]) < 0 ? -1 * tryParseInt(time[1]) : tryParseInt(time[1]);
@@ -394,6 +400,10 @@ export const dateTimeZone = (timezone = "GMT +07:00", date= Date.now()) => {
         endOfDay: new Date(now.getFullYear() + "-" + addZero(now.getMonth() + 1) + "-" + addZero(now.getDate()) + " 23:59:59"),
     };
 };
+export const query_createdAt = (fromdate , todate )=>{
+    if(new Date(fromdate) == 'Invalid Date' && new Date(fromdate) == 'Invalid Date') return {}
+    return {$and:[{createdAt:{$gte: new Date(fromdate +" 00:00:00")}},{createdAt:{$lte: new Date(todate +" 23:59:59")}}]}
+}
 export const isChecked = (time) => {
     if (time.hours == 0 && time.minutes == 0 && time.seconds == 0) return false;
     return true;
@@ -406,7 +416,23 @@ export const addZero = (number, length = 2) => {
     return my_string;
 };
 //#endregion date time helper ===============================================================
+export const viToEn = function (str) {
+    // remove accents
+    if (empty(str)) return null
+    var from = "àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷ",
+        to = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeduuuuuuuuuuuoooooooooooooooooiiiiiaeiiouuncyyyyy"
+    for (var i = 0, l = from.length; i < l; i++) {
+        str = str.replace(RegExp(from[i], "gi"), to[i])
+    }
 
+    str = str
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\-]/g, " ")
+        .replace(/-+/g, " ")
+
+    return str
+}
 //#region schema
 function setNumber(num) {
     return tryParseInt(num);
@@ -445,16 +471,12 @@ function setJsonObject(json) {
         return results
     }
 
-    return []
+    return null
 }
 
 
 function setJsonArray(json) {
-    const results = tryParseJson(json);
-
-    if (isArray(results)) {
-        return results;
-    }
+    if(Array.isArray(json)) return json
     return [];
 }
 export const trySanitiza = (str) => {
@@ -527,7 +549,6 @@ export const schemaString = {
     type: String,
     trim: true,
     default: null,
-    maxLength: maxLength,
 };
 
 export const schemaObjectId = {
@@ -570,7 +591,7 @@ export const schemaJson = {
     trim: true,
     default: null,
     maxLength: 10000,
-    set: setJsonObject,
+    // set: setJsonObject,
 };
 export const schemaArray = {
     type: Array,
@@ -707,14 +728,24 @@ export const getLimit = (req) => {
 
 export const getOffset = (req) => {
 
+  
     var page = 1;
     if (isDefine(req.query.page)) {
+      
+
         page = parseInt(req.query.page)
-        if (isNaN(page) || page < 0) {
+        if (isNaN(page) || page <= 0) {
             page = 1
         }
+       
+        return (page - 1) * getLimit(req)
     }
-    return (page - 1) * getLimit(req)
+    else if (isDefine(req.query.offset)) {
+
+        return tryParseInt(req.query.offset)
+    }
+    else return 0
+    
 }
 
 export const removeFile = async (url) => {
@@ -755,4 +786,62 @@ export const calculateMoneyExport = (data)=>{
         total += totalMoney(data.product_export_price, data.product_vat, data.product_ck, data.product_discount, data.product_quantity)
     }
     return total
+}
+
+function escapehtml(s) {
+    return s.replace(/([.*+?\^$(){}|\[\]\/\\])/g, "\\$1");
+}
+export const eshtml = (req) => {
+    Object.keys(req.query).map(key => {
+        if (isNaN(parseInt(req.query[key]))) {
+            req.query[key] = escapehtml(req.query[key])
+        }
+    })
+}
+
+admin.initializeApp({
+    credential: admin.credential.cert({
+        "type": "service_account",
+        "project_id": "gaming-market-b77a5",
+        "private_key_id": "5cb0aad14642a253bc0e7d08c2244bab462a43bc",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC68H95ZN4WRgjh\nSPBdZrrIELgwG6Ry4dbnBhhvlJxQt4xOIJXjO5JoSffz7w+ggiShbNdX5ghsFLjH\nL9Y4dW4S8isAIct0g7TYFshPeQYylm9kYQMAj0/6LbZ05EhEa0al/6v0BuopA6QO\n/XSH51O1buYO76P/Fyy2us+Lp1x4KyNXP1KYh2bL8Il+b9CH4LobLe2YuAI4UQ7O\nALX5TsvmgESLk7FCc+kfnxEeLNZMZ4vsKWq+oC4C48B+LThsEiXIedVtDqbSwRC7\nFw5jtjAL/45w3b9iIisClYX1RIxEhO9yOaaEWYpipiAPd2wtY3vX0JIgO9J8P5bn\n5OIlrnIHAgMBAAECggEAOIlYvDGN20WmFOBW1aCml7A6zE3n39i+glM9G63h0qWY\nWN6RBk6zejf4tf0UiFIj2vBMdmh7Hpjrw04L5zpYpoE4EQuneR8GGB5XyXVMMwt9\nN+oBGu+82+hsWJDb7FlXXgfjjON0eSABQ4lS73E+R055ZIYEXrc3DjKUZ2Of2zWH\nwfvC7hjHwm81yVqOUHMruzEtmrDTP6JqYDvrkFgbo729bi4jnj9CifjGJqvy6wW3\n7Y4ZVsRuI4sbWJb6clVujtMFKbOBxwAuCHnNUmicQWrwBCCqiwbVjgMxCmnKwTdo\nzCB4K1N1uD9M+VGepkGj5SUyymDe2EvaRTsWwj+mVQKBgQDxDD7RmFo9Tp0N0iHC\nyX+Sub57zU/eIMlux+m0Qf5mhJrF2ENTgazds3MZLwznAT/1WWFJ+3h5L7wstELV\niMhHRJ1juLzYgbhHH/m1l1Df8J3dIXNxcKq+ry3QPF7IX0VKXZdcAvL4zDY/hm4B\n0Fy1cmjK5uh67m3Bl4tJl/uexQKBgQDGiQfKI5A1rEafWJRYrogoVpFYUCn74POR\n3AtzFq7YCfq2rDCdcwnFYgqoIJdn5XdBFFCu04XGMnOYaqMYrOazwO0z5hoN/EfW\nDgrpeS+RUa8hgOZ2h22qA6PBWghBSHxoWXdFTzh77nIib+74daCnPuU2RiYjzd+l\nXm/FznkaWwKBgQCucTI09JC5tV6rVdrg4HnWcV2MsrSOCCQ+a6aRsQCuqGBptWxj\nzoCPoQI2w3oO4zSqFhj2NWqmKQmBQKLtbaOjD+Dm/haMiLQXpOhNpkf9CGD2WvL0\nsZifjp8VB9uAHpJCkyCqkefMbd0EdADAh03Qcg+sZxbvgAUmCMngZIDQEQKBgDhL\nbLkFgoOlmNTgEhhfTN5bRZVMDcuNCqOmSFzW5rb9hWi8xIAwuWmNlkX8D9J2/2yl\nrQcVlU4QyjRCsIJzrGr13oyjx2mFynzIuJFhOnqzNbyDR1X+qrrVk15lAAg63IPe\nMnKltvd1MknPgWxUNjyWGfpcw73NR4glkf39wNsXAoGBAOud5q5rswbtxqLonRlh\nmkw0sSym4a/gQtZ1MPnJ5KL/Xeg81+1L8YD53UCAZJFiQdolFiXC0EelpvXHMf6c\n5StX9FVFpYMTkGAB6gTp6CBa6c3g4i6TW7UMdz0Xlwwlbn7yk5Tja3ZblYXu5qzo\nNctX1xQicWqbtjLyXo0s2HPW\n-----END PRIVATE KEY-----\n",
+        "client_email": "firebase-adminsdk-dkdt3@gaming-market-b77a5.iam.gserviceaccount.com",
+        "client_id": "114522157134584170862",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dkdt3%40gaming-market-b77a5.iam.gserviceaccount.com"
+    }),
+});
+
+const dbFirebase = admin.firestore();
+
+export const notifyTopic =  (topicName, title, body) =>{
+    const message = {
+        notification: {
+            title: title,
+            body: body,
+        },
+        data: {
+            click_action: "FLUTTER_NOTIFICATION_CLICK",
+            id: "1",
+            status: "done",
+            sound: "default",
+            screen: "Details",
+            type: "schedule",
+            accept: "ok",
+        },
+        topic: topicName,
+    };
+
+    admin
+        .messaging()
+        .send(message)
+        .then((response) => {
+           
+            console.log("Successfully sent message:", response);
+        })
+        .catch((error) => {
+            console.log("Error sending message:", error);
+        });
 }

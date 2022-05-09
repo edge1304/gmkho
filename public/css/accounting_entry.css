@@ -1,19 +1,19 @@
-#btnAdd{
-    position: absolute ;
-    top: 121px;
+#btnAdd {
+    position: absolute;
+    top: 21px;
 }
 
-@media only screen and (max-width: 46.1875em){
-    #btnAdd{
-        position: absolute ;
-        top: 181px;
+@media only screen and (max-width: 46.1875em) {
+    #btnAdd {
+        position: absolute;
+        top: 21px;
     }
 }
 
-.form-group div{
+.form-group div {
     margin-left: 10px;
 }
 
-.form-group{
+.form-group {
     display: flex;
 }

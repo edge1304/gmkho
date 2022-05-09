@@ -92,7 +92,6 @@ export const edit_content = async (app) => {
                     try
                     {
                        
-                       
                         const updateContent = await ModelSubCategory.findByIdAndUpdate(id_subcategory,{
                             subcategory_images:arrImage ,// ảnh sản phẩm
                             subcategory_specifications: JSON.parse(req.body.subcategory_specifications),
@@ -104,11 +103,12 @@ export const edit_content = async (app) => {
                             subcategory_tags: req.body.subcategory_tags,
                             subcategory_seo_image: req.body.subcategory_seo_image,
                             subcategory_seo_description: req.body.subcategory_seo_description,
-                            subcategory_content: req.body.subcategory_content,
+                            subcategory_content: req.body.subcategory_content.toString(),
                             subcategory_video: req.body.subcategory_video,
                             subcategory_related: JSON.parse(req.body.subcategory_related),
                             subcategory_status:1
-                        } )
+                        })
+                      
                         return res.json(updateContent)
                     }
                     catch(e)

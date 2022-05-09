@@ -1,3 +1,22 @@
+.div-employee-setting{
+    position: relative;
+}
+
+.div-employee-setting .spinner-border{
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 30px;
+    right: 16px;
+    display: none;
+}
+
+.div-employee-setting  .div-employee{
+    position: absolute;
+    z-index: 100;
+    background-color: antiquewhite;
+}
+
 #div_find_supplier .spinner-border {
     top: 32px;
     position: absolute;

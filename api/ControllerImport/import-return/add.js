@@ -19,6 +19,7 @@ import { ModelImportForm } from './../../../models/ImportForm.js'
 import {update_status_voucher} from './../../ControllerVoucher/index.js'
 import { update_part } from './../../ControllerPart/index.js'
 import { ModelPayment } from '../../../models/Payment.js'
+import { createAndUpdateReport} from '../../ControllerReportInventory/index.js'
 
 export const checkPermission = async (app)=>{
     app.get(prefixApi+"/checkPermission",helper.authenToken, async (req, res)=>{
@@ -90,8 +91,9 @@ export const create_form = async (req, res) => {
             const sub_category = await ModelSubCategory.findById(product.id_subcategory)
             if (!sub_category) return res.status(400).send(`Thất bại! Không tìm thấy tên của sản phẩm ${product._id}.`)
 
-            const dataExport = await ModelExportForm.findById(product.id_export_form)
-            if(!dataExport) return res.status(400).send("Thất bại! Không tìm thấy phiếu xuất trước đó.")    
+            const dataExport = await ModelExportForm.findById(product.id_export_form)  // phiếu xuất trước đó
+            if (!dataExport) return res.status(400).send("Thất bại! Không tìm thấy phiếu xuất trước đó.")    
+            
             for (let j = 0; j < dataExport.export_form_product.length; j++){
                 
                 if (dataExport.export_form_product[j].id_product.toString() == product._id.toString()) {
@@ -101,13 +103,16 @@ export const create_form = async (req, res) => {
                     arrProduct[i].subcategory_name = sub_category.subcategory_name
                     arrProduct[i].id_form_export = dataExport._id
                     arrProduct[i].id_product2 = product.id_product2
-                    arrProduct[i].id_subcategory = product.id_subcategory
-
-                    totalPointNeg += dataExport.export_form_product[j].subcategory_point
-                    if (dataExport.export_form_product[j].id_employee && validator.ObjectId.isValid(dataExport.export_form_product[j].id_employee)) {
+                    arrProduct[i].id_subcategory = product.id_subcategory,
+                    arrProduct[i].product_export_price = validator.totalMoney(dataExport.export_form_product[j].product_export_price,0,dataExport.export_form_product[j].product_ck, dataExport.export_form_product[j].product_discount)
+                
+                    arrProduct[i].product_import_price_return = validator.totalMoney(product.product_import_price,0,product.product_ck) // giá nhập của sản phẩm
+                    arrProduct[i].id_import_form = product.id_import_form // gán lại id phiếu nhập đầu tiên của để tí update thành đã thanh toán để ko sửa giá nhập nữa
+                    totalPointNeg += dataExport.export_form_product[j].subcategory_point // trừ điểm đã cộng cho khách
+                    if (dataExport.export_form_product[j].id_employee && validator.ObjectId.isValid(dataExport.export_form_product[j].id_employee)) { // trừ bạc nhân viên
                         totalPart += dataExport.export_form_product[j].subcategory_part
                     }
-                    
+                   
                     break
                 }
             }
@@ -131,6 +136,9 @@ export const create_form = async (req, res) => {
                 product_status: false,
                 id_warehouse:dataWarehouse._id
             })
+
+            await ModelImportForm.findByIdAndUpdate(arrProduct[i].id_import_form,{import_form_status_paid:true})
+            await createAndUpdateReport(dataWarehouse._id, arrProduct[i].id_subcategory, arrProduct[i].product_quantity, arrProduct[i].product_import_price)
         }
 
         const total = validator.calculateMoneyImport(insertImport.import_form_product);
@@ -154,13 +162,28 @@ export const create_form = async (req, res) => {
                 id_branch: id_branch,
                 id_form: insertImport._id,
                 payment_note: import_form_note,
-                payment_content:"61fe7f7950262301a2a39fdc", // "Chi trả nhập hàng từ nhà cung cấp",
+                payment_content: "61fe7f7950262301a2a39fdc", // "Chi trả nhập hàng từ nhà cung cấp",
                 id_fundbook: id_fundbook,
                 payment_type: "import",
             }).save()
         }
         await ModelUser.findByIdAndUpdate(dataUser._id, { $inc: { user_point: -totalPointNeg } })
         await update_part(id_branch, -totalPart)
+
+        for (let i = 0; i < arrProduct.length; i++){  // kiểm tra xem có bị trùng lặp id sản phẩm ko
+            const product = await ModelProduct.findById(arrProduct[i].id_product)
+            const dataExport = await ModelExportForm.findById(product.id_export_form)  // phiếu xuất trước đó
+          
+            for (let j = 0; j < dataExport.export_form_product.length; j++){
+                
+                if (dataExport.export_form_product[j].id_product.toString() == product._id.toString()) {
+                    dataExport.export_form_product[j].id_import_return = insertImport._id
+                }
+            }
+            await ModelExportForm.findByIdAndUpdate(dataExport._id,{
+                export_form_product:dataExport.export_form_product
+            })
+        }
         return res.json(insertImport)
     }
     catch(e) {

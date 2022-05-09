@@ -55,7 +55,7 @@ export const insert = async (app)=>{
             if (voucher_quantity < 1) return res.status(400).send("Số lượng mã phải lớn hơn không")
             if (voucher_limit_user < 1) return res.status(400).send("Số lần sử dụng mã phải lớn hơn không")
             if (voucher_is_limit_time && (voucher_time_start == 'Invalid Date' || voucher_time_end == 'Invalid Date')) {
-                info("Giới hạn thời gian không phù hợp")
+                return res.status(400).send("Giới hạn thời gian không phù hợp")
             }
             
             const arrVoucher = []
@@ -124,14 +124,17 @@ function generateString(length) {
 
 export const checkValueCode = async (app)=>{
   
-    app.get(prefixApi + "/value", helper.authenToken, async (req, res) => {
+    app.get(prefixApi + "/value", async (req, res) => {
+
+        validator.eshtml(req)
+
         const voucher_code = req.query.voucher_code
         const totalMoney = validator.tryParseInt(req.query.totalMoney)
 
         const money_code_discount = await checkCodeDiscount(voucher_code, totalMoney, res)
-        return res.json(money_code_discount)
+        if(!isNaN(money_code_discount))
+            return res.json(money_code_discount)
     })
-
 }
 export const checkCodeDiscount = async (voucher_code, money, res) => {
     try
@@ -169,6 +172,41 @@ export const checkCodeDiscount = async (voucher_code, money, res) => {
    
 }
 
+export const checkCodeDiscountReturnError = async (voucher_code, money) => {
+    try
+    {
+        money = validator.tryParseInt(money)
+        if(!voucher_code || voucher_code.length == 0) return ("Thất bại! Mã giảm giá không phù hợ")
+        const dataVoucher = await ModelVoucher.findOne({ voucher_code: voucher_code.trim() })
+        if (!dataVoucher) return ("Thất bại! Không tìm thấy mã giảm giá")
+        if(dataVoucher.voucher_limit_user < 1) return ("Thất bại! Mã giảm giá đã hết lượt sử dụng")
+        if (dataVoucher.voucher_is_limit_time && (
+            validator.dateTimeZone().currentTime < new Date(dataVoucher.voucher_time_start) ||
+            validator.dateTimeZone().currentTime > new Date(dataVoucher.voucher_time_end)
+        )) {
+            return ("Thất bại! Mã giảm giá đã hết hạn hoặc chưa đến hạn sử dụng")   
+        }
+        if (dataVoucher.voucher_type == "percent" && money > dataVoucher.voucher_limit_total ) {
+            return (`Thất bại! Mã giảm giá chỉ áp dụng cho đơn hàng dưới ${dataVoucher.voucher_limit_total}`)
+        }
+        if (dataVoucher.voucher_type == "money" && money < dataVoucher.voucher_limit_total ) {
+            return (`Thất bại! Mã giảm giá chỉ áp dụng cho đơn hàng trên ${dataVoucher.voucher_limit_total}`)
+        } 
+        let total = 0;
+        if (dataVoucher.voucher_type == "percent") {
+            total = money/100*dataVoucher.voucher_value
+        }
+        else {
+            total = dataVoucher.voucher_value
+        }
+        return total
+    }
+    catch (e) {
+        console.log(e)
+        return ("Thất bại! Có lỗi xảy ra")
+    }
+   
+}
 export const update_status_voucher = async (voucher_code) => {
     await ModelVoucher.findOneAndUpdate({ voucher_code: voucher_code }, {
         $inc: {

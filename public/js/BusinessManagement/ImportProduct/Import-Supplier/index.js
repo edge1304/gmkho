@@ -35,8 +35,7 @@ function drawTable(data) {
     $("#tbodyTable").empty()
     arrData = []
     for (let i = 0; i < data.length; i++){
-        
-        
+
         let total = calculateMoneyImport(data[i].import_form_product)
         arrData.push(data[i])
         $("#tbodyTable").append(`
@@ -49,7 +48,8 @@ function drawTable(data) {
                 <td>${money(total)}</td>
                 <td>
                     <i onclick="showEdit(${i})" class="fas fa-edit text-warning text-infos"></i>
-                    <i class="fas fa-print text-primary"></i>
+                    <i onclick="newPage('/import/print/${data[i]._id}')" class="fas fa-print text-primary"></i>
+                    <i onclick="downloadID(${i})" class="fas fa-download text-success"></i>
                 </td>
             </tr>
         `)
@@ -233,3 +233,22 @@ $("#payment_zero").change(e => {
         $("#payment_zero").val(false)
     }
 })
+
+function downloadID(index) {
+    callAPI('GET', `${API_IMPORT}/import-supplier/download`, {
+        id_import:arrData[index]._id
+    }, (data => {
+        const arrDownload = []
+        for (let i = 0; i < data.length; i++){
+            arrDownload.push({
+                "Mã hệ thống": data[i]._id,
+                "Mã có sẵn": data[i].id_product2,
+                "Tên sản phẩm":data[i].subcategory_name,
+                "Giá nhập":data[i].product_import_price,
+                "VAT":data[i].product_vat,
+                "Chiết khấu":data[i].product_ck,
+            })
+        }
+        downloadExcelLocal(arrDownload,"Danh sách mã sản phẩm")
+    }))
+}

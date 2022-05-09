@@ -50,45 +50,45 @@ function drawTable(){  // thêm dòng vào bảng
     formatNumber() // chạy lại hàm này để thực hiện việc input vào class number tự format money
 }
 
-function findSupplier() {  // tìm kiếm nhà cung cấp từ input
+// function findSupplier() {  // tìm kiếm nhà cung cấp từ input
     
-    id_user = null
-    const type = event.type
-    const div = $("#div_find_supplier")
+//     id_user = null
+//     const type = event.type
+//     const div = $("#div_find_supplier")
     
-    const input = $(div).find('input')[0]
-    const divLoading = $(div).find('.spinner-border')[0]
-    const div_show = $(div).find('div')[1]
-    if (type == 'input')  pageSupplier = 1
-    if (type == 'scroll') pageSupplier++
+//     const input = $(div).find('input')[0]
+//     const divLoading = $(div).find('.spinner-border')[0]
+//     const div_show = $(div).find('div')[1]
+//     if (type == 'input')  pageSupplier = 1
+//     if (type == 'scroll') pageSupplier++
 
     
-    if ($(input).val().trim().length > 0) {
-        $(divLoading).show()
-        callAPI('GET', `${API_USER}/findOther?`, {
-            key: $(input).val(),
-            limit: 10,
-            page:pageSupplier
-        }, users => {
-            $(divLoading).hide()
-            if (type == 'input') {
-                $(div_show).empty()
-                arrSupplier = []
-            }
+//     if ($(input).val().trim().length > 0) {
+//         $(divLoading).show()
+//         callAPI('GET', `${API_USER}/findOther?`, {
+//             key: $(input).val(),
+//             limit: 10,
+//             page:pageSupplier
+//         }, users => {
+//             $(divLoading).hide()
+//             if (type == 'input') {
+//                 $(div_show).empty()
+//                 arrSupplier = []
+//             }
            
-            users.map(user => {
-                $(div_show).append(`
-                    <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
-                `)
-                arrSupplier.push(user)
-            })
-        } ,undefined, undefined,false)
-    }
-    else {
-        $(div_show).empty()
-    }
+//             users.map(user => {
+//                 $(div_show).append(`
+//                     <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
+//                 `)
+//                 arrSupplier.push(user)
+//             })
+//         } ,undefined, undefined,false)
+//     }
+//     else {
+//         $(div_show).empty()
+//     }
    
-}
+// }
 
 function findProduct(input){  //tìm kiếm sản phẩm
     
@@ -276,12 +276,12 @@ function changeNumber() { // cập nhập số lượng, có 2 trường hợp ,
 
 
 
-function loadmoreSupplier() {  // load more nhà cung cấp khi kéo thẻ div
-    const div = $(event.path[0])
-    if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
-        findSupplier()
-    }
-}
+// function loadmoreSupplier() {  // load more nhà cung cấp khi kéo thẻ div
+//     const div = $(event.path[0])
+//     if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
+//         findSupplier()
+//     }
+// }
 
 function selectSupplier(index) {
     $($(event.path[0]).closest('div')).empty()

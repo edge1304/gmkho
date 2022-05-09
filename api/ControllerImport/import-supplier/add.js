@@ -12,6 +12,8 @@ import { ModelProduct } from '../../../models/Product.js'
 import { ModelSubCategory } from '../../../models/SubCategory.js'
 import { ModelDebt } from '../../../models/Debt.js'
 import { ModelPayment } from '../../../models/Payment.js'
+
+import { createAndUpdateReport} from '../../ControllerReportInventory/index.js'
 export const checkPermission = async (app)=>{
     app.get(prefixApi+"/checkPermission",helper.authenToken, async (req, res)=>{
         try{
@@ -90,7 +92,7 @@ export const insert = async (app)=>{
                 await ModelImportForm.findByIdAndUpdate(dataReturn.insertImport._id, { import_form_status_paid: true })
                 dataReturn.insertImport.import_form_status_paid = true
             }
-
+          
             return res.json(dataReturn)
 
         }
@@ -168,10 +170,12 @@ export const createFormImport = async (req, res) => {
                             ... arrProductFormImport[i],
                             id_import_form: insertImport._id,
                             id_warehouse: dataWarehouse._id,
+                            product_note:[`${new Date()} nhập hàng ${import_form_type} bởi nhân viên ${id_employee} với giá ${arrProductFormImport[i].product_import_price}` ]
                         
                         })
                     )
                 }
+                await createAndUpdateReport(dataWarehouse._id, arrProductFormImport[i].id_subcategory,  arrProductFormImport[i].product_quantity, validator.calculateMoneyImport(arrProductFormImport[i]) )
             }
             const insertProducts = await ModelProduct.insertMany(arrProductForModal)
             const totalMoney = validator.calculateMoneyImport(insertImport.import_form_product);
@@ -291,6 +295,14 @@ export const insertMore = async (app)=>{
                     }    
                     
                 }).lean()
+                for (let i = 0; i < arrProductFormImport.length; i++){
+                    await createAndUpdateReport(
+                        dataImport.id_warehouse,
+                        arrProductFormImport[i].id_subcategory,
+                        arrProductFormImport[i].product_quantity,
+                        validator.calculateMoneyImport(arrProductFormImport[i]),
+                    )
+                }
                 return  res.json({insertImport:dataImportUpdate, insertProducts:insertProducts})
             }
             catch (e) {

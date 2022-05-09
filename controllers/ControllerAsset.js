@@ -5,6 +5,6 @@ function createControllerAsset(app) {
   management(app)
   insert(app)
   update(app)
- 
+  
 }
 export default createControllerAsset

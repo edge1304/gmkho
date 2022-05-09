@@ -3,32 +3,31 @@ import sanitize from "mongo-sanitize";
 import * as helper from '../../../helper/helper.js'
 import * as validator from '../../../helper/validator.js'
 import * as warehouse from '../../ControllerWarehouse/index.js'
+import * as category from '../../ControllerCategory/index.js'
 import * as fundbook from '../../ControllerFundBook/index.js'
 import { ModelUser } from '../../../models/User.js'
 import { ModelWarehouse } from '../../../models/Warehouse.js'
 import { ModelFundBook } from '../../../models/FundBook.js'
 import { ModelExportForm } from '../../../models/ExportForm.js'
+import { ModelImportForm } from '../../../models/ImportForm.js'
 import { ModelProduct } from '../../../models/Product.js'
 import { ModelSubCategory } from '../../../models/SubCategory.js'
 import { ModelDebt } from '../../../models/Debt.js'
 import { ModelReceive } from '../../../models/Receive.js'
+import { createAndUpdateReport} from '../../ControllerReportInventory/index.js'
+import { get_branch_ById} from '../../ControllerBranch/index.js'
 
 export const management = async (app)=>{
     app.get(prefixApi,helper.authenToken, async (req, res)=>{
         try {
-            
-            if(!await helper.checkPermission("620e1dacac9a6e7894da61ce", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+          
+            // if(!await helper.checkPermission("620e1dacac9a6e7894da61ce", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             let query = {}
-            if (validator.isDefine(req.query.id_warehouse) && validator.ObjectId.isValid(req.query.id_warehouse)) {
-                query = {
-                    ...query,
-                    id_warehouse: validator.ObjectId(req.query.id_warehouse),
-                }
-            }
+            
             if (validator.isDefine(req.query.fromdate) && validator.isDefine(req.query.todate)) {
                 query = {
                     ...query,
-                    $and: [{ createdAt: { $gte: validator.dateTimeZone(undefined, new Date(req.query.fromdate)).startOfDay } },{ createdAt: { $lte:validator.dateTimeZone(undefined, new Date(req.query.todate)).endOfDay  } }]
+                    ...validator.query_createdAt(req.query.fromdate , req.query.todate)
                 }
             }
   
@@ -48,6 +47,13 @@ export const management = async (app)=>{
                 query = {_id: validator.ObjectId(req.query.key)}
                     
             }
+            if (validator.isDefine(req.query.id_warehouse) && validator.ObjectId.isValid(req.query.id_warehouse)) {
+                query = {
+                    ...query,
+                    id_warehouse: validator.ObjectId(req.query.id_warehouse),
+                }
+            }
+   
             const datas = await ModelExportForm.aggregate([
                 {
                     $lookup: {
@@ -112,7 +118,7 @@ export const management = async (app)=>{
                 }
                 
             }))
-     
+   
             return res.json({data:datas, count:count.length>0?count[0].count:0})
         }
         catch (e) {
@@ -128,6 +134,7 @@ export const update = async (app)=>{
          
             const is_payment_zero = req.body.is_payment_zero==='true'
             const arrProduct = JSON.parse(req.body.arrProduct) // mảng sản phẩm mới
+          
             const id_export = req.body.id_export  // id phiếu nhập cần update
             const receive_form_money = validator.tryParseInt(req.body.receive_form_money) //tiền khách thanh toán
             const id_fundbook = req.body.id_fundbook  // sổ quỹ
@@ -141,6 +148,21 @@ export const update = async (app)=>{
             if(!data_fundbook) return res.status(400).send("Thất bại! Không tìm thấy hình thức thanh toán phù hợp")
         
             for(let i = 0;i<arrProduct.length;i++ ){
+                
+
+                if(validator.ObjectId.isValid(arrProduct[i].id_import_return)){
+                    const dataImReturn = await ModelImportForm.findById(arrProduct[i].id_import_return)
+                    if(!dataImReturn) return res.status(400).send("Thất bại! Lỗi dòng 154 không cập nhập được phiếu nhập trả")
+                    for(let j =0;j<dataImReturn.import_form_product.length;j++){
+                        if(dataImReturn.import_form_product[j].id_product.toString() == arrProduct[i].id_product.toString() ){
+                            dataImReturn.import_form_product[j].product_export_price = arrProduct[i].product_export_price
+                        }
+                    }
+                    await ModelImportForm.findByIdAndUpdate(dataImReturn._id,{
+                        import_form_product: dataImReturn.import_form_product
+                    })
+                }
+
                 await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, {
                     product_warranty:arrProduct[i].product_warranty
                 })
@@ -172,10 +194,232 @@ export const update = async (app)=>{
                 export_form_product: arrProduct,
                 export_form_note:export_form_note
             })
-            // chỗ này thiếu chỗ phải cập nhập giá ở các phiếu xuất
-            
+
             return res.json(updateImport)
             
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+export const revenue_product_checkpermission = async (app)=>{
+    app.get(prefixApi +"/revenue_product/checkPermission",helper.authenToken, async (req, res)=>{
+        try{
+            if (!await helper.checkPermission("62552cb84173457d1adca31d", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const id_branch = req.body._caller.id_branch_login
+            const dataWarehouse = await warehouse.getWarehouseByBranch(id_branch)
+            const dataCategory = await category.get_array_category()
+            return res.json({warehouses:dataWarehouse, categories:dataCategory})
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+export const revenue_product = async (app)=>{
+    app.get(prefixApi +"/revenue_product",helper.authenToken, async (req, res)=>{
+        try{
+            if (!await helper.checkPermission("62552cb84173457d1adca31d", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const fromdate = req.query.fromdate
+            const todate = req.query.todate
+            const id_warehouse = req.query.id_warehouse
+            let query = validator.query_createdAt(fromdate, todate)
+            if(validator.ObjectId.isValid(id_warehouse)) 
+            {
+                query = {
+                    ...query,
+                    id_warehouse:validator.ObjectId(id_warehouse),
+                }
+            }
+            
+            const dataExport = await ModelExportForm.aggregate([
+                {
+                    $match:{
+                        export_form_type:"Xuất hàng để bán",
+                        ...query
+                    } 
+                },
+                {
+                    $unwind:{
+                        path:"$export_form_product"
+                    }
+                },
+                {
+                    $project:{
+                        id_subcategory:"$export_form_product.id_subcategory",
+                        product_quantity:"$export_form_product.product_quantity",
+                        revenue: {
+                            $multiply:[
+                                {
+                                    $subtract:[
+                                        {
+                                            $subtract:[
+                                                {
+                                                    $subtract:[
+                                                        "$export_form_product.product_export_price",
+                                                        {
+                                                            $multiply:[
+                                                                {
+                                                                    $divide:[
+                                                                        "$export_form_product.product_export_price",
+                                                                        100
+                                                                    ]
+                                                                },
+                                                                "$export_form_product.product_ck"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "$export_form_product.product_discount"
+                                            ]
+                                        },
+                                        "$export_form_product.product_import_price"
+                                    ]
+                                },
+                                "$export_form_product.product_quantity"
+                            ]
+                        }
+                    }
+                },
+                {
+                    $group:{
+                        _id:"$id_subcategory",
+                        product_quantity:{$sum:"$product_quantity"},
+                        revenue:{$sum:"$revenue"}
+                    }
+                }
+            ])
+            
+            const dataImport = await ModelImportForm.aggregate([
+                {
+                    $match: {
+                        ...query,
+                        import_form_type:"Nhập hàng khách trả lại"
+                    }
+                },
+                {
+                    $unwind:{
+                        path:"$import_form_product"
+                    }
+                },
+                {
+                    $project:{
+                        id_subcategory:"$import_form_product.id_subcategory",
+                        product_quantity:"$import_form_product.product_quantity",
+                        revenue: {
+                            $multiply:[
+                                {
+                                    $subtract:[
+                                        "$import_form_product.product_export_price",
+                                        {
+                                            $subtract:[
+                                                {
+                                                    $subtract:[
+                                                        "$import_form_product.product_import_price",
+                                                        {
+                                                            $multiply:[
+                                                                {
+                                                                    $divide:[
+                                                                        "$import_form_product.product_import_price",
+                                                                        100
+                                                                    ]
+                                                                },
+                                                                "$import_form_product.product_ck"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "$import_form_product.product_discount"
+                                            ]
+                                        },
+                                       
+                                    ]
+                                },
+                                "$import_form_product.product_quantity"
+                            ]
+                        }
+                    }
+                },
+                {
+                    $group:{
+                        _id:"$id_subcategory",
+                        product_quantity:{$sum:"$product_quantity"},
+                        revenue:{$sum:"$revenue"}
+                    }
+                }
+            ])
+
+            for(let i =0;i<dataExport.length;i++){
+                dataExport[i].neg_revenue = 0
+                const dataSub = await ModelSubCategory.findById(dataExport[i]._id)
+                if(dataSub){
+                    dataExport[i].subcategory_name = dataSub.subcategory_name
+                    dataExport[i].id_category = dataSub.id_category
+                }
+            }
+            for(let i =0;i<dataImport.length;i++){
+
+                const dataSub = await ModelSubCategory.findById(dataImport[i]._id)
+                if(dataSub){
+                    dataImport[i].subcategory_name = dataSub.subcategory_name
+                    dataImport[i].id_category = dataSub.id_category
+                }
+            }
+
+            return res.json({dataExport:dataExport, dataImport:dataImport})
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+export const print = async (app)=>{
+    app.get(prefixApi +"/print",helper.authenToken, async (req, res)=>{
+        try{
+            
+            const id_export = req.query.id_export
+            if(!id_export || !validator.ObjectId.isValid(id_export.trim())) return res.status(400).send("Thất bại! Không tìm thấy phiếu xuất")
+            const dataExport = await ModelExportForm.findById(id_export.trim())
+            if(!dataExport) return res.status(400).send("Thất bại! Không tìm thấy phiếu xuất")
+            const id_branch = req.body._caller.id_branch_login
+            const dataBranch = await get_branch_ById(id_branch)
+
+            dataExport.receive_money = 0
+            dataExport.fundbook_name = ""
+            dataExport.user_fullname = ""
+            dataExport.user_phone = ""
+            dataExport.user_address = ""
+
+            const dataReceive = await ModelReceive.findOne({id_form: dataExport._id})
+            if(dataReceive){
+                dataExport.receive_money
+                const dataFund = await ModelFundBook.findById(dataReceive.id_fundbook)
+                if(dataFund) dataExport.fundbook_name = dataFund.fundbook_name
+            }
+            if(validator.ObjectId.isValid(dataExport.id_user)){
+                const dataUser = await ModelUser.findById(dataExport.id_user)
+                if(dataUser){
+                    dataExport.user_fullname = dataUser.user_fullname
+                    dataExport.user_phone = dataUser.user_phone
+                    dataExport.user_address = dataUser.user_address
+                }
+            }
+            for(let i = 0;i<dataExport.export_form_product.length;i++){
+                dataExport.export_form_product[i].subcategory_unit = ""
+                const dataSub = await ModelSubCategory.findById(dataExport.export_form_product[i].id_subcategory)
+                if(dataSub){
+                    dataExport.export_form_product[i].subcategory_unit = dataSub.subcategory_unit
+                }
+
+            }
+            return res.json({dataBranch:dataBranch, dataExport:dataExport})
         }
         catch (e) {
             console.log(e)

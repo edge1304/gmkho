@@ -98,8 +98,9 @@ function confirmAdd()
     const subcategory_point = tryParseInt($("#addPoint").val())
     const subcategory_unit = $("#addUnit").val().trim().length == 0?"Chiếc":$("#addUnit").val().trim()
     const number_warning = tryParseInt($("#addWarning").val())
+    const subcategory_export_price_web = tryParseInt($("#addExportPriceWeb").val())
     const id_category = $("#addCategory option:selected").val()
-
+    
     if(id_category.length != 24 ){
         info("Danh mục không được để trống")
         return
@@ -124,6 +125,7 @@ function confirmAdd()
         subcategory_unit:subcategory_unit,
         number_warning:number_warning,
         id_category:id_category,
+        subcategory_export_price_web:subcategory_export_price_web
     },()=>{
         success("Thành công")
         getData()
@@ -322,6 +324,7 @@ function detailSubCategory(index)
     $("#editPoint").val(money(arrData[index].subcategory_point))
     $("#editPoint").val(money(arrData[index].subcategory_point))
     $("#editUnit").val(money(arrData[index].subcategory_unit))
+    $("#editExportPriceWeb").val(money(arrData[index].subcategory_export_price_web))
 
     $("#btnConfirmEdit").attr("onclick",`confirmSaveEdit(${index})`)
     showPopup('popupEdit')
@@ -338,6 +341,7 @@ function confirmSaveEdit(index)
     const subcategory_warranty = tryParseInt($("#editWarranty").val())
     const subcategory_part = tryParseInt($("#editPart").val())
     const subcategory_point = tryParseInt($("#editPoint").val())
+    const subcategory_export_price_web = tryParseInt($("#editExportPriceWeb").val())
     const subcategory_unit = $("#editUnit").val().trim().length == 0?"Chiếc":$("#editUnit").val().trim()
     const id_category = $("#editCategory option:selected").val()
 
@@ -364,6 +368,7 @@ function confirmSaveEdit(index)
         subcategory_point:subcategory_point,
         subcategory_unit:subcategory_unit,
         id_category:id_category,
+        subcategory_export_price_web:subcategory_export_price_web,
         id_subcategory:arrData[index]._id
     } , (data)=>{
         success("Thành công")

@@ -50,11 +50,10 @@ export const update = async (app)=>{
 
 export const update_point_user = async (id_user , point) =>{
     try{
-        
+        // await ModelUser.findByIdAndUpdate(id_user,{$inc:{user_point:point}})
     }
     catch(e){
         console.log(e)
-        return []
     }
 }
 export const checkValuePoint = async (app) => {
@@ -79,7 +78,7 @@ export const checkValuePoint = async (app) => {
 export const checkPoint = async (id_user, point_number, res) => {
     try
     {  
-        if(! validator.ObjectId.isValid(id_user)) return res.status(400).send("Thất bại! Không tìm thấy khách hàng")
+        if(! validator.ObjectId.isValid(id_user)) return ("Thất bại! Không tìm thấy khách hàng")
         point_number = validator.tryParseInt(point_number)
         const dataPoint = await ModelPoint.findOne()
         if (!dataPoint) return res.status(400).send("Không tìm thấy chỉ số quy đổi")
@@ -92,6 +91,26 @@ export const checkPoint = async (id_user, point_number, res) => {
     catch (e) {
         console.log(e)
         return res.status(500).send("Thất bại! Có lỗi xảy ra")
+    }
+   
+}
+
+export const checkPointReturnZero = async (id_user, point_number) => {
+    try
+    {  
+        if(! validator.ObjectId.isValid(id_user)) return ("Thất bại! Không tìm thấy khách hàng")
+        point_number = validator.tryParseInt(point_number)
+        const dataPoint = await ModelPoint.findOne()
+        if (!dataPoint) return ("Không tìm thấy chỉ số quy đổi")
+        const data_user = await ModelUser.findById(id_user)
+        if (!data_user) return ("Thất bại! Không tìm thấy khách hàng")
+        if (point_number > data_user.user_point) return (`Khách hàng không đủ ${point_number} điểm để thực hiện quy đổi`)
+      
+        return (dataPoint.point_value/ dataPoint.point_number)*point_number
+    }
+    catch (e) {
+        
+        return ("Thất bại! Có lỗi xảy ra")
     }
    
 }

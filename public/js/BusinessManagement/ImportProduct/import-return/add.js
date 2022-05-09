@@ -12,7 +12,7 @@ checkPermission()
 function checkPermission()
 {
     drawTable()
-    callAPI('GET',`${API_IMPORT}/import-supplier?`,null,(data)=>{
+    
         callAPI('GET',`${API_IMPORT}/import-supplier/checkPermission`,null,(data)=>{
             data.warehouses.map(warehouse => {
                 $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
@@ -22,7 +22,7 @@ function checkPermission()
                 $("#selectTypePayment").append(`<option value="${fund._id}">${fund.fundbook_name}</option>`)
             })
         })
-    })
+   
 }
 
 
@@ -57,45 +57,45 @@ function drawTable(){
     formatNumber()
 }
 
-function findSupplier() {
+// function findSupplier() {
     
-    id_user = null
-    const type = event.type
-    const div = $("#div_find_supplier")
+//     id_user = null
+//     const type = event.type
+//     const div = $("#div_find_supplier")
     
-    const input = $(div).find('input')[0]
-    const divLoading = $(div).find('.spinner-border')[0]
-    const div_show = $(div).find('div')[1]
-    if (type == 'input')  pageSupplier = 1
-    if (type == 'scroll') pageSupplier++
+//     const input = $(div).find('input')[0]
+//     const divLoading = $(div).find('.spinner-border')[0]
+//     const div_show = $(div).find('div')[1]
+//     if (type == 'input')  pageSupplier = 1
+//     if (type == 'scroll') pageSupplier++
 
     
-    if ($(input).val().trim().length > 0) {
-        $(divLoading).show()
-        callAPI('GET', `${API_USER}/findOther?`, {
-            key: $(input).val(),
-            limit: 10,
-            page:pageSupplier
-        }, users => {
-            $(divLoading).hide()
-            if (type == 'input') {
-                $(div_show).empty()
-                arrSupplier = []
-            }
+//     if ($(input).val().trim().length > 0) {
+//         $(divLoading).show()
+//         callAPI('GET', `${API_USER}/findOther?`, {
+//             key: $(input).val(),
+//             limit: 10,
+//             page:pageSupplier
+//         }, users => {
+//             $(divLoading).hide()
+//             if (type == 'input') {
+//                 $(div_show).empty()
+//                 arrSupplier = []
+//             }
            
-            users.map(user => {
-                $(div_show).append(`
-                    <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
-                `)
-                arrSupplier.push(user)
-            })
-        } ,undefined, undefined,false)
-    }
-    else {
-        $(div_show).empty()
-    }
+//             users.map(user => {
+//                 $(div_show).append(`
+//                     <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
+//                 `)
+//                 arrSupplier.push(user)
+//             })
+//         } ,undefined, undefined,false)
+//     }
+//     else {
+//         $(div_show).empty()
+//     }
    
-}
+// }
 
 function findProduct() {
     if (event.which == 13) {
@@ -108,6 +108,7 @@ function findProduct() {
         callAPI('GET',API_PRODUCT,{
             key:key,
         }, data => {
+            
             if (!data.product_status) {
                 info("Sản phẩm này chưa xuất kho")
                 $(div_loading).hide()
@@ -120,13 +121,22 @@ function findProduct() {
             $(input).attr("name",data.subcategory_name)
             $(input).prop("disabled", true)
          
+            if(!id_user){
+                id_user = data.id_user
+
+                $(".header-table div:nth-child(2) div:first-child input").val(data.user_fullname)
+                $(".header-table div:nth-child(2) div:first-child input").attr("name",data.id_user)
+                $(".header-table div:nth-child(2) div:nth-child(2) input").val(data.user_phone)
+                $(".header-table div:nth-child(2) div:nth-child(3) input").val(data.user_address)
+            }
             $($(tr).find('input')[1]).val(money(data.product_export_price))
             $($(tr).find('input')[2]).val(money(data.product_export_vat))
             $($(tr).find('input')[3]).val(money(data.product_export_ck))
             $($(tr).find('input')[4]).val(money(data.product_export_discount))
             $($(tr).find('input')[5]).val(money(data.product_export_warranty))
+            $($(tr).find('input')[6]).val(data.employee_fullname)
+            $($(tr).find('input')[6]).attr("name",data.id_employee)
             
-
             changeMoney()
             drawTable()
         },(data)=>{
@@ -224,12 +234,12 @@ function removeRow() {
 
 
 
-function loadmoreSupplier() {
-    const div = $(event.path[0])
-    if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
-        findSupplier()
-    }
-}
+// function loadmoreSupplier() {
+//     const div = $(event.path[0])
+//     if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
+//         findSupplier()
+//     }
+// }
 
 function selectSupplier(index) {
     $($(event.path[0]).closest('div')).empty()
@@ -271,7 +281,7 @@ $("#btnConfirm").click(e => {
             const product_warranty = tryParseInt($(inputs[5]).val())
             const product_quantity = 1
             const id_employee = $(inputs[6]).attr("name")
-    
+
             arrProduct.push({
                 id_product:id_product,
                 product_import_price:product_import_price,
@@ -280,7 +290,7 @@ $("#btnConfirm").click(e => {
                 product_discount:product_discount,
                 product_warranty:product_warranty,
                 product_quantity: product_quantity,
-                id_employee:id_employee
+                id_employee:id_employee,
             })
            
         }

@@ -22,7 +22,7 @@ const SchemaDebt = new mongoose.Schema(
         debt_money_export:{...validator.schemaNumber},
         debt_note: { ...validator.schemaString },
         id_form: { ...validator.schemaObjectId },
-        debt_time: { ...validator.schemaObjectId },
+        debt_time: { ...validator.schemaNumber },
         
     },
     { timestamps: true }

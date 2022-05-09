@@ -19,7 +19,12 @@ const SchemaProduct = new mongoose.Schema(
         product_index:{
             ...validator.schemaNumber,
             ...validator.schemaRequired
-           
+        },
+        product_vat:{
+            ...validator.schemaNumber,
+        },
+        product_ck:{
+            ...validator.schemaNumber,
         },
         id_warehouse:{
             ...validator.schemaObjectId,
@@ -29,9 +34,11 @@ const SchemaProduct = new mongoose.Schema(
             ...validator.schemaObjectId,
             ...validator.schemaRequired
         },
-       
         product_status:{ //  trạng thái tồn của sản phẩm / true đã xuất / false chưa xuất
             ...validator.schemaBooleanFalse
+        },
+        product_import_price:{ //  trạng thái tồn của sản phẩm / true đã xuất / false chưa xuất
+            ...validator.schemaNumber
         },
         id_export_form:{ // mã phiếu xuất mới nhất, giúp tìm kiếm bảo hành nhanh chóng hơn
             ...validator.schemaObjectId, 
@@ -39,6 +46,9 @@ const SchemaProduct = new mongoose.Schema(
         product_warranty:{ // mã phiếu xuất mới nhất, giúp tìm kiếm bảo hành nhanh chóng hơn
             ...validator.schemaNumber, 
         },
+        product_note:{
+            type:[]
+        }
     },
     { timestamps: true }
 );
@@ -64,7 +74,7 @@ SchemaProduct.pre(['deleteOne','findByIdAnDelete'], async function (next) {
 
 SchemaProduct.pre(['insertMany'], async function (  next,docs,) {
     try{
-        console.log(docs)
+        
         var arr = []
         docs.map( pro =>{
             arr.push({
@@ -146,67 +156,10 @@ SchemaProduct.pre(['deleteMany'], async function (  next) {
     
 })
 
-
-// SchemaProduct.pre(['updateMany'], async function (  next,docs,) {
-//     try{
-
-//         var arr = []
-//         docs.map( pro =>{
-//             arr.push({
-//                 ...pro._doc,
-//                 quantity:0
-//             })
-//         })
-//         for(let i =0;i<arr.length;i++){
-//             for(let j = i+1; j<arr.length ;j++){
-//                 if(
-//                     arr[i].id_subcategory == arr[j].id_subcategory &&
-//                     arr[i].id_warehouse == arr[j].id_warehouse &&
-//                     arr[i].product_status == arr[j].product_status  && !arr[i].product_status
-//                 ){
-//                     arr[i].quantity -= 1
-//                     arr.splice(j,1)
-//                     j--
-//                 }
-//                 else
-//                     if(
-//                         arr[i].id_subcategory == arr[j].id_subcategory &&
-//                         arr[i].id_warehouse == arr[j].id_warehouse &&
-//                         arr[i].product_status == arr[j].product_status  && arr[i].product_status
-//                     ){
-//                         arr[i].quantity += 1
-//                         arr.splice(j,1)
-//                         j--
-//                     }
-                
-//             }
-//         }
-        
-
-//         await Promise.all(  arr.map( async product =>{
-//             if(!product.product_status){
-//                 await updateInventory(product.id_subcategory, product.id_warehouse, product.quantity)
-//             }
-//             else{
-//                 await updateInventory(product.id_subcategory, product.id_warehouse, -product.quantity)
-//             }
-
-//         })
-//         )
-//         return next()
-//     }
-//     catch(e)
-//     {
-//         console.log(e)
-//     }
-    
-// })
-SchemaProduct.post(['save', 'updateOne', 'updateMany', 'findByIdAndUpdate'], async (docs) => {
-   
+SchemaProduct.post(['save', 'updateOne', 'updateMany', 'findByIdAndUpdate', 'findOneAndUpdate'], async (docs) => {
     if (Array.isArray(docs)) {
         await Promise.all(  docs.map(async product => {
             await updateByCount(product)
-            
         }))
     }
     else {
@@ -215,14 +168,14 @@ SchemaProduct.post(['save', 'updateOne', 'updateMany', 'findByIdAndUpdate'], asy
     
 })
 
+
 const updateByCount = async (data) => {
     try {
-        const countProduct = await ModelProduct.estimatedDocumentCount({ id_warehouse: data.id_warehouse, id_subcategory: data.id_subcategory, product_status: false }) // đến số lượng sản phẩm hiện tại của kho
+        const countProduct = await ModelProduct.countDocuments({ id_warehouse: data.id_warehouse, id_subcategory: data.id_subcategory, product_status: false }) // đến số lượng sản phẩm hiện tại của kho
         const dataSub = await ModelSubCategory.findById(data.id_subcategory)
             for (let i = 0; i < dataSub.subcategory_warehouses.length; i++){
                 if (dataSub.subcategory_warehouses[i].id_warehouse.toString() == data.id_warehouse.toString()) {
                     dataSub.subcategory_warehouses[i].current_inventory = countProduct
-                   
                     const updateSub = await ModelSubCategory.findByIdAndUpdate(data.id_subcategory, {
                         $set: {
                             subcategory_warehouses:dataSub.subcategory_warehouses
@@ -246,7 +199,7 @@ const updateInventory = async (id_subcategory, id_warehouse, number) =>{
             if (dataWarehouse[i].id_warehouse.toString() == id_warehouse.toString()) {
 
                 dataWarehouse[i].current_inventory += number
-                await ModelSubCategory.findByIdAndUpdate(dataSub._id, {subcategory_warehouses: dataWarehouse})
+                await ModelSubCategory.findByIdAndUpdate(dataSub._id, { $set: { subcategory_warehouses: dataWarehouse } })
                 break
             }
         }

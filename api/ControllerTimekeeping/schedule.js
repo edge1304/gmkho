@@ -339,7 +339,7 @@ export const addTimekeepingSchedule_byAdmin = async (app)=>{
             const dataEm = await ModelEmployee.findById(id_employee)
             if(!dataEm) return res.status(400).send("Thất bại! Không tìm thấy sản phẩm")
             
-            const dataWork = await ModelTimekeepingSchedule.findOne({id_employee:id_employee,$and:[{createdAt:{$gte:validator.dateTimeZone().startOfDay}},{createdAt:{$lte:validator.dateTimeZone().endOfDay}}]})
+            const dataWork = await ModelTimekeepingSchedule.findOne({id_employee:id_employee,$and:[{createdAt:{$gte:validator.dateTimeZone("GMT +07:00").startOfDay}},{createdAt:{$lte:validator.dateTimeZone("GMT +07:00").endOfDay}}]})
             if(dataWork) return res.status(400).send("Thất bại! Nhân viên này đã chấm công hôm nay")
 
             const in_noon = sanitize(req.body.in_noon)
@@ -395,7 +395,7 @@ export const addTimekeepingSchedule_byAdmin = async (app)=>{
                     late_noon:late_noon,
                     late_night:late_night,
                     overtime:overtime,
-                    createdAt:validator.dateTimeZone().currentTime
+                    createdAt:validator.dateTimeZone("GMT +07:00").currentTime
                 }).save()
             if(!data) return res.status(500).send("Thất bại! Có lỗi xảy ra")
             return res.json(data)

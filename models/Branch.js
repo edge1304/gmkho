@@ -36,7 +36,10 @@ const SchemaBranch = new mongoose.Schema({
 	in_night_schedule:validator.schemaSchedule,
 	out_night_schedule:validator.schemaSchedule,
 
-	late_limit:validator.schemaNumber,
+	late_limit: validator.schemaNumber,
+	branch_active: {
+		...validator.schemaBooleanFalse
+	}
 
 },{timestamps: true });
 

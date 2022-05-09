@@ -15,21 +15,25 @@ export const management = async(app) => {
     //#region api lấy danh sách chức năng và nhóm người dùng
     app.get(prefixApi, helper.authenToken, async(req, res) => {
         try {
-            if (!await helper.checkPermission("61e4cc4369a5d379b7a29821", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            // if (!await helper.checkPermission("61e4cc4369a5d379b7a29821", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
 
             var arrCategory = []
             if (req.query.getOther === 'true') {
                 arrCategory = await ModelCategory.find()
             }
             var query = {}
+            var sort = {_id:-1}
             if (validator.isDefine(req.query.key)) {
+                const search_key = validator.viToEn(req.query.key).replace(/[^a-zA-Z0-9]/g, " ")
                 query = {
                     ...query,
-                    $or: [
-                        { subcategory_name: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } },
-                        { subcategory_text_search: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } },
-                    ]
+                    $or:[{$text: {$search: search_key}}],
                 }
+                sort= {
+                    score: { $meta: "textScore" },
+                    ...sort,
+                } 
+            
             }
             if (validator.isDefine(req.query.id_category) && validator.ObjectId.isValid(req.query.id_category)) {
                 query = {
@@ -46,7 +50,7 @@ export const management = async(app) => {
                 }
 
             }
-            const data = await ModelSubCategory.find(query).sort({ _id: -1 }).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+            const data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
             const count = await ModelSubCategory.countDocuments(query)
             return res.json({ data: data, count: count, arrCategory: arrCategory })
         } catch (e) {
@@ -59,15 +63,18 @@ export const management = async(app) => {
 export const findOther = async(app) => {
     app.get(prefixApi + "/findOther", helper.authenToken, async(req, res) => {
         let query = {}
+        var sort = { _id: -1 }
         if (validator.isDefine(req.query.key)) {
-            query = {
-                ...query,
-                $or: [
-                    { subcategory_name: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } },
-                    { subcategory_text_search: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } },
-                ]
+            const search_key = validator.viToEn(req.query.key).replace(/[^a-zA-Z0-9]/g, " ")
+                query = {
+                    ...query,
+                    $or:[{$text: {$search: search_key}}],
+                }
+                sort= {
+                    score: { $meta: "textScore" },
+                    ...sort,
+                } 
             }
-        }
         if (validator.isDefine(req.query.id_category) && validator.ObjectId.isValid(req.query.id_category)) {
             query = {
                 ...query,
@@ -83,7 +90,7 @@ export const findOther = async(app) => {
             }
 
         }
-        var sort = { _id: -1 }
+        
         const data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
         return res.json(data)
     });
@@ -98,6 +105,7 @@ export const insert = async(app) => {
             const subcategory_name = req.body.subcategory_name
             const subcategory_import_price = validator.tryParseInt(req.body.subcategory_import_price)
             const subcategory_export_price = validator.tryParseInt(req.body.subcategory_export_price)
+            const subcategory_export_price_web = validator.tryParseInt(req.body.subcategory_export_price_web)
             const subcategory_vat = validator.tryParseInt(req.body.subcategory_vat)
             const subcategory_ck = validator.tryParseInt(req.body.subcategory_ck)
             const subcategory_discount = validator.tryParseInt(req.body.subcategory_discount)
@@ -131,7 +139,8 @@ export const insert = async(app) => {
                     subcategory_point: subcategory_point,
                     subcategory_unit: subcategory_unit,
                     id_category: id_category,
-                    subcategory_warehouses: subcategory_warehouses
+                    subcategory_warehouses: subcategory_warehouses,
+                    subcategory_export_price_web:subcategory_export_price_web
                 }).save()
 
                 if (!insertNew) return res.status(400).send("Thất bại! Có lỗi xảy ra")
@@ -168,6 +177,7 @@ export const update = async(app) => {
             const subcategory_part = validator.tryParseInt(req.body.subcategory_part)
             const subcategory_point = validator.tryParseInt(req.body.subcategory_point)
             const subcategory_unit = req.body.subcategory_unit
+            const subcategory_export_price_web = validator.tryParseInt(req.body.subcategory_export_price_web)
             const id_category = req.body.id_category
             const dataCategory = await ModelCategory.findById(id_category)
             if (!dataCategory) return res.status(400).send("Danh mục không tồn tại")
@@ -187,6 +197,7 @@ export const update = async(app) => {
                     subcategory_part: subcategory_part,
                     subcategory_point: subcategory_point,
                     subcategory_unit: subcategory_unit,
+                    subcategory_export_price_web:subcategory_export_price_web,
                     id_category: id_category,
                 })
                 if (!updateNew) return res.status(400).send("Thất bại! Có lỗi xảy ra")
@@ -251,20 +262,25 @@ export const addExcel = async(app) => {
 }
 
 
+
 export const getDataClient = async(app) => {
     //#region api lấy danh sách chức năng và nhóm người dùng
     app.get(prefixApi + "/client", async(req, res) => {
         try {
 
+            validator.eshtml(req)
             var query = {}
+            var sort = {_id:-1}
             if (validator.isDefine(req.query.key)) {
+                const search_key = validator.viToEn(req.query.key).replace(/[^a-zA-Z0-9]/g, " ")
                 query = {
                     ...query,
-                    $or: [
-                        { subcategory_name: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } },
-                        { subcategory_text_search: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } },
-                    ]
+                    $or:[{$text: {$search: search_key}}],
                 }
+                sort= {
+                    score: { $meta: "textScore" },
+                    ...sort,
+                } 
             }
             if (validator.isDefine(req.query.id_category) && validator.ObjectId.isValid(req.query.id_category)) {
                 query = {
@@ -272,11 +288,31 @@ export const getDataClient = async(app) => {
                     id_category: req.query.id_category
                 }
             }
-            var sort = { _id: -1 }
+            if (validator.isDefine(req.query.subcategory_status)) {
+                query = {
+                    ...query,
+                    subcategory_status:validator.tryParseInt(req.query.subcategory_status)
+                }
+            }
+            if (validator.isDefine(req.query.fromprice) && validator.isDefine(req.query.toprice)) {
+                query = {
+                    ...query,
+                    $and: [
+                        {
+                            subcategory_export_price:{$gte:validator.tryParseInt(req.query.fromprice)}
+                        },
+                        {
+                            subcategory_export_price:{$lte:validator.tryParseInt(req.query.toprice)}
+                        }
+                    ]
+                }
+            }
+           
             if (validator.isDefine(req.query.sort) && validator.isDefine(req.query.valuesort)) {
                 sort = {
                     [sanitize(req.query.sort)]: validator.tryParseInt(req.query.valuesort) }
             }
+          
             const data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
             return res.json(data)
         } catch (e) {
@@ -284,4 +320,36 @@ export const getDataClient = async(app) => {
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
+}
+
+export const detail_subcategory = async (app) => {
+    app.get(prefixApi + "/detail", async (req, res) => { 
+        try {
+            var query = {}
+            Object.keys(req.query).map(key => {
+                query = {
+                    ...query,
+                    [key]:req.query[key]
+                }
+            })
+            const data = await ModelSubCategory.findOne(query)
+            
+            if (data) {
+                for (let i = 0; i < data.subcategory_related.length; i++){
+                    const dataSub = await ModelSubCategory.findById(data.subcategory_related[i].id_subcategory)
+                    data.subcategory_related[i].subcategory_export_price = 0
+                    if (dataSub) {
+                        data.subcategory_related[i].subcategory_export_price = dataSub.subcategory_export_price
+                    } 
+                }
+                
+            }
+            return res.json(data)
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+    
 }

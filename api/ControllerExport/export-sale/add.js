@@ -12,13 +12,17 @@ import { ModelProduct } from '../../../models/Product.js'
 import { ModelSubCategory } from '../../../models/SubCategory.js'
 import { ModelDebt } from '../../../models/Debt.js'
 import { ModelReceive } from '../../../models/Receive.js'
-import  {checkCodeDiscount} from './../../ControllerVoucher/index.js'
-import  {checkPoint} from './../../ControllerPoint/index.js'
+import  {checkCodeDiscount , checkCodeDiscountReturnError} from './../../ControllerVoucher/index.js'
+import  {checkPoint , checkPointReturnZero} from './../../ControllerPoint/index.js'
 import { ModelExportForm } from './../../../models/ExportForm.js'
+import { ModelImportForm } from './../../../models/ImportForm.js'
 import {update_status_voucher} from './../../ControllerVoucher/index.js'
-import {update_part} from './../../ControllerPart/index.js'
+import { update_part } from './../../ControllerPart/index.js'
+import { createAndUpdateReport} from '../../ControllerReportInventory/index.js'
+
 export const checkPermission = async (app)=>{
-    app.get(prefixApi+"/checkPermission",helper.authenToken, async (req, res)=>{
+    app.get(prefixApi + "/checkPermission", helper.authenToken, async (req, res) => {
+      
         try{
             if(!await helper.checkPermission("620e1dacac9a6e7894da61ce", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             const warehouses = await warehouse.getWarehouseByBranch(req.body._caller.id_branch_login)
@@ -57,6 +61,7 @@ export const create_form = async (req, res) => {
         const arrProduct = JSON.parse(req.body.arrProduct)
         const id_fundbook = req.body.id_fundbook
         const id_employee = req.body._caller._id
+        const id_employee_setting = req.body.id_employee_setting
         const dataUser = await ModelUser.findById(id_user)
         if (!dataUser) return res.status(400).send("Thất bại! Không tìm thấy nhà cung cấp")
         const dataFundbook = await ModelFundBook.findById(id_fundbook)
@@ -85,6 +90,8 @@ export const create_form = async (req, res) => {
             arrProduct[i].subcategory_name = sub_category.subcategory_name
             arrProduct[i].subcategory_part = sub_category.subcategory_part
             arrProduct[i].subcategory_point = sub_category.subcategory_point
+            arrProduct[i].product_import_price = validator.totalMoney(product.product_import_price, 0, product.product_ck)
+            arrProduct[i].id_form_import = product.id_import_form
 
             totalPointPlus += sub_category.subcategory_point
             if (validator.ObjectId.isValid(arrProduct[i].id_employee)) {
@@ -96,11 +103,13 @@ export const create_form = async (req, res) => {
         var money_point = 0
 
         if (voucher_code) {  // tính tiền mã giảm giá
-            money_voucher_code = await checkCodeDiscount(voucher_code, total, res)
+            money_voucher_code = await checkCodeDiscountReturnError(voucher_code, total)
+            if(isNaN(money_voucher_code)) return res.status(400).send(money_voucher_code)
         }
 
         if (point_number > 0) { // tính tiền từ đổi điểm
-            money_point = await checkPoint(dataUser._id,point_number,res)
+            money_point = await checkPointReturnZero(dataUser._id, point_number)
+            if(isNaN(money_point)) return res.status(400).send(money_point)
         }
         const data_warehouse = await ModelWarehouse.findById(id_warehouse)
         if (!data_warehouse) return res.status(400).send("Thất bại! Không tìm thấy kho của sản phẩm")
@@ -123,6 +132,7 @@ export const create_form = async (req, res) => {
             money_voucher_code:  money_voucher_code,
             point_number: point_number,
             money_point: money_point,
+            id_employee_setting:id_employee_setting
             // createdAt: validator.dateTimeZone().currentTime
         }).save()
 
@@ -152,7 +162,8 @@ export const create_form = async (req, res) => {
         if (voucher_code) await update_status_voucher(voucher_code)
             
         for (let i = 0; i < arrProduct.length; i++){
-            await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product,{product_status:true, product_warranty: arrProduct[i].product_warranty ,id_export_form: insertFormExport._id})
+            await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, {$set:{ product_status: true, product_warranty: arrProduct[i].product_warranty, id_export_form: insertFormExport._id },$push:{product_note:`${new Date()} xuất bán hàng bởi nhân viên ${id_employee} mã phiếu xuất là ${insertFormExport._id}`}})
+            await ModelImportForm.findByIdAndUpdate(arrProduct[i].id_import_form,{import_form_status_paid:true})
         }
      
         if ((receive_money + money_point + money_voucher_code) == total) { // cộng điểm cho khách
@@ -161,7 +172,8 @@ export const create_form = async (req, res) => {
         else {
             await ModelUser.findByIdAndUpdate(dataUser._id,{$inc:(-point_number)})
         }
-        await update_part(id_branch,totalPart)
+        // await update_part(id_branch, totalPart)
+        
         return res.json(insertFormExport)
     }
     catch(e) {
@@ -222,6 +234,9 @@ export const insertMore = async (app)=>{
                 arrProduct[i].subcategory_name = sub_category.subcategory_name
                 arrProduct[i].subcategory_part = sub_category.subcategory_part
                 arrProduct[i].subcategory_point = sub_category.subcategory_point
+                arrProduct[i].product_import_price = product.product_import_price
+                arrProduct[i].id_form_import = product.id_import_form
+
                 totalPointPlus += sub_category.subcategory_point
                 
                 if (validator.ObjectId.isValid(arrProduct[i].id_employee)) {
@@ -234,11 +249,15 @@ export const insertMore = async (app)=>{
             var money_point = 0
     
             if (voucher_code) {  // tính tiền mã giảm giá
-                money_voucher_code = await checkCodeDiscount(voucher_code, total, res)
+                money_voucher_code = await checkCodeDiscountReturnError(voucher_code, total)
+                if(isNaN(money_voucher_code)) return res.status(400).send(money_voucher_code)
+
             }
     
             if (point_number > 0) { // tính tiền từ đổi điểm
-                money_point = await checkPoint(dataUser._id,point_number,res)
+                money_point = await checkPointReturnZero(dataUser._id, point_number, res)
+                if(isNaN(money_point)) return res.status(400).send(money_point)
+
             }
             const data_warehouse = await ModelWarehouse.findById(id_warehouse)
             if (!data_warehouse) return res.status(400).send("Thất bại! Không tìm thấy kho của sản phẩm")
@@ -285,7 +304,10 @@ export const insertMore = async (app)=>{
             if (voucher_code) await update_status_voucher(voucher_code)
                 
             for (let i = 0; i < arrProduct.length; i++){
-                await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product,{product_status:true, product_warranty: arrProduct[i].product_warranty ,id_export_form: dataExport._id})
+         
+                await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, {$set:{ product_status: true, product_warranty: arrProduct[i].product_warranty, id_export_form: dataExport._id },$push:{product_note:`${new Date()} xuất bán hàng bởi nhân viên ${id_employee} mã phiếu xuất là ${insertFormExport._id}`}})
+                await ModelImportForm.findByIdAndUpdate(arrProduct[i].id_import_form,{import_form_status_paid:true})
+
             }
          
             if ((receive_money + money_point + money_voucher_code) == total) { // cộng điểm cho khách
@@ -306,7 +328,8 @@ export const insertMore = async (app)=>{
 
 
 export const checkPermissionMore = async (app)=>{
-    app.get(prefixApi+"/checkPermission/more",helper.authenToken, async (req, res)=>{
+    app.get(prefixApi + "/checkPermission/more", helper.authenToken, async (req, res) => {
+       
         try{
             if(!await helper.checkPermission("620e1dacac9a6e7894da61ce", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             const warehouses = await warehouse.getWarehouseByBranch(req.body._caller.id_branch_login)

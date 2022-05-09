@@ -1,10 +1,9 @@
-#menuBuildCaseApp i{
+#menuBuildCaseApp i {
     font-size: 25px;
     top: 31px;
     right: -17px;
 }
-.div-list-content
-{
+.div-list-content {
     margin-top: 10px;
     border: 1px dotted;
     max-height: 500px;
@@ -12,36 +11,34 @@
     height: 500px;
 }
 
-.div-category
-{
+.div-category {
     width: 100%;
     position: absolute;
     max-height: 200px;
     z-index: 10;
     border: dotted 1px;
-    background-color: antiquewhite
+    background-color: antiquewhite;
 }
 
-.div-list-content td:first-child
-{
+.div-list-content td:first-child {
     width: 10%;
 }
-.div-list-content td:nth-child(2)
-{
+.div-list-content td:nth-child(2) {
     width: 95%;
 }
-.div-list-content td:last-child
-{
+.div-list-content td:last-child {
     width: 10%;
     text-align: center;
     color: red;
 }
-.spinner-border
-{
+.spinner-border {
     position: absolute;
     top: 41px;
     right: 19px;
     width: 18px !important;
     height: 18px !important;
-    display: none ;
+    display: none;
+}
+th {
+    text-align: center;
 }

@@ -11,6 +11,7 @@ function createControllerSubCategory(app) {
     getDataToUpWebsite(app)
     edit_content(app)
     edit_stt_status(app)
+    main.detail_subcategory(app)
 
 }
 export default createControllerSubCategory

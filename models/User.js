@@ -4,6 +4,7 @@ const SchemaUser = new mongoose.Schema({
     user_fullname: {
         ...validator.schemaString,
         ...validator.schemaTextIndex,
+        ...validator.schemaRequired
     },
     user_phone: {
         ...validator.schemaString,

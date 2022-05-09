@@ -197,3 +197,25 @@ export const insert = async (app)=>{
 }
 
 
+
+export const getByClient = async (app)=>{
+    
+    app.get(prefixApi +"/client", async (req, res)=>{
+        try
+        {
+            const data = await ModelBranch.find({ branch_active: true })
+            return res.json(data)
+        }
+        catch(e)
+        {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+export const get_branch_ById = async (id_branch)=>{
+    const data = await ModelBranch.findById(id_branch)
+    return data
+}
+    

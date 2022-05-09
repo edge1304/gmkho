@@ -55,6 +55,7 @@ export const getDataClient = async(app)=>{
     app.get(prefixApi+"/client", helper.authenToken, async (req, res)=>{
         try
         {
+            validator.eshtml(req)
             var query = {}
             if(validator.isDefine(req.query.super_category_name)){
                 query = {super_category_name:{$regex:".*"+req.query.super_category_name+".*",$options:"$i"}}

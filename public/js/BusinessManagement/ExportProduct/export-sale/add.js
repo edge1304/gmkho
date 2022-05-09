@@ -28,7 +28,7 @@ function drawTable(){
     $("#tbodyTable").append(`
     <tr>
         <td>
-            <input onkeypress="findProduct()" class="form-control" name="" placeholder="Nhập mã sản phẩm. . .">
+            <input onkeypress="find_id_product_callback(success_find_id_product)" class="form-control" name="" placeholder="Nhập mã sản phẩm. . .">
             <div class="spinner-border" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
@@ -55,98 +55,113 @@ function drawTable(){
     formatNumber()
 }
 
-function findSupplier() {
+function success_find_id_product(data, element ) {
+   
+    const input = $(element)
+    const tr = $(input).closest('tr')
+    const div_loading = $(input).closest('td').find('div')[0]
     
-    id_user = null
-    const type = event.type
-    const div = $("#div_find_supplier")
-    
-    const input = $(div).find('input')[0]
-    const divLoading = $(div).find('.spinner-border')[0]
-    const div_show = $(div).find('div')[1]
-    if (type == 'input')  pageSupplier = 1
-    if (type == 'scroll') pageSupplier++
-
-    
-    if ($(input).val().trim().length > 0) {
-        $(divLoading).show()
-        callAPI('GET', `${API_USER}/findOther?`, {
-            key: $(input).val(),
-            limit: 10,
-            page:pageSupplier
-        }, users => {
-            $(divLoading).hide()
-            if (type == 'input') {
-                $(div_show).empty()
-                arrSupplier = []
-            }
-           
-            users.map(user => {
-                $(div_show).append(`
-                    <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
-                `)
-                arrSupplier.push(user)
-            })
-        } ,undefined, undefined,false)
-    }
-    else {
-        $(div_show).empty()
+    if (data.product_status) {
+        info("Sản phẩm này đã xuất kho")
+        $(div_loading).hide()
+        $(input).val(null)
+        return
     }
    
-}
-
-function findProduct() {
-    if (event.which == 13) {
-        const input = $(event.path[0])
-        const tr = $(input).closest('tr')
-        const key = $(input).val().trim()
-        const div_loading = $(input).closest('td').find('div')[0]
-    
-        $(div_loading).show()
-        callAPI('GET',API_PRODUCT,{
-            key:key,
-        }, data => {
-            if (data.product_status) {
-                info("Sản phẩm này đã xuất kho")
-                $(div_loading).hide()
-                $(input).val(null)
-                return
-            }
-           
-            $(div_loading).hide()
-            $(input).val(data._id)
-            $(input).attr("name",data.subcategory_name)
-            $(input).prop("disabled", true)
-            if(type_export == "Xuất hàng để bán"){
-                $($(tr).find('input')[1]).val(money(data.subcategory_export_price))
-                $($(tr).find('input')[2]).val(money(data.subcategory_vat))
-                $($(tr).find('input')[3]).val(money(data.subcategory_ck))
-                $($(tr).find('input')[4]).val(money(data.subcategory_discount))
-                $($(tr).find('input')[5]).val(money(data.product_warranty))
-            }
-            else{
-                $($(tr).find('input')[1]).val(money(data.subcategory_import_price))
-                $($(tr).find('input')[2]).val(money(data.subcategory_vat))
-                $($(tr).find('input')[3]).val(money(data.subcategory_ck))
-                $($(tr).find('input')[4]).val(money(data.subcategory_discount))
-                $($(tr).find('input')[5]).val(money(data.product_warranty))
-            }
-
-            changeMoney()
-            drawTable()
-        },(data)=>{
-            $(div_loading).hide()
-            errAjax(data) 
-        },false,false)
+    $(div_loading).hide()
+    $(input).val(data._id)
+    $(input).attr("name",data.subcategory_name)
+    $(input).prop("disabled", true)
+    if(type_export == "Xuất hàng để bán"){
+        $($(tr).find('input')[1]).val(money(data.subcategory_export_price))
+        $($(tr).find('input')[2]).val(money(data.subcategory_vat))
+        $($(tr).find('input')[3]).val(money(data.subcategory_ck))
+        $($(tr).find('input')[4]).val(money(data.subcategory_discount))
+        $($(tr).find('input')[5]).val(money(data.product_warranty))
     }
+    else{
+        $($(tr).find('input')[1]).val(money(data.subcategory_import_price))
+        $($(tr).find('input')[2]).val(money(data.subcategory_vat))
+        $($(tr).find('input')[3]).val(money(data.subcategory_ck))
+        $($(tr).find('input')[4]).val(money(data.subcategory_discount))
+        $($(tr).find('input')[5]).val(money(data.product_warranty))
+    }
+    if(type_export == "Xuất hàng trả lại nhà cung cấp"){
+        id_user = data.id_supplier
+        const inputs = $(".header-table div:nth-child(2) input")
+        $(inputs[0]).val(data.supplier_fullname)
+        $(inputs[0]).attr("name",data.id_supplier)
+        $(inputs[1]).val(data.supplier_phone)
+        $(inputs[2]).val(data.supplier_address)
+    }
+    changeMoney()
+    drawTable()
 }
+// function findSupplier() {
+    
+//     id_user = null
+//     const type = event.type
+//     const div = $("#div_find_supplier")
+    
+//     const input = $(div).find('input')[0]
+//     const divLoading = $(div).find('.spinner-border')[0]
+//     const div_show = $(div).find('div')[1]
+//     if (type == 'input')  pageSupplier = 1
+//     if (type == 'scroll') pageSupplier++
+
+    
+//     if ($(input).val().trim().length > 0) {
+//         $(divLoading).show()
+//         callAPI('GET', `${API_USER}/findOther?`, {
+//             key: $(input).val(),
+//             limit: 10,
+//             page:pageSupplier
+//         }, users => {
+//             $(divLoading).hide()
+//             if (type == 'input') {
+//                 $(div_show).empty()
+//                 arrSupplier = []
+//             }
+           
+//             users.map(user => {
+//                 $(div_show).append(`
+//                     <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
+//                 `)
+//                 arrSupplier.push(user)
+//             })
+//         } ,undefined, undefined,false)
+//     }
+//     else {
+//         $(div_show).empty()
+//     }
+   
+// }
+
+// function findProduct(call_back) {
+//     if (event.which == 13) {
+//         const input = $(event.target)
+//         const tr = $(input).closest('tr')
+//         const key = $(input).val().trim()
+//         const div_loading = $(input).closest('td').find('div')[0]
+    
+//         $(div_loading).show()
+//         callAPI('GET',API_PRODUCT,{
+//             key:key,
+//         }, data => {
+//            call_back(data)
+//         },(data)=>{
+//             $(div_loading).hide()
+//             errAjax(data, event) 
+//         },false,false)
+//     }
+// }
 
 
 function changeMoney() {
     
-    const classes_input = $(event.path[0]).attr("class")
+    const classes_input = $(event.target).attr("class")
     if (typeof classes_input != 'undefined' && classes_input.includes('number')) {
-        const input = $(event.path[0])
+        const input = $(event.target)
         if ($(input).val().trim().length == 0) {
             $(input).val(0)
         }
@@ -199,7 +214,7 @@ function changeMoney() {
     for (let i = 0; i < arrProduct.length; i++){
         $("#tbodySmall").append(`
             <tr>
-                <td>${arrProduct[i].subcategory_name}</td>
+                <td><span class="substring" title="${arrProduct[i].subcategory_name}">${arrProduct[i].subcategory_name}</span></td>
                 <td class="center">${arrProduct[i].subcategory_quantity}</td>
                 <td>${money(arrProduct[i].money_total)}</td>
             </tr>
@@ -215,8 +230,8 @@ function changeMoney() {
 
 function removeRow() {
     if (!is_click_discount) {
-        const tr = $(event.path[0]).closest('tr')
-        const tbody = $(event.path[0]).closest('tbody')
+        const tr = $(event.target).closest('tr')
+        const tbody = $(event.target).closest('tbody')
     
         if( $(tr).index() != $(tbody).find('tr').length-1 ){
             $(tr).remove()
@@ -229,15 +244,15 @@ function removeRow() {
 
 
 
-function loadmoreSupplier() {
-    const div = $(event.path[0])
-    if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
-        findSupplier()
-    }
-}
+// function loadmoreSupplier() {
+//     const div = $(event.target)
+//     if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
+//         findSupplier()
+//     }
+// }
 
 function selectSupplier(index) {
-    $($(event.path[0]).closest('div')).empty()
+    $($(event.target).closest('div')).empty()
     const div = $("#div_find_supplier").parent()
     id_user = arrSupplier[index]._id
     $($(div).find('input')[0]).val(arrSupplier[index].user_fullname)
@@ -306,6 +321,8 @@ $("#btnConfirm").click(e => {
     const export_form_note = $("input[name=note]").val()
     const url_api = `${API_EXPORT}/export-sale` 
     hidePopup('popupConfirm')
+
+    const id_employee_setting = $(".div-employee-setting input").attr("name")
     callAPI('POST', url_api, {
         arrProduct: JSON.stringify(arrProduct),
         id_user: id_user,
@@ -314,16 +331,18 @@ $("#btnConfirm").click(e => {
         code_discount: code_discount,
         point_number: point_number,
         type_export: type_export,
-        id_fundbook:id_fundbook
+        id_fundbook:id_fundbook,
+        id_employee_setting:id_employee_setting
     }, (data) => {
         success("Thành công")
         resetPage()
         newPage(`/export/print/${data._id}`)
+        location.reload()
     })
 })
 
 function getValueCodeDiscount() {
-    const td = $(event.path[0]).parent()
+    const td = $(event.target).parent()
     const input = $(td).find('input')[0]
     const voucher_code = $($(td).find('input')[0]).val()
     const totalMoney = changeMoney()
@@ -358,7 +377,7 @@ function getMoneyPoint() {
         error_change_point()
         return
     }
-    const parent = $(event.path[0]).parent()
+    const parent = $(event.target).parent()
     const input = $(parent).find('input')[0]
     $(input).val(money(tryParseInt($(input).val())))
     const point_number = tryParseInt($(input).val())
@@ -389,14 +408,14 @@ function getMoneyPoint() {
 }
 
 function error_change_point() {
-    money_code_discount = 0
+    money_point = 0
     $("#input_point").val(0)
     changeMoney()
 }
 
 function findEmployee(isMore=false) {
     
-    const td = $(event.path[0]).parent()
+    const td = $(event.target).parent()
     const input = $(td).find('input')[0]
     const div_loading = $(td).find('.spinner-border')[0]
     const div_employee = $(td).find(".div-employee")[0]
@@ -435,11 +454,11 @@ function findEmployee(isMore=false) {
     }, err => {
         $(div_loading).show()
         errAjax(err)
-    },false)
+    },false, false)
 }
 
 function loadmoreEmployee() {
-    const div = $(event.path[0])
+    const div = $(event.target)
     if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
         offsetEmployee++
         findEmployee(true)
@@ -447,7 +466,8 @@ function loadmoreEmployee() {
 }
 
 function selectEmployee(index) {
-    const parent_one = $(event.path[0]).closest('td')
+    const parent_one = $(event.target).parent().parent().parent()
+    // console.log(parent_one)
     const input = $(parent_one).find('input')[0]
     const div_employee = $(parent_one).find(".div-employee")[0]
     $(div_employee).empty()

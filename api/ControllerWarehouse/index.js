@@ -122,3 +122,14 @@ export const getWarehouseByBranch = async (idbranch) =>{
     }
 }
 
+export const getWarehouseOtherBranch = async (idbranch) =>{
+    try{
+        const data = await ModelWarehouse.find({id_branch:{$ne:idbranch}})
+        return data
+    }
+    catch(e){
+        console.log(e)
+        return []
+    }
+}
+

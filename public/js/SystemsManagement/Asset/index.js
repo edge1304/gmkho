@@ -141,7 +141,7 @@ const confirmAdd = async () => {
 
 const confirmEdit = async (index) => {
   const id = assets.data[index]._id
-  // console.log("🚀 ~ file: index.js ~ line 142 ~ confirmEdit ~ id", id)
+  
   const id_user = $("#selectEditUser").val()
   const assetTime = $("#editAssetTime").val()
   const assetExpiry = $("#editAssetExpiry").val()

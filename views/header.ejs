@@ -2,12 +2,17 @@
 
 <title><%- title %></title>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
 <meta content="Premium Multipurpose Admin & Dashboard Template" name="description">
 <meta content="Themesbrand" name="author">
+
+<meta http-equiv="Content-language" content="vi">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <!-- App favicon -->
 <link rel="shortcut icon" href="/assets/images/favicon.ico">
 <link href="/select2/css/select2.css" rel="stylesheet">
+<link href="/select2/css/select2-bootstrap4.min.css" rel="stylesheet">
 <link href="/fontawesome/css/all.css" rel="stylesheet">
 <link href="/assets/libs/c3/c3.min.css" rel="stylesheet" type="text/css">
 <link href="/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
@@ -33,7 +38,7 @@
           }
       }
   	}
-  checkLogin()
+  checkLogin();
 </script>
 </head>
 <body data-sidebar="dark">
@@ -80,6 +85,7 @@
             <div class="d-none d-sm-block ms-2">
                 <h4 class="page-title">Dashboard</h4>
             </div>
+
         </div>
 
         <!-- Search input -->
@@ -101,13 +107,13 @@
             </div>
 
             <div class="dropdown d-none d-lg-inline-block me-2">
-                <button type="button" class="btn header-item noti-icon waves-effect" data-bs-toggle="fullscreen">
+                <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
                     <i class="mdi mdi-fullscreen"></i>
                 </button>
             </div>
 
             <div class="dropdown d-none d-md-block me-2">
-                <button type="button" class="btn header-item waves-effect" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="btn header-item waves-effect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     
                         <span class="font-size-16"> English </span> <img class="ms-2" src="/assets/images/flags/us.jpg" alt="Header Language" height="16">
                     
@@ -147,7 +153,7 @@
             </div>
 
             <div class="dropdown d-inline-block me-2">
-                <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-toggle="dropdown" aria-expanded="false">
                     <i class="ion ion-md-notifications"></i>
                     <span class="badge bg-danger rounded-pill">3</span>
                 </button>
@@ -220,7 +226,7 @@
             </div>
 
             <div class="dropdown d-inline-block">
-                <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <img class="rounded-circle header-profile-user" src="/assets/images/users/avatar-1.jpg" alt="Header Avatar">
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">

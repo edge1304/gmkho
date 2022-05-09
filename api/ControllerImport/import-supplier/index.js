@@ -12,6 +12,8 @@ import { ModelProduct } from '../../../models/Product.js'
 import { ModelSubCategory } from '../../../models/SubCategory.js'
 import { ModelDebt } from '../../../models/Debt.js'
 import { ModelPayment } from '../../../models/Payment.js'
+import { createAndUpdateReport} from '../../ControllerReportInventory/index.js'
+import { get_branch_ById} from '../../ControllerBranch/index.js'
 
 export const management = async (app)=>{
     app.get(prefixApi,helper.authenToken, async (req, res)=>{
@@ -138,7 +140,7 @@ export const update = async (app)=>{
             const data_fundbook = await ModelFundBook.findById(id_fundbook)
             if(!data_fundbook) return res.status(400).send("Thất bại! Không tìm thấy hình thức thanh toán phù hợp")
           
-            const dataProducts = await ModelProduct.find({id_import_form:dataImport._id})
+            const dataProducts = await ModelProduct.find({id_import_form:dataImport._id}) // tìm lại các sản phẩm của phiế để cập nhập lại bảo hành
             var isSame  = 0; // đây là biến xác định đã trùng hết mã sp hay chưa
             for(let i = 0;i<arrProduct.length;i++ ){
                 for(let j = 0;j<dataProducts.length;j++){
@@ -146,7 +148,8 @@ export const update = async (app)=>{
                         isSame ++
                         dataProducts[j] = {
                             ...dataProducts[j],
-                            product_warranty:arrProduct[i].product_warranty, // cập nhập lại mỗi bảo hành thôi , còn cái khác láy từ phiếu nhập ra
+                            product_warranty: arrProduct[i].product_warranty, // cập nhập lại mỗi bảo hành thôi , còn cái khác láy từ phiếu nhập ra
+                            product_import_price: arrProduct[i].product_import_price // cập nhập lại cả giá nhập
                         }
                     }
                 }
@@ -182,8 +185,27 @@ export const update = async (app)=>{
                 import_form_product: arrProduct,
                 import_form_note:import_form_note
             })
-            // chỗ này thiếu chỗ phải cập nhập giá ở các phiếu xuất
-            
+           
+            for (let i = 0; i < dataImport.import_form_product.length; i++){
+
+                await createAndUpdateReport(
+                    dataImport.id_warehouse,
+                    dataImport.import_form_product[i].id_subcategory,
+                    -dataImport.import_form_product[i].product_quantity,
+                    -validator.calculateMoneyImport(dataImport.import_form_product[i]),
+                    0,0,dataImport.createdAt
+                )
+            }
+            for (let i = 0; i < arrProduct.length; i++){
+                await createAndUpdateReport(
+                    dataImport.id_warehouse,
+                    arrProduct[i].id_subcategory,
+                    arrProduct[i].product_quantity,
+                    validator.calculateMoneyImport(arrProduct[i]),
+                    0,0,dataImport.createdAt
+                )
+            }
+
             return res.json(updateImport)
             
         }
@@ -191,5 +213,84 @@ export const update = async (app)=>{
             console.log(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
+    })
+}
+
+
+export const download = async (app)=>{
+    app.get(prefixApi+"/download",helper.authenToken, async (req, res)=>{
+        try {
+            const id_import = req.query.id_import
+            const dataImport = await ModelImportForm.findById(id_import)
+            if(!dataImport) return res.status(400).send("Thất bại! Không tìm thấy phiếu nhập")
+            const data = await ModelProduct.find({ id_import_form: id_import })
+
+            for (let i = 0; i < data.length; i++){
+                for (let j = 0; j < dataImport.import_form_product.length; j++){
+                    if (data[i].product_index == dataImport.import_form_product[j].product_index) {
+                        data[i].product_import_price = dataImport.import_form_product[j].product_import_price
+                        data[i].product_vat = dataImport.import_form_product[j].product_vat
+                        data[i].product_ck = dataImport.import_form_product[j].product_ck
+                        data[i].subcategory_name = dataImport.import_form_product[j].subcategory_name
+                        break
+                    }
+                }
+            }
+            return res.json(data)   
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+        
+    })
+}
+
+export const print = async (app)=>{
+    app.get(prefixApi+"/print",helper.authenToken, async (req, res)=>{
+        try {
+            const id_import = req.query.id_import
+            const dataImport = await ModelImportForm.findById(id_import)
+            if(!dataImport) return res.status(400).send("Thất bại! Không tìm thấy phiếu nhập")
+            
+            const id_branch_login = req.body._caller.id_branch_login
+            const dataBranch = await get_branch_ById(id_branch_login)
+
+            dataImport.user_address = ""
+            dataImport.user_fullname = ""
+            dataImport.user_phone = ""
+            dataImport.payment_money = 0
+            dataImport.fundbook_name = ""
+            if(validator.ObjectId.isValid(dataImport.id_user)){
+                const dataUser = await ModelUser.findById(dataImport.id_user)
+                if(dataUser){
+                    dataImport.user_address = dataUser.user_address
+                    dataImport.user_phone = dataUser.user_phone
+                    dataImport.user_fullname = dataUser.user_fullname
+                }
+            }
+
+            const dataPayment = await ModelPayment.findOne({id_form:dataImport._id})
+            if(dataPayment){
+                dataImport.payment_money = dataPayment.payment_money
+                if(validator.ObjectId.isValid(dataPayment.id_fundbook)){
+                    const dataFund = await ModelFundBook.findById(dataPayment.id_fundbook)
+                    if(dataFund) dataImport.fundbook_name = dataFund.fundbook_name
+                }
+            }
+            for(let i =0;i<dataImport.import_form_product.length;i++){
+                const dataSub = await ModelSubCategory.findById(dataImport.import_form_product[i].id_subcategory)
+                if(dataSub){
+                    dataImport.import_form_product[i].subcategory_unit = dataSub.subcategory_unit
+                    dataImport.import_form_product[i].subcategory_name = dataSub.subcategory_name
+                }
+            }
+            return res.json({dataImport:dataImport, dataBranch:dataBranch})
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+        
     })
 }

@@ -47,7 +47,7 @@ function drawTable(data) {
                 <td>${data[i]._id}</td>
                 <td>${formatDate(data[i].createdAt).fulldatetime}</td>
                 <td>${data[i].user_fullname} - SĐT: ${data[i].user_phone}</td>
-                <td>${data[i].export_form_product.length > 0 ? data[i].export_form_product[0].subcategory_name : ""}</td>
+                <td ><span class="substring">${data[i].export_form_product.length > 0 ? data[i].export_form_product[0].subcategory_name : ""}</span></td>
                 <td>${money(total)}</td>
                 <td>
                     <i onclick="showEdit(${i})" class="fas fa-edit text-warning text-infos"></i>

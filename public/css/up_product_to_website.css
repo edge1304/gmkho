@@ -49,7 +49,7 @@
 html {
     box-sizing: border-box;
     scroll-behavior: smooth;
-    font: 16px / 1.8 Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font: 16px / 1.8 Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
 * {
@@ -65,7 +65,7 @@ html {
 
 body {
     font-size: 16px;
-    font: 16px / 1.8 Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font: 16px / 1.8 Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
 .post__link {
@@ -73,7 +73,7 @@ body {
     margin: 14px 0;
 }
 
-.post__link>a {
+.post__link > a {
     margin-left: 10px;
 }
 
@@ -131,7 +131,7 @@ label {
     margin-top: 16px;
 }
 
-.custom>#divDes {
+.custom > #divDes {
     padding: 30px 20px 0;
     border: solid;
     margin-bottom: 30px;
@@ -146,22 +146,22 @@ label {
     justify-content: center;
 }
 
-.custom__nav-btn>button {
+.custom__nav-btn > button {
     padding: 6px 24px;
 }
 
-.custom__nav-btn>a>i,
-.custom__nav-btn>button>i {
+.custom__nav-btn > a > i,
+.custom__nav-btn > button > i {
     margin-right: 6px;
     font-size: 15px;
     /* padding: 6px 24px; */
 }
 
-.custom__nav-btn>a {
+.custom__nav-btn > a {
     padding: 6px 24px;
 }
 
-.custom__nav-btn>a>i {
+.custom__nav-btn > a > i {
     font-size: 18px;
 }
 
@@ -175,11 +175,10 @@ label {
     justify-content: space-around;
 }
 
-.custom__input>button {
+.custom__input > button {
     width: 40px;
     /* padding: 6px 14px; */
 }
-
 
 /* =================== PC BIG ===================*/
 
@@ -191,7 +190,6 @@ label {
     }
 }
 
-
 /* ============= PC LOWER  min-1023px ===============*/
 
 @media only screen and (min-width: 63.9375em) and (max-width: 1240px) {
@@ -199,7 +197,6 @@ label {
         display: none;
     }
 }
-
 
 /* =============== Mobile & tablet ==============*/
 
@@ -209,7 +206,6 @@ label {
     }
 }
 
-
 /* ==================== Tablet ===================*/
 
 @media only screen and (min-width: 46.25em) and (max-width: 63.9375em) {
@@ -218,7 +214,6 @@ label {
     }
 }
 
-
 /* =================== Mobile ===================*/
 
 @media only screen and (max-width: 46.1875em) {
@@ -226,7 +221,6 @@ label {
         display: none;
     }
 }
-
 
 /* ================= Iphone X ===============*/
 
@@ -286,74 +280,63 @@ label {
     margin-top: 20px;
 }
 
-.div-related-product a
-{
-    border: dotted 1px ;
-    border-radius: 5px ;
-    padding: 15px ;
+.div-related-product a {
+    border: dotted 1px;
+    border-radius: 5px;
+    padding: 15px;
     margin: 10px;
     max-width: 100%;
     position: relative !important;
 }
 
-.div-related-product i
-{
+.div-related-product i {
     position: absolute;
     top: 0;
     right: 0;
 }
 
-.name_related-product
-{
+.name_related-product {
     text-align: center;
 }
-.price-related-product
-{
+.price-related-product {
     color: rgb(218, 28, 28);
 }
 
-.div-sub-relative{
+.div-sub-relative {
     display: flex;
 }
-.btn-add-relative
-{
+.btn-add-relative {
     margin-top: 26px !important;
 }
-.div-main-related
-{
+.div-main-related {
     border: 1px dotted;
     margin: 20px 0px;
     padding: 20px;
 }
-#name_replace_product
-{
+#name_replace_product {
     padding-right: 75px;
 }
-.category_specifications td:first-child
-{
+.category_specifications td:first-child {
     text-align: center;
     width: 5%;
 }
 
-.category_specifications td:last-child
-{
+.category_specifications td:last-child {
     width: 5%;
     font-size: 20px;
 }
-.category_specifications td:nth-child(2) div
-{
+.category_specifications td:nth-child(2) div {
     float: left;
     margin-left: 10px;
 }
-.form-check-label
-{
+.form-check-label {
     padding: 0px !important;
 }
 
-#div_load_related_product{
+#div_load_related_product {
     font-size: 15px;
     background-color: white;
-  
+
     max-height: 200px;
     position: absolute;
     overflow: auto;
@@ -361,8 +344,7 @@ label {
     z-index: 10;
 }
 
-.div-main-related .spinner-border
-{
+.div-main-related .spinner-border {
     display: none;
     top: 32px;
     position: absolute;
@@ -371,59 +353,53 @@ label {
     height: 19px;
 }
 
-.div-subcategory_sale_status{
+.div-subcategory_sale_status {
     width: 100%;
     max-height: 200px;
     height: 200px;
     overflow: auto;
     border: 1px dotted;
 }
-.select_subcategory_sale_status
-{
+.select_subcategory_sale_status {
     width: 80%;
 }
-.btn-add-statuts{
+.btn-add-statuts {
     top: 33px;
     font-size: 28px !important;
-    right: -20px
+    right: -20px;
 }
 
-.div-subcategory_sale_status i 
-{
+.div-subcategory_sale_status i {
     font-size: 20px !important;
 }
 
-.div-subcategory_sale_status td:first-child{
+.div-subcategory_sale_status td:first-child {
     width: 95%;
 }
 
-.btn-save
-{
+.btn-save {
     right: 57px;
 }
-.div-image-period
-{
+.div-image-period {
     padding: 10px 0px;
     width: 100%;
     max-height: 200px;
     border: 1px dotted;
+    overflow: auto;
 }
 
-.div-image-period img
-{
+.div-image-period img {
     border-radius: 20px;
     width: 85%;
     height: auto;
 }
-.div-image-period i
-{
+.div-image-period i {
     position: absolute;
     top: 0;
     right: 0;
     font-size: 18px;
 }
 
-.div-image-period input
-{
+.div-image-period input {
     display: none;
 }

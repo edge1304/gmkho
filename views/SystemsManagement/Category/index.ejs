@@ -25,15 +25,15 @@
                         <label>Tìm kiếm</label>
                         <input oninput="getData(false)" id="keyFind" autocomplete="off" value="<%- key %>" placeholder="Nhập tên hoặc số điện thoại . . ." type="text" class="form-control">
                     </div>
-                    <div class="col-7 col-md-3">
+                    <!-- <div class="col-7 col-md-3">
                         <label>Danh mục lớn &nbsp; &nbsp; <i onclick="showPopup('popupAddSuper',true)" class="mdi mdi-comment-plus-outline text-primary"> <span class="hide-on-mobile">Thêm</span></i></label>
                         <select onchange="getData()" name="selectSuper" id="selectSuperCategory">
                           <option value="">Tất cả</option>
                         </select>
-                    </div>
+                    </div> -->
                     <div class="col-5 col-md-4 col-lg-2 col-xl-2 relative">
                         <div class="btn-add">
-                            <div><button id="btnAdd" onclick="showPopup('popupAdd',true)" class="btn btn-success"><i class="mdi mdi-chart-pie"></i> <span class="hide-on-mobile"> Thêm mới </span></button></div>
+                            <div><button id="btnAdd" onclick="showPopupAdd()" class="btn btn-success"><i class="mdi mdi-chart-pie"></i> <span class="hide-on-mobile"> Thêm mới </span></button></div>
                             <div id="btnDownloadCategory" onclick="downloadCategory()">
                                 <i class="mdi mdi-download text-success"></i>
                             </div>
@@ -52,7 +52,7 @@
                                 <th>Tên danh mục</th>
                                 <th>Hình ảnh</th>
                                 <th>Trạng thái</th>
-                                <th>Thuộc danh mục lớn</th>
+                                <th>Danh mục cha</th>
                                 <th>Chi tiết</th>
                             </tr>
                         </thead>
@@ -100,21 +100,41 @@
                                 <input class="form-control" type="text" id="addName" placeholder="Nhập tên danh mục">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label>Trạng thái hiển thị trên web</label>
+                                <b>Danh mục cha:</b>
+                                <select id="select_parent_category_add" name="parent_id_add" class="form-control">
+                                    <!-- <option value="">?</option>
+                                    <option value="??">??</option>
+                                    <option value="?????">?????</option>
+                                    <option value="???????????">???????????</option> -->
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label>Trạng thái hoạt động:</label>
                                 <div style="display: flex;" class="form-group">
                                     <div class="form-check form-check-success">
                                         <label class="form-check-label">
-                      <input type="radio" class="form-check-input" name="addStatus"  value="true"  checked=""> Đang hiển thị <i class="input-helper"></i></label>
+                                            <input type="radio" class="form-check-input" name="addStatus"  value="true"  checked=""> Đang hoạt động <i class="input-helper"></i>
+                                        </label>
                                     </div>
                                     <div class="form-check form-check-primary">
                                         <label class="form-check-label">
-                      <input type="radio" class="form-check-input" name="addStatus" value="false" >Không hiển thị<i class="input-helper"></i></label>
+                                            <input type="radio" class="form-check-input" name="addStatus" value="false" >Không hoạt động<i class="input-helper"></i>
+                                        </label>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label>Danh mục lớn</label>
-                                <select name="selectSuper" id="selectSuperAddCategory"></select>
+                                <label><b>Trạng thái hiển thị:</b></label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="display_app_add" onchange="changeValueStatus(this)">
+                                    <label class="form-check-label" for="display_app_add">
+                                       Hiển thị trên app
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="display_website_add" onchange="changeValueStatus(this)">
+                                    <label class="form-check-label" for="display_website_add">
+                                       Hiển thị trên website
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="div-image relative col-12 col-md-12">
@@ -151,22 +171,41 @@
                                 <label>Tên danh mục</label>
                                 <input class="form-control" type="text" id="editName" placeholder="Nhập tên danh mục">
                             </div>
+                            
                             <div class="col-12 col-md-6">
-                                <label>Trạng thái hiển thị trên web</label>
+                                <b>Danh mục cha:</b>
+                                <select id="select_parent_category_edit"  class="form-control">
+                                    <!-- <option value="">?</option>
+                                    <option value="??">??</option>
+                                    <option value="?????">?????</option>
+                                    <option value="???????????">???????????</option> -->
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label>Trạng thái hoạt động</label>
                                 <div style="display: flex;" class="form-group">
                                     <div class="form-check form-check-success">
                                         <label class="form-check-label">
-                      <input type="radio" class="form-check-input" name="editStatus"  value="true"  checked=""> Đang hiển thị <i class="input-helper"></i></label>
+                                        <input type="radio" class="form-check-input" name="editStatus"  value="true"  checked="">Đang hoạt động<i class="input-helper"></i></label>
                                     </div>
                                     <div class="form-check form-check-primary">
                                         <label class="form-check-label">
-                      <input type="radio" class="form-check-input" name="editStatus" value="false" >Không hiển thị<i class="input-helper"></i></label>
+                                        <input type="radio" class="form-check-input" name="editStatus" value="false" >Không hoạt động<i class="input-helper"></i></label>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label>Danh mục lớn</label>
-                                <select name="selectSuper" id="selectSuperEditCategory"></select>
+                                <label><b>Trạng thái hiển thị:</b></label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="display_app_edit" onchange="changeValueStatus(this)">
+                                    <label class="form-check-label" for="display_app_edit">
+                                       Hiển thị trên app
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="display_website_edit" onchange="changeValueStatus(this)">
+                                    <label class="form-check-label" for="display_website_edit">
+                                       Hiển thị trên website
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <div class="div-image relative col-12 col-md-12">
@@ -301,7 +340,6 @@
             <script>
                 var limit = '<%- limit %>'
                 var page = '<%- page %>'
-                var id_super_category = '<%- id_super_category %>'
                 var key = '<%- key %>'
             </script>
             <script src="https://cdn.jsdelivr.net/alasql/0.3/alasql.min.js"></script>

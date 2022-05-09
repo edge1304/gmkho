@@ -223,7 +223,7 @@ function changeMoney() {
     for (let i = 0; i < arrProduct.length; i++){
         $("#tbodySmall").append(`
             <tr>
-                <td>${arrProduct[i].subcategory_name}</td>
+                <td><span class="substring" title="${arrProduct[i].subcategory_name}">${arrProduct[i].subcategory_name}</span></td>
                 <td class="center">${arrProduct[i].product_quantity}</td>
                 <td>${money(arrProduct[i].money_total)}</td>
             </tr>

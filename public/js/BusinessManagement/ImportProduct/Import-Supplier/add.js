@@ -41,45 +41,45 @@ function drawTable(){
     formatNumber()
 }
 
-function findSupplier() {
+// function findSupplier() {
     
-    id_user = null
-    const type = event.type
-    const div = $("#div_find_supplier")
+//     id_user = null
+//     const type = event.type
+//     const div = $("#div_find_supplier")
     
-    const input = $(div).find('input')[0]
-    const divLoading = $(div).find('.spinner-border')[0]
-    const div_show = $(div).find('div')[1]
-    if (type == 'input')  pageSupplier = 1
-    if (type == 'scroll') pageSupplier++
+//     const input = $(div).find('input')[0]
+//     const divLoading = $(div).find('.spinner-border')[0]
+//     const div_show = $(div).find('div')[1]
+//     if (type == 'input')  pageSupplier = 1
+//     if (type == 'scroll') pageSupplier++
 
     
-    if ($(input).val().trim().length > 0) {
-        $(divLoading).show()
-        callAPI('GET', `${API_USER}/findOther?`, {
-            key: $(input).val(),
-            limit: 10,
-            page:pageSupplier
-        }, users => {
-            $(divLoading).hide()
-            if (type == 'input') {
-                $(div_show).empty()
-                arrSupplier = []
-            }
+//     if ($(input).val().trim().length > 0) {
+//         $(divLoading).show()
+//         callAPI('GET', `${API_USER}/findOther?`, {
+//             key: $(input).val(),
+//             limit: 10,
+//             page:pageSupplier
+//         }, users => {
+//             $(divLoading).hide()
+//             if (type == 'input') {
+//                 $(div_show).empty()
+//                 arrSupplier = []
+//             }
            
-            users.map(user => {
-                $(div_show).append(`
-                    <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
-                `)
-                arrSupplier.push(user)
-            })
-        } ,undefined, undefined,false)
-    }
-    else {
-        $(div_show).empty()
-    }
+//             users.map(user => {
+//                 $(div_show).append(`
+//                     <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
+//                 `)
+//                 arrSupplier.push(user)
+//             })
+//         } ,undefined, undefined,false)
+//     }
+//     else {
+//         $(div_show).empty()
+//     }
    
-}
+// }
 
 function findProduct(input){
     
@@ -116,7 +116,7 @@ function findProduct(input){
 }
 
 function loadmoreProduct(){
-    const div = $(event.path[0])
+    const div = $(event.target)
     if($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
         offsetSubcategory ++
         const key = $($(div).closest('td').find('input')[0]).val().trim()
@@ -151,9 +151,9 @@ function loadmoreProduct(){
 
 function selectProduct(index){
 
-    const tr = $(event.path[0]).closest('tr')
-    const tbody = $(event.path[0]).closest('tbody')
-    const td = $(event.path[0]).closest('td')
+    const tr = $(event.target).closest('tr')
+    const tbody = $(event.target).closest('tbody')
+    const td = $(event.target).closest('td')
     $(td).find('.div-product').empty()
     $($(tr).find('input')[0]).val(arrSubCategory[index].subcategory_name)
     $($(tr).find('input')[0]).attr("name",arrSubCategory[index]._id)
@@ -174,9 +174,9 @@ function selectProduct(index){
 
 function changeMoney() {
     
-    const classes_input = $(event.path[0]).attr("class")
+    const classes_input = $(event.target).attr("class")
     if (typeof classes_input != 'undefined' && classes_input.includes('number')) {
-        const input = $(event.path[0])
+        const input = $(event.target)
         if ($(input).val().trim().length == 0) {
             $(input).val(0)
         }
@@ -200,8 +200,8 @@ function changeMoney() {
 }
 
 function removeRow(){
-    const tr = $(event.path[0]).closest('tr')
-    const tbody = $(event.path[0]).closest('tbody')
+    const tr = $(event.target).closest('tr')
+    const tbody = $(event.target).closest('tbody')
 
     if( $(tr).index() != $(tbody).find('tr').length-1 ){
         $(tr).remove()
@@ -211,7 +211,7 @@ function removeRow(){
 }
 
 function inputID_Product2() {
-    const tr = $(event.path[0]).closest('tr')
+    const tr = $(event.target).closest('tr')
     const inputName = $($(tr).find('input')[0]).val().trim()
     const inputNumber = $(tr).find('input')[5]
     let number = 0
@@ -227,7 +227,7 @@ function inputID_Product2() {
                     newStringId += `${id.trim()} / `
                 }
             })
-            $(event.path[0]).val(newStringId)
+            $(event.target).val(newStringId)
             $(inputNumber).val(money(number))
       
             if(number == 0 && inputName.length > 0){
@@ -244,7 +244,7 @@ function inputID_Product2() {
 }
 
 function changeNumber() {
-    const tr = $(event.path[0]).closest('tr')
+    const tr = $(event.target).closest('tr')
     const inputNumber = $(tr).find('input')[5] // input số lượng
     let number = 0
     let stringid = $($(tr).find('input')[1]).val().trim()
@@ -267,15 +267,15 @@ function changeNumber() {
 
 
 
-function loadmoreSupplier() {
-    const div = $(event.path[0])
-    if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
-        findSupplier()
-    }
-}
+// function loadmoreSupplier() {
+//     const div = $(event.target)
+//     if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
+//         findSupplier()
+//     }
+// }
 
 function selectSupplier(index) {
-    $($(event.path[0]).closest('div')).empty()
+    $($(event.target).closest('div')).empty()
     const div = $("#div_find_supplier").parent()
     id_user = arrSupplier[index]._id
     $($(div).find('input')[0]).val(arrSupplier[index].user_fullname)
@@ -390,6 +390,7 @@ $("#btnConfirm").click(e => {
         changeMoney()
 
         const id_form = data.insertImport._id
+        newPage(`/import/print/${id_form}`)
         const products = data.insertProducts
         var arrExcel = []
       

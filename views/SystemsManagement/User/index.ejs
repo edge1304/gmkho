@@ -2,7 +2,9 @@
 <html lang="en">
 
   <head>
-    <link rel="stylesheet" href="/css/employee.css">
+    <link rel="stylesheet" href="/assets/dataTable/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="/assets/dataTable/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="/css/user.css">
     <%- include('../../header',{title:"Quản lý khách hàng"}) %>
 
       <div class="page-content">
@@ -21,24 +23,21 @@
                 <option value="100">100</option>
               </select>
             </div>
-            <div class="col-8 col-md-3">
+            <div applyCategFoodSearch=""; class="col-8 col-md-3">
               <label>Tìm kiếm</label>
-              <input id="keyFind" value="<%- key %>" placeholder="Nhập SĐT hoặc tên khách hàng . . ." type="text"
-                class="form-control">
+              <input id="keyFind" applyCategFoodSearch="" value="<%- key %>"  placeholder="Tên khách hàng . . ." autocomplete="off" type="text" class="form-control">
             </div>
+           
             <div class="col mt-auto">
               <button id="btnAdd" onclick="showPopup('popupAdd',true)" class="btn btn-success">
                 <i class="mdi mdi-account-plus"></i>&nbsp;<span class="hide-on-mobile">Thêm mới</span>
               </button>
-              <button id="btnMultiAdd" onclick="selectInputFile()" class="btn btn-success">
+              <button onclick="showPopupExcel()" class="btn btn-success">
                 <i class="mdi mdi-account-multiple-plus"></i>&nbsp;<span class="hide-on-mobile">Thêm nhiều</span>
               </button>
               <button id="downloadTemplate" class="btn btn-success" onclick="downloadTemplate()">
                 <i class="mdi mdi-download"></i>&nbsp;<span class="hide-on-mobile">Mẫu</span>
               </button>
-              <input oninput="readExcelFile(this)" type="file"
-                accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel , .xls"
-                id="inputFile" class="d-none">
             </div>
           </div>
         </div>
@@ -74,51 +73,47 @@
             </div>
             <div class="modal-body">
               <div class="row">
+                <div class="col-sm-4">
+                  <label>SĐT</label>
+                  <input type="text" class="form-control" aria-describedby="helpId" autocomplete="off" placeholder="Nhập SĐT">
+                </div>
                 <div class="col-sm-6">
-                  <label for="addUserFullname">Tên khách hàng</label>
-                  <input type="text" class="form-control" name="addUserFullname" id="addUserFullname"
+                  <label >Tên khách hàng</label>
+                  <input type="text" class="form-control" 
                     aria-describedby="helpId" placeholder="Nhập tên khách hàng" autocomplete="off">
                 </div>
                 <div class="col-sm-12 col-md-3">
-                  <label for="addUserBirthday">Ngày sinh</label>
-                  <input type="date" class="form-control" name="addUserBirthday" id="addUserBirthday">
+                  <label >Ngày sinh</label>
+                  <input type="date" class="form-control">
                   </input>
                 </div>
                 <div class="col-sm-12 col-md-3">
-                  <label for="addUserGender">Giới tính</label>
-                  <select class="form-control" name="addUserGender" id="addUserGender">
+                  <label>Giới tính</label>
+                  <select class="form-control" >
                     <option value="Nam" selected>Nam</option>
                     <option value="Nữ">Nữ</option>
                   </select>
                 </div>
                 <div class="col-sm-6">
-                  <label for="addUserPassword">Mật khẩu</label>
-                  <input type="password" class="form-control" name="addUserPassword" id="addUserPassword"
+                  <label>Mật khẩu</label>
+                  <input type="text" class="form-control" 
                     aria-describedby="helpId" autocomplete="off" placeholder="Nhập mật khẩu">
                 </div>
-                <div class="col-sm-6">
-                  <label for="addUserPassword2">Nhập lại mật khẩu</label>
-                  <input type="password" class="form-control" name="addUserPassword2" id="addUserPassword2"
-                    aria-describedby="helpId" autocomplete="off" placeholder="Nhập lại mật khẩu">
-                </div>
+               
                 <div class="col-sm-4">
-                  <label for="addUserEmail">Email</label>
-                  <input type="text" class="form-control" name="addUserEmail" id="addUserEmail"
+                  <label >Email</label>
+                  <input type="text" class="form-control" 
                     aria-describedby="helpId" autocomplete="off" placeholder="Nhập địa chỉ email">
                 </div>
-                <div class="col-sm-4">
-                  <label for="addUserPhone">SĐT</label>
-                  <input type="text" class="form-control" name="addUserPhone" id="addUserPhone"
-                    aria-describedby="helpId" autocomplete="off" placeholder="Nhập SĐT">
-                </div>
-                <div class="col-sm-4">
-                  <label for="addUserAddress">Địa chỉ</label>
-                  <input type="text" class="form-control" name="addUserAddress" id="addUserAddress"
+               
+                <div class="col-sm-8">
+                  <label >Địa chỉ</label>
+                  <input type="text" class="form-control" 
                     aria-describedby="helpId" autocomplete="off" placeholder="Nhập địa chỉ liên hệ">
                 </div>
                 <div class="modal-footer">
-                  <button type="button" onclick="confirmAdd()" class="btn btn-primary">Thêm mới</button>
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                  <button type="button" onclick="confirmAdd()" class="btn btn-primary">Thêm mới</button>
                 </div>
               </div>
             </div>
@@ -126,75 +121,66 @@
         </div>
       </div>
 
-      <!-- Popup -->
-      <!-- Popup edit -->
       <div id="popupEdit" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog model-80" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Sửa khách hàng<i class="mdi mdi-account-minus"></i> </h5>
+              <h5 class="modal-title">Thêm khách hàng<i class="mdi mdi-account-minus"></i> </h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
               <div class="row">
+                <div class="col-sm-4">
+                  <label>SĐT</label>
+                  <input type="text" class="form-control" aria-describedby="helpId" autocomplete="off" placeholder="Nhập SĐT">
+                </div>
                 <div class="col-sm-6">
-                  <label for="editUserFullname">Tên khách hàng</label>
-                  <input type="text" class="form-control" name="editUserFullname" id="editUserFullname"
+                  <label >Tên khách hàng</label>
+                  <input type="text" class="form-control" 
                     aria-describedby="helpId" placeholder="Nhập tên khách hàng" autocomplete="off">
                 </div>
                 <div class="col-sm-12 col-md-3">
-                  <label for="editUserBirthday">Ngày sinh</label>
-                  <input type="date" class="form-control" name="editUserBirthday" id="editUserBirthday">
+                  <label >Ngày sinh</label>
+                  <input type="date" class="form-control">
                   </input>
                 </div>
                 <div class="col-sm-12 col-md-3">
-                  <label for="editUserGender">Giới tính</label>
-                  <select class="form-control" name="editUserGender" id="editUserGender">
-                    <option value="Nam">Nam</option>
+                  <label>Giới tính</label>
+                  <select class="form-control" >
+                    <option value="Nam" selected>Nam</option>
                     <option value="Nữ">Nữ</option>
                   </select>
                 </div>
                 <div class="col-sm-6">
-                  <label for="editUserPassword">Mật khẩu</label>
-                  <input type="password" class="form-control" name="editUserPassword" id="editUserPassword"
+                  <label>Mật khẩu</label>
+                  <input type="text" class="form-control" 
                     aria-describedby="helpId" autocomplete="off" placeholder="Nhập mật khẩu">
                 </div>
-                <div class="col-sm-6">
-                  <label for="editUserPassword2">Nhập lại mật khẩu</label>
-                  <input type="password" class="form-control" name="editUserPassword2" id="editUserPassword2"
-                    aria-describedby="helpId" autocomplete="off" placeholder="Nhập lại mật khẩu">
-                </div>
+               
                 <div class="col-sm-4">
-                  <label for="editUserEmail">Email</label>
-                  <input type="text" class="form-control" name="editUserEmail" id="editUserEmail"
+                  <label >Email</label>
+                  <input type="text" class="form-control" 
                     aria-describedby="helpId" autocomplete="off" placeholder="Nhập địa chỉ email">
                 </div>
-                <div class="col-sm-4">
-                  <label for="editUserPhone">SĐT</label>
-                  <input type="text" class="form-control" name="editUserPhone" id="editUserPhone"
-                    aria-describedby="helpId" autocomplete="off" placeholder="Nhập SĐT">
-                </div>
-                <div class="col-sm-4">
-                  <label for="editUserAddress">Địa chỉ</label>
-                  <input type="text" class="form-control" name="editUserAddress" id="editUserAddress"
+               
+                <div class="col-sm-8">
+                  <label >Địa chỉ</label>
+                  <input type="text" class="form-control" 
                     aria-describedby="helpId" autocomplete="off" placeholder="Nhập địa chỉ liên hệ">
                 </div>
                 <div class="modal-footer">
-                  <button id="confirmEdit" type="button" onclick="confirmEdit()" class="btn btn-primary">
-                    Xác nhận
-                  </button>
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                  <button type="button"  class="btn btn-primary">Lưu chỉnh sửa</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <!-- Popup thêm mới -->
       <div id="popupAddExcel" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog model-100" role="document">
+        <div class="modal-dialog model-80" role="document">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">Thêm mới khách hàng&nbsp;<i class="mdi mdi-account-multiple-plus"></i> </h5>
@@ -202,20 +188,12 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div id="divTableAddExcel" class="modal-body">
-              <table id="tableAddExcel" class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Tên khách hàng</th>
-                    <th>SĐT</th>
-                    <th>Địa chỉ</th>
-                    <th>Ngày sinh</th>
-                    <th>Giới tính</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyAddExcel"></tbody>
-              </table>
+            <div>
+              <i class="fas fa-file-excel btn btn-success" onclick="selectFile()"> Chọn file</i>
+              <input type="file" oninput="file_change(this)" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel , .xls">
+            </div>
+            <div class="modal-body">
+             
             </div>
             <div class="modal-footer">
               <button type="button" onclick="confirmAddExcel()" class="btn btn-primary">Thêm mới</button>

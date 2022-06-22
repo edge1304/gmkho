@@ -4,10 +4,14 @@ import * as helper from "../../helper/helper.js"
 import * as validator from "../../helper/validator.js"
 import { ModelSuperCategory } from "../../models/SuperCategory.js"
 import { ModelCategory } from "../../models/Category.js"
+import { Model_Slide_Banner } from "../../models/Slide-banner.js"
 
 import path from "path"
 import multer from "multer"
-
+async function get_data_slide_banner() {
+    const data_slide_banner = await Model_Slide_Banner.find()
+    return data_slide_banner
+}
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, validator.URL_IMAGE_CATEGORY)
@@ -37,6 +41,11 @@ export const management = async (app) => {
                 if (validator.isDefine(req.query.key)) {
                     query = { ...query, category_name: { $regex: ".*" + req.query.key + ".*", $options: "$i" } }
                 }
+                if (validator.isDefine(req.query.key) && validator.ObjectId.isValid(req.query.key)) {
+                    query = {
+                        _id:validator.ObjectId(req.query.key)
+                    }
+                }
                 const data = await ModelCategory.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
 
                 for (let i = 0; i < data.length; i++) {
@@ -52,16 +61,29 @@ export const management = async (app) => {
                             data_parent: null,
                         }
                     }
+                    if (validator.isObjectId(data[i].id_slide_banner)) {
+                        const data_slide_banner = await Model_Slide_Banner.findById(data[i].id_slide_banner).lean()
+                        data[i] = {
+                            ...data[i],
+                            data_slide_banner: data_slide_banner,
+                        }
+                    } else {
+                        data[i] = {
+                            ...data[i],
+                            data_slide_banner: null,
+                        }
+                    }
                 }
                 const _data_all = await ModelCategory.find({}).lean()
                 const count = await ModelCategory.countDocuments(query)
 
-                return res.json({ data: data, count: count, data_all: _data_all })
+                const data_slide_banner = await get_data_slide_banner()
+                return res.json({ data: data, count: count, data_all: _data_all, data_slide_banner: data_slide_banner })
             } catch (err) {
                 console.log(err)
             }
         } catch (e) {
-            console.log(e)
+            console.error(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
@@ -86,9 +108,14 @@ export const update = async (app) => {
                     const category_status = validator.tryParseBoolean(req.body.category_status)
                     const display_app = validator.tryParseBoolean(req.body.display_app)
                     const display_website = validator.tryParseBoolean(req.body.display_website)
+                    //
                     let id_parent_category = req.body.id_parent_category
                     if (!validator.isDefine(id_parent_category)) {
                         id_parent_category = null
+                    }
+                    let id_slide_banner = req.body.id_slide_banner
+                    if (!validator.isDefine(id_slide_banner)) {
+                        id_slide_banner = null
                     }
 
                     if (category_name.length == 0) return res.status(400).send("Thất bại! Tên danh mục không được để trống")
@@ -101,6 +128,7 @@ export const update = async (app) => {
                             display_app: display_app,
                             display_website: display_website,
                             id_parent_category: id_parent_category,
+                            id_slide_banner: id_slide_banner,
                         })
 
                         if (typeof req.file != "undefined") {
@@ -109,16 +137,16 @@ export const update = async (app) => {
                         }
                         return res.json(updateNew)
                     } catch (e) {
-                        console.log(e)
+                        console.error(e)
                         return res.status(500).send("Thất bại! Có lỗi xảy ra")
                     }
                 } catch (e) {
-                    console.log(e)
+                    console.error(e)
                     return res.status(500).send("Thất bại! Có lỗi xảy ra")
                 }
             })
         } catch (e) {
-            console.log(e)
+            console.error(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
@@ -157,6 +185,10 @@ export const insert = async (app) => {
                     if (!validator.isNotEmpty(id_parent_category)) {
                         id_parent_category = null
                     }
+                    let id_slide_banner = req.body.id_slide_banner
+                    if (!validator.isNotEmpty(id_slide_banner)) {
+                        id_slide_banner = null
+                    }
                     let value = new ModelCategory({
                         category_name: category_name,
                         category_sluglink: category_sluglink,
@@ -164,6 +196,7 @@ export const insert = async (app) => {
                         display_app: display_app,
                         display_website: display_website,
                         id_parent_category: id_parent_category,
+                        id_slide_banner: id_slide_banner,
                         category_image: image,
                         category_options: [],
                     })
@@ -172,7 +205,7 @@ export const insert = async (app) => {
                 }
             })
         } catch (e) {
-            console.log(e)
+            console.error(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
@@ -186,6 +219,7 @@ export const addKey = async (app) => {
             const category_options_alt = req.body.category_options_alt.trim()
             const category_options_name = req.body.category_options_name.trim()
             const category_options_values = req.body.category_options_values
+            const category_options_active = req.body.category_options_active === 'true'
 
             if (category_options_name.length == 0) return res.status(400).send("Thất bại! Từ khóa không được để trống")
             if (category_options_alt.length == 0) return res.status(400).send("Thất bại! Tên thay thế không được để trống")
@@ -200,16 +234,17 @@ export const addKey = async (app) => {
                             category_options_name: category_options_name,
                             category_options_alt: category_options_alt,
                             category_options_values: category_options_values,
+                            category_options_active:category_options_active
                         },
                     },
                 })
                 return res.json(updateKey)
             } catch (e) {
-                console.log(e)
+                console.error(e)
                 return res.status(500).send("Thất bại! Có lỗi xảy ra")
             }
         } catch (e) {
-            console.log(e)
+            console.error(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
@@ -223,6 +258,7 @@ export const updateKey = async (app) => {
             const category_options_name = req.body.category_options_name.trim()
             const category_options_alt = req.body.category_options_alt.trim()
             const category_options_values = req.body.category_options_values
+            const category_options_active = req.body.category_options_active
             const indexOption = validator.tryParseInt(req.body.indexOption)
             if (category_options_name.length == 0) return res.status(400).send("Thất bại! Từ khóa không được để trống")
             if (category_options_alt.length == 0) return res.status(400).send("Thất bại! Từ thay thế không được để trống")
@@ -235,17 +271,18 @@ export const updateKey = async (app) => {
                 category_options_name: category_options_name,
                 category_options_alt: category_options_alt,
                 category_options_values: category_options_values,
+                category_options_active:category_options_active
             }
 
             try {
                 const updateKey = await ModelCategory.findByIdAndUpdate(dataCategory._id, { category_options: dataCategory.category_options })
                 return res.json(updateKey)
             } catch (e) {
-                console.log(e)
+                console.error(e)
                 return res.status(500).send("Thất bại! Có lỗi xảy ra")
             }
         } catch (e) {
-            console.log(e)
+            console.error(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
@@ -265,11 +302,11 @@ export const deleteKey = async (app) => {
                 const updateKey = await ModelCategory.findByIdAndUpdate(dataCategory._id, { category_options: dataCategory.category_options })
                 return res.json(updateKey)
             } catch (e) {
-                console.log(e)
+                console.error(e)
                 return res.status(500).send("Thất bại! Có lỗi xảy ra")
             }
         } catch (e) {
-            console.log(e)
+            console.error(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
@@ -287,7 +324,7 @@ export const getDataClient = async (app) => {
             const data = await ModelCategory.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
             return res.json(data)
         } catch (e) {
-            console.log(e)
+            console.error(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
@@ -301,3 +338,28 @@ export const get_array_category = async () => {
         return []
     }
 }
+
+
+export const edit_content = async (app) => {
+    app.put(prefixApi+"/edit-content", helper.authenToken, async (req, res) => {
+        try {
+            if (!(await helper.checkPermission("61e15772f8bf2521b16be20c", req.body._caller.id_employee_group))) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const category_content = req.body.category_content
+            const id_category = req.body.id_category
+            if(!id_category || !validator.ObjectId.isValid(id_category)) return res.status(400).send(`Thất bại! Không tìm thấy danh mục`)
+            const data = await ModelCategory.findById(id_category)
+            if(!data) return res.status(400).send(`Thất bại! Không tìm thấy danh mục`)
+
+            const update_content = await ModelCategory.findByIdAndUpdate(data._id,{
+                category_content:category_content
+            })
+            return res.json(update_content)
+        }
+        catch(e)
+        {
+            console.error(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+    

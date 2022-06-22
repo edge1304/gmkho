@@ -6,6 +6,9 @@ const SchemaBranch = new mongoose.Schema({
 		...validator.schemaRequired,
 	} ,
 	branch_address: validator.schemaString,
+	branch_map_address: validator.schemaString,
+	branch_email: validator.schemaString,
+	branch_time_active: validator.schemaString,
 	branch_phone:{
 		...validator.schemaString,
 		...validator.schemaRequired,

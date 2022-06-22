@@ -1,238 +1,260 @@
-let users;
-let usersExcel;
 
-const elementSelectUser = $("select[name=selectUser]");
-const elementTable = $("#tbodyTable");
-const elementExcel = $("#tbodyAddExcel");
-
-
-$("#addUserBirthday").val(new Date().toISOString().slice(0, 10))
-
-const rerenderTable = (data) => {
-  users = data.data;
-  // console.table(data.data);
-  elementTable.empty()
-
-  data.data.forEach((element, index) => {
-
-    elementTable.append(`
-            <tr>
-                <td>${index + 1}</td>
-                <td>${element.user_fullname}</td>
-                <td>${element.user_phone}</td>
-                <td>${element.user_address}</td>
-                <td class="right">${element.user_birthday ? (new Date(element.user_birthday)).toLocaleDateString() : ''}</td>
-                <td>${element.user_gender || ''}</td>
-                <td>${element.user_point}</td>
-                <td><button onclick="showPopupEdit(${index})" class="btn btn-primary"><i class="mdi mdi-information"></i> Chi tiết</button></td>
-            </tr>`)
-    pagination(data.count, data.data.length);
-  });
-}
-
-const rerenderExcel = (data) => {
-  elementExcel.empty()
-
-  data.forEach((element, index) => {
-
-    elementExcel.append(`
-            <tr>
-                <td>${index + 1}</td>
-                <td class="text-capitalize">${element.user_fullname}</td>
-                <td>${element.user_phone}</td>
-                <td>${element.user_address}</td>
-                <td class="right">${element.user_birthday ? element.user_birthday.toLocaleDateString() : ''}</td>
-                <td class="text-capitalize">${element.user_gender}</td>
-            </tr>`)
+var arrData = []
+var arr_excel = []
+getData()
+function getData(){
+  const key = $("#keyFind").val()
+  limit = tryParseInt($("#selectLimit option:selected").val())
+  callAPI('GET',API_USER,{
+    key:key,
+    page:page,
+    limit:limit
+  }, data =>{
+    drawTable(data.data);
+    pagination(data.count, data.data.length)
+    changeURL(`?limit=${limit}&page=${page}&key=${key}`)
   })
 }
 
-const showPopupEdit = (index) => {
-  const user = users[index];
-  $("#editUserFullname").val(user.user_fullname)
-  $("#editUserGender").val(user.user_gender)
-  $("#editUserBirthday").val(user.user_birthday ? user.user_birthday.slice(0, 10) : null)
-  $("#editUserPhone").val(user.user_phone)
-  $("#editUserAddress").val(user.user_address)
-  $("#editUserEmail").val(user.user_email)
 
-  $("#confirmEdit").attr("onclick", `confirmEdit(${index})`)
+const drawTable = (data) => {
+    arrData = []
+    $("#tbodyTable").empty()
+    for(let i =0;i<data.length;i++){
+      arrData.push(data[i])
+      $("#tbodyTable").append(`
+          <tr>
+                <td>${stt + i}</td>
+                <td>${data[i].user_fullname}</td>
+                <td>${data[i].user_phone}</td>
+                <td>${data[i].user_address}</td>
+                <td class="right">${data[i].user_birthday ? (new Date(data[i].user_birthday)).toLocaleDateString() : ''}</td>
+                <td>${data[i].user_gender || ''}</td>
+                <td>${data[i].user_point}</td>
+                <td><button onclick="showPopupEdit(${i})" name="${data[i]._id}" class="btn btn-primary"><i class="mdi mdi-information"></i> Chi tiết</button></td>
+          </tr>
+      `)
+    }
+
+}
+
+function confirmAdd(){
+  const inputs = $("#popupAdd input")
+  const user_phone = $(inputs[0]).val().trim()
+  const user_fullname = $(inputs[1]).val().trim()
+  const user_birthday = $(inputs[2]).val().trim()
+  const user_gender = $("#popupAdd select option:selected").val()
+  const password = $(inputs[3]).val().trim().length > 0 ? sha512($(inputs[3]).val().trim()).toString():null
+  const user_email = $(inputs[4]).val().trim()
+  const user_address = $(inputs[5]).val().trim()
+
+  if(user_phone.length == 0){
+    info("Số điện thoại không được để trống")
+    return
+  }
+  if(user_fullname.length == 0){
+    info("Tên khách hàng không được để trống")
+    return
+  }
+  hidePopup('popupAdd')
+  callAPI('POST',API_USER, {
+    data: JSON.stringify({
+      user_phone: user_phone,
+      user_fullname:user_fullname,
+      user_birthday:user_birthday,
+      user_gender:user_gender,
+      user_password:password,
+      user_email:user_email,
+      user_address:user_address
+    })
+  }, data =>{
+    success("Thành công")
+    getData()
+  })
+}
+
+function showPopupEdit(index){
+  const inputs = $("#popupEdit input")
+  $(inputs).val(null)
+  $(inputs[0]).val(arrData[index].user_phone)
+  $(inputs[1]).val(arrData[index].user_fullname)
+  $(inputs[2]).val(formatDate(arrData[index].user_birthday).fulldate)
+  $("#popupEdit select").val(arrData[index].user_gender).change()
+  
+  $(inputs[4]).val(arrData[index].user_email)
+  $(inputs[5]).val(arrData[index].user_address)
+
+  $("#popupEdit .modal-footer button:nth-child(2)").attr("onclick",`confirmEdit(${index})`)
   showPopup('popupEdit')
 }
 
-const getData = async (isLoad = true) => {
+function confirmEdit(index){
+  const inputs = $("#popupEdit input")
 
-  const limit = $("#selectLimit option:selected").val();
-  const key = $("#keyFind").val()
+  const user_phone = $(inputs[0]).val().trim()
+  const user_fullname = $(inputs[1]).val().trim()
+  const user_birthday = $(inputs[2]).val().trim()
+  const user_gender = $("#popupEdit select option:selected").val()
+  const password = $(inputs[3]).val().trim().length > 0 ? sha512($(inputs[3]).val().trim()).toString():arrData[index].user_password
+  const user_email = $(inputs[4]).val().trim()
+  const user_address = $(inputs[5]).val().trim()
 
-  const dataUser = {
-    limit: tryParseInt(limit),
-    page: tryParseInt(page),
-    key: key,
+  if(user_phone.length == 0){
+    info("Số điện thoại không được để trống")
+    return
   }
-
-  callAPI('GET', API_USER, dataUser, rerenderTable)
-  // isLoading(false);
-}
-
-const confirmAdd = async () => {
-  try {
-    const userFullname = $("#addUserFullname").val().trim()
-    const userGender = $("#addUserGender").val()
-    const userBirthday = $("#addUserBirthday").val()
-    const userPhone = $("#addUserPhone").val().trim()
-    const userAddress = $("#addUserAddress").val().trim()
-    const userPassword = $("#addUserPassword").val()
-    const userPassword2 = $("#addUserPassword2").val()
-    const userEmail = $("#addUserEmail").val().trim()
-
-    if (!userFullname) throw new Error('Vui lòng nhập họ tên')
-    if (!userPhone) throw new Error('Vui lòng nhập số điện thoại')
-    if (!userPassword) throw new Error('Vui lòng nhập mật khẩu')
-    if (userPassword.length < 6) throw new Error('Mật khẩu phải có ít nhất 6 ký tự')
-    if (userPassword2 !== userPassword) throw new Error('Mật khẩu không khớp')
-    if (userEmail !== '' && !validateEmail(userEmail)) throw new Error('Địa chỉ email không hợp lệ')
-
-    const data = {
-      'user_fullname': userFullname,
-      'user_gender': userGender,
-      'user_email': userEmail,
-      'user_password': sha512(userPassword),
-      'user_phone': userPhone,
-      'user_birthday': userBirthday,
-      'user_address': userAddress,
-    }
-
-    hidePopup('popupAdd')
-    isLoading(true);
-    callAPI('POST', `${API_USER}?`, data, () => {
-      success("Thêm thành công");
-      isLoading(false);
-      getData(true);
+  if(user_fullname.length == 0){
+    info("Tên khách hàng không được để trống")
+    return
+  }
+  hidePopup('popupEdit')
+  callAPI('PUT',API_USER, {
+    data: JSON.stringify({
+      user_phone: user_phone,
+      user_fullname:user_fullname,
+      user_birthday:user_birthday,
+      user_gender:user_gender,
+      user_password:password,
+      user_email:user_email,
+      user_address:user_address,
+      id_user:arrData[index]._id
     })
-  }
-  catch (error) {
-    console.error(error.name + ': ' + error.message)
-    warning(error.message);
-  }
+  }, data =>{
+    success("Thành công")
+    getData()
+  })
 }
 
-const confirmEdit = async (index) => {
-  try {
-    const id = users[index]._id
-    const userFullname = $("#editUserFullname").val().trim()
-    const userGender = $("#editUserGender").val()
-    const userBirthday = $("#editUserBirthday").val()
-    const userPhone = $("#editUserPhone").val().trim()
-    const userAddress = $("#editUserAddress").val().trim()
-    const userPassword = $("#editUserPassword").val()
-    const userPassword2 = $("#editUserPassword2").val()
-    const userEmail = $("#editUserEmail").val().trim()
-
-    if (!userFullname) throw new Error("Vui lòng nhập họ tên")
-    if (!userPhone) throw new Error("Vui lòng nhập số điện thoại")
-    if (!userPassword) throw new Error("Vui lòng nhập mật khẩu")
-    if (userPassword.length < 6) throw new Error("Mật khẩu phải có ít nhất 6 ký tự")
-    if (userPassword2 !== userPassword) throw new Error("Mật khẩu không khớp")
-    if (userEmail !== '' && !validateEmail(userEmail)) throw new Error("Địa chỉ email không hợp lệ")
-
-    const data = {
-      '_id': id,
-      'user_fullname': userFullname,
-      'user_gender': userGender,
-      'user_email': userEmail,
-      'user_password': sha512(userPassword),
-      'user_phone': userPhone,
-      'user_birthday': userBirthday,
-      'user_address': userAddress,
-    }
-
-    hidePopup('popupEdit')
-    isLoading(true);
-    callAPI('PUT', `${API_USER}?`, data, () => {
-      success("Sửa thành công")
-      isLoading(false);
-      getData(true);
-    })
-  }
-
-  catch (e) {
-    console.error(e.name + ': ' + e.message)
-    warning(e.message);
-  }
-}
-
-getData(true);
-
-
-// Excel
-const downloadTemplate = () => {
-  const template = [{
-    "Tên khách hàng": "",
-    "SĐT": "",
-    "Địa chỉ": "",
-    "Ngày sinh": "",
-    "Giới tính": "",
+function downloadTemplate(){
+  const arr_template = [{
+    "Số điện thoại":"012345678",
+    "Họ và tên":"Phạm Văn A",
+    "Địa chỉ":"Số 1 Đường ABC",
+    "Ngày sinh":"2022-02-20",
+    "Email":"phamvana@gmail.com",
+    "Mật khẩu":"1",
+    "Giới tính":"Nam/Nữ"
   }]
-  downloadExcelLocal(template, "Mẫu thêm khách hàng")
+  downloadExcelLocal(arr_template,"Mẫu excel thêm khách hàng")
 }
 
-const selectInputFile = () => {
-  $("#inputFile").val(null);
-  $("#inputFile").click()
+function showPopupExcel(){
+  $("#popupAddExcel .modal-body").html(`
+    <table  class="table table-hover">
+    <thead>
+      <tr>
+      <th>Số điện thoại</th>
+      <th>Họ và tên</th>
+      <th>Địa chỉ</th>
+      <th>Ngày sinh</th>
+      <th>Email</th>
+      <th>Mật khẩu</th>
+      <th>Giới tính</th>
+      </tr>
+    </thead>
+    <tbody ></tbody>
+  </table>
+  `)
+  $("#popupAddExcel input[type=file]").val(null)
+  arr_excel = []
+  showPopup('popupAddExcel',true)
 }
 
-const readExcelFile = async (file) => {
-  try {
-    const data = await excelToJSON(file)
-    usersExcel = []
-    // console.table(data);
+function selectFile(){
+  $("#popupAddExcel input[type=file]").click()
+}
 
-    if (data.length === 0) throw new Error("File excel không có dữ liệu")
+function file_change(input){
+  arr_excel = []
+  const fileUpload = input
 
-    data.map(e => {
-      const user = {
-        'user_fullname': (e['Tên khách hàng'] || '').trim(),
-        'user_phone': (e['SĐT'] || '').trim(),
-        'user_email': (e['Email'] || '').trim(),
-        'user_address': (e['Địa chỉ'] || '').trim(),
-        'user_birthday': e['Ngày sinh'] ? new Date(e['Ngày sinh'].trim()) : '',
-        'user_gender': (e['Giới tính'] || '').trim(),
-      }
-      if (user.user_fullname === '')
-        throw new Error("Vui lòng nhập họ tên")
-      if (user.user_phone === '')
-        throw new Error("Vui lòng nhập số điện thoại")
-      if (user.user_birthday == 'Invalid Date')
-        throw new Error("Ngày sinh không hợp lệ (MM/DD/YYYY)")
-      if (!['NAM', 'NỮ', ''].includes(user.user_gender.toUpperCase()))
-        throw new Error("Giới tính không hợp lệ (Nam/Nữ)")
+  if (typeof FileReader != "undefined") {
+        var reader = new FileReader()
 
-      usersExcel.push(user)
-    })
-    // console.table(usersExcel)
-
-    showPopup('popupAddExcel')
-    rerenderExcel(usersExcel)
+        //For Browsers other than IE.
+        if (reader.readAsBinaryString) {
+            reader.onload = function (e) {
+              drawTable_excel(e.target.result)
+            }
+            reader.readAsBinaryString(fileUpload.files[0])
+        } else {
+            //For IE Browser.
+            reader.onload = function (e) {
+                var data = ""
+                var bytes = new Uint8Array(e.target.result)
+                for (var i = 0; i < bytes.byteLength; i++) {
+                    data += String.fromCharCode(bytes[i])
+                }
+                drawTable_excel(data)
+            }
+            reader.readAsArrayBuffer(fileUpload.files[0])
+        }
+  } else {
+        info("Brower không hỗ trợ đọc excel")
   }
-  catch (e) {
-    console.error(e.name + ': ' + e.message)
-    warning(e.message);
-  }
 }
 
-const confirmAddExcel = async () => {
-  try {
-    callAPI('post', `${API_USER}/excel`, { listUser: usersExcel }, () => {
-      success("Thêm thành công");
-      isLoading(false);
-      getData(true);
-    })
+function drawTable_excel(data){
+  const workbook = XLSX.read(data, {
+    type: "binary",
+  })
+  const Sheet = workbook.SheetNames[0]
+  const excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[Sheet])
+  $("#popupAddExcel .modal-body").html(`
+    <table  class="table table-hover">
+      <thead>
+        <tr>
+          <th>Số điện thoại</th>
+          <th>Họ và tên</th>
+          <th>Địa chỉ</th>
+          <th>Ngày sinh</th>
+          <th>Email</th>
+          <th>Mật khẩu</th>
+          <th>Giới tính</th>
+        </tr>
+      </thead>
+    <tbody ></tbody>
+  </table>
+  `)
+
+  arr_excel = []
+  for(let i =0;i<excelRows.length;i++){
+    if(excelRows[i]["Số điện thoại"] && excelRows[i]["Họ và tên"] && excelRows[i]["Số điện thoại"] != "012345678"){
+      arr_excel.push({
+        user_phone:excelRows[i]["Số điện thoại"].trim(),
+        user_fullname:excelRows[i]["Họ và tên"]?excelRows[i]["Họ và tên"].trim():"",
+        user_address:excelRows[i]["Địa chỉ"]?excelRows[i]["Địa chỉ"].trim():"",
+        user_birthday:excelRows[i]["Ngày sinh"]?excelRows[i]["Ngày sinh"].trim():"",
+        user_email:excelRows[i]["Email"]?excelRows[i]["Email"].trim():"",
+        user_password:excelRows[i]["Mật khẩu"] && excelRows[i]["Mật khẩu"].length > 0 ?sha512(excelRows[i]["Mật khẩu"]):null,
+        user_gender:excelRows[i]["Giới tính"] == "Nam" || excelRows[i]["Giới tính"] == "nam"?"Name":"Nữ",
+      })
+      $("#popupAddExcel .modal-body table tbody").append(`
+          <tr>
+            <td>${arr_excel[arr_excel.length-1].user_phone}</td>
+            <td>${arr_excel[arr_excel.length-1].user_fullname}</td>
+            <td>${arr_excel[arr_excel.length-1].user_address}</td>
+            <td>${arr_excel[arr_excel.length-1].user_birthday}</td>
+            <td>${arr_excel[arr_excel.length-1].user_email}</td>
+            <td>${excelRows[arr_excel.length-1]["Mật khẩu"]||""}</td>
+            <td>${arr_excel[arr_excel.length-1].user_gender}</td>
+          </tr>
+      `)
+    }
+  }
+  dataTable2($("#popupAddExcel .modal-body table"))
+}
+
+function confirmAddExcel(){
+    if(arr_excel.length == 0) {
+      info("Hãy nhập ít nhất một sản phẩm")
+      return
+    }
     hidePopup('popupAddExcel')
-
-  }
-  catch (e) {
-    console.error(e.name + ': ' + e.message)
-    warning(e.message);
-  }
+    callAPI('POST',`${API_USER}/excel`,{
+      arr_excel: JSON.stringify(arr_excel)
+    }, () =>{
+      success("Thành công")
+      getData()
+    })
 }

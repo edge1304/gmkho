@@ -2,6 +2,8 @@ var arrCategory = []
 var MAX_SERIAL_NUMBER = 0
 var DATA_ALL_MENU = []
 var DATA_ALL_CATEGORY = []
+var DATA_ALL_WEBSITE_COMPONENT = []
+var id_website_component = ``
 //==================================================================================================================
 
 $(function () {
@@ -21,6 +23,7 @@ function getData(page) {
         data: {
             key: key,
             id_parent: $("#select_Menu option:selected").val() || ``,
+            id_website_component: $("#select_website_component option:selected").val() || ``,
             limit: limit,
             page: page,
         },
@@ -32,6 +35,11 @@ function getData(page) {
             DATA_ALL_MENU = data.data_all
             DATA_ALL_CATEGORY = data.data_all_category
             draw_List_category_website(data.id_parent)
+            //
+            id_website_component = data?.id_website_component || ``
+            DATA_ALL_WEBSITE_COMPONENT = data.data_website_component
+            draw_List_data_website_component(id_website_component, `select_website_component`)
+            //
             drawTable(data.data)
             pagination(data.count, data.data.length)
         },
@@ -39,6 +47,19 @@ function getData(page) {
             errAjax(data)
         },
     })
+}
+function draw_List_data_website_component(id_website_component, _div_select) {
+    let html = ``
+    html += `<option value="">____ Chọn website ____</option>`
+    for (let i = 0; i < DATA_ALL_WEBSITE_COMPONENT.length; i++) {
+        if (DATA_ALL_WEBSITE_COMPONENT[i]._id + "" == id_website_component + "") {
+            html += `<option selected value="${DATA_ALL_WEBSITE_COMPONENT[i]._id}">${DATA_ALL_WEBSITE_COMPONENT[i].Description}</option>`
+        } else {
+            html += `<option value="${DATA_ALL_WEBSITE_COMPONENT[i]._id}">${DATA_ALL_WEBSITE_COMPONENT[i].Description}</option>`
+        }
+    }
+    $(`#${_div_select}`).empty()
+    $(`#${_div_select}`).html(html)
 }
 function draw_List_category_website(id_parent) {
     $(`#select_Menu`).empty()
@@ -70,6 +91,7 @@ function drawTable(data) {
                 <td>${data[i].name}</td>
                 <td>${data[i]?.data_parent?.name || "---"}</td>
                 <td>${data[i]["link"]}</td>
+                <td>${data[i]?.data_website_component?.Description ? data[i]?.data_website_component?.Description : "---"}</td>
                 <td class="center"><button onclick="showPopupEdit(${i})" class="btn btn-danger">Chi tiết</button></td>
             </tr>
         `)
@@ -77,13 +99,17 @@ function drawTable(data) {
 }
 function showPopupEdit(index) {
     $("#btnConfirmEdit").attr("onclick", `confirmEdit(${index})`)
+    const _data = arrCategory[index]
     //load parent categỏy+
-    const idcategory = arrCategory[index]._id
-    const parent_id = typeof arrCategory[index].id_parent == "undefined" ? null : arrCategory[index].id_parent
-    const id_represent_category = typeof arrCategory[index].id_parent == "undefined" ? null : arrCategory[index].id_represent_category
-    const name = arrCategory[index].name
-    const serial_number = arrCategory[index].serial_number
-    const link = arrCategory[index].link
+    const idcategory = _data._id
+    const parent_id = typeof _data.id_parent == "undefined" ? null : _data.id_parent
+    const id_represent_category = typeof _data.id_parent == "undefined" ? null : _data.id_represent_category
+    const name = _data.name
+    const serial_number = _data.serial_number
+    const link = _data.link
+    //
+    const id_website_component = _data.id_website_component
+    draw_List_data_website_component(id_website_component, `edit_select_website_component`)
     //
 
     $(`#serial_number_edit`).val(serial_number)
@@ -119,17 +145,17 @@ function showPopupEdit(index) {
     }
     load_parent_category("select_represent_category_edit", null, "")
     //
-    $("#display_app_edit").prop("checked", tryParseBoolean(arrCategory[index].display_app))
-    $("#display_app_edit").val(tryParseBoolean(arrCategory[index].display_app))
-    $("#display_website_edit").prop("checked", tryParseBoolean(arrCategory[index].display_website))
-    $("#display_website_edit").val(tryParseBoolean(arrCategory[index].display_website))
-    $("#display_tree_edit").prop("checked", tryParseBoolean(arrCategory[index].display_tree))
-    $("#display_tree_edit").val(tryParseBoolean(arrCategory[index].display_tree))
-    $("#display_home_edit").prop("checked", tryParseBoolean(arrCategory[index].display_home))
-    $("#display_home_edit").val(tryParseBoolean(arrCategory[index].display_home))
+    $("#display_app_edit").prop("checked", tryParseBoolean(_data.display_app))
+    $("#display_app_edit").val(tryParseBoolean(_data.display_app))
+    $("#display_website_edit").prop("checked", tryParseBoolean(_data.display_website))
+    $("#display_website_edit").val(tryParseBoolean(_data.display_website))
+    $("#display_tree_edit").prop("checked", tryParseBoolean(_data.display_tree))
+    $("#display_tree_edit").val(tryParseBoolean(_data.display_tree))
+    $("#display_home_edit").prop("checked", tryParseBoolean(_data.display_home))
+    $("#display_home_edit").val(tryParseBoolean(_data.display_home))
 
-    $(`#edit_image_menu`).attr(`src`, `${URL_IMAGE_MENU}${arrCategory[index]?.image}`)
-    $(`#edit_icon_menu`).attr(`src`, `${URL_IMAGE_MENU}${arrCategory[index]?.icon}`)
+    $(`#edit_image_menu`).attr(`src`, `${URL_IMAGE_MENU}${_data?.image}`)
+    $(`#edit_icon_menu`).attr(`src`, `${URL_IMAGE_MENU}${_data?.icon}`)
     //
     showPopup(`popupEdit`)
 }
@@ -146,6 +172,7 @@ function confirmEdit(index) {
     //
     const id_parent = $("#select_parent_menu_edit").val()
     const id_represent_category = $("#select_represent_category_edit").val()
+    const id_website_component = $("#edit_select_website_component").val()
     //
     const image = $("#edit_input_image_menu")[0].files[0]
     const check_delete_image = $("#edit_image_menu_change").val()
@@ -158,6 +185,9 @@ function confirmEdit(index) {
     data.append(`id_parent`, id_parent)
     data.append(`check_parent_category`, 1)
     data.append(`id_represent_category`, id_represent_category)
+    data.append(`check_id_represent_category`, 1)
+    data.append(`id_website_component`, id_website_component)
+    data.append(`check_id_website_component`, 1)
     data.append(`serial_number`, serial_number)
     //
     data.append(`display_app`, display_app)
@@ -186,6 +216,7 @@ function confirmEdit(index) {
 }
 function showPopupAdd() {
     //load parent categỏy+
+    draw_List_data_website_component(``, `add_select_website_component`)
     $("#check_delete_image_add").val(0)
     $("#serial_number_add").val(MAX_SERIAL_NUMBER)
     $(`#name_Menu_add`).val(null)
@@ -196,6 +227,12 @@ function showPopupAdd() {
     $(`#select_represent_category_add`).empty()
     $("#select_represent_category_add").append(`<option value="">_____________________</option>`)
     load_parent_category("select_represent_category_add", null, "")
+    //empty img
+    $(`#add_input_image_menu`).val(null)
+    $(`#add_image_menu`).attr(`src`, null)
+    $(`#add_input_icon_menu`).val(null)
+    $(`#add_icon_menu`).attr(`src`, null)
+    //
     $("#popupAddMenu").modal({ backdrop: "static", keyboard: false })
 }
 function confirmAdd() {
@@ -207,6 +244,7 @@ function confirmAdd() {
     const display_home = $("#display_home_addd").val()
     const id_parent = $("#select_parent_menu_add").val()
     const id_represent_category = $("#select_represent_category_add").val()
+    const id_website_component = $("#add_select_website_component").val()
     const serial_number = $("#serial_number_add").val()
     const image = $("#add_input_image_menu")[0].files[0]
     // const check_delete_image = $("#edit_image_menu_change").val()
@@ -217,6 +255,7 @@ function confirmAdd() {
     data.append(`link`, link_add)
     data.append(`id_parent`, id_parent)
     data.append(`id_represent_category`, id_represent_category)
+    data.append(`id_website_component`, id_website_component)
     data.append(`serial_number`, serial_number)
     data.append(`display_app`, display_app)
     data.append(`display_website`, display_website)

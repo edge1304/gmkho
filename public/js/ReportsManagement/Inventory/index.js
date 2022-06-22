@@ -38,31 +38,35 @@ function changeCategory(data) {
     const inventory = $("#selectInventory option:selected").val()
     const category = $("#selectCategory option:selected").val()
 
+    $("#divTable").empty();
     $("#divTable").html(`
-        <table id="dataTable" class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Số tt</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Tên danh mục</th>
-                    <th>Tồn đầu</th>
-                    <th>Giá trị tồn đầu</th>
-                    <th>SL nhập</th>
-                    <th>Giá trị nhập</th>
-                    <th>Đã xuất</th>
-                    <th>Giá trị xuất</th>
-                    <th>Tồn cuối</th>
-                    <th>Giá trị tồn</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    `)
+    <table id="dataTable" width="100%" cellspacing="0">
+    <thead>
+        <tr>
+            <th>STT</th>
+          
+            <th>Tên sản phẩm</th>
+            <th>Danh mục</th>
+            <th>Đơn VT</th>
+            <th>Tồn đầu</th>
+            <th>Giá trị tồn đầu</th>
+            <th>Số lượng nhập</th>
+            <th>Giá trị hàng nhập</th>
+            <th>Đã xuất</th>
+            <th>Giá trị xuất</th>
+            <th>Tồn cuối</th>
+            <th>Giá trị tồn</th>
+        </tr>
+
+    </thead>
+    <tbody id="tbodyTable"></tbody>
+    <tbody id="tfootTable"></tbody>
+    </table>`);
     stt = 1
 
     for (let i = 0; i < data.length; i++) {
         if (category && category.length > 0) {
-            if (data[i].id_category == category) {
+            if (data[i].ID_Category == category) {
                 if (inventory == "lt" && caculateInventory(data[i]) < 0) {
                     drawTable(data[i])
                 } else if (inventory == "gt" && caculateInventory(data[i]) > 0) {
@@ -81,6 +85,7 @@ function changeCategory(data) {
             } else if (inventory == "ne" && caculateInventory(data[i]) != 0) {
                 drawTable(data[i])
             } else if (inventory == "all") {
+         
                 drawTable(data[i])
             }
         }
@@ -89,29 +94,29 @@ function changeCategory(data) {
 }
 
 function drawTable(data) {
-    $("#divTable tbody").append(`
-        <tr>
-            <td>${stt++}</td>
-            <td><span class="substring">${data.subcategory_name}</span></td>
-            <td>${$(`#selectCategory option[value=${data.id_category}]`).text()}</td>
-            <td>${money(data.quantity_import_period - data.quantity_export_period)}</td>
-            <td>${money(data.money_import_period - data.money_import_of_export_period)}</td>
-            <td>${money(data.quantity_import_current)}</td>
-            <td>${money(data.money_import_current)}</td>
-            <td>${money(data.quantity_export_current)}</td>
-            <td>${money(data.money_export_current)}</td>
-            <td>${money(caculateInventory(data))}</td>
-            <td>${money(caculateMoneyInventory(data))}</td>
-        </tr>
-    `)
+    $("#tbodyTable").append(`
+    <tr>
+        <td class="center">${stt++}</td>
+        <td>${data.Name}</td>
+        <td>${$(`#selectCategory option[value="${data.ID_Category}"]`).text()}</td>
+        <td>${data.Unit}</td>
+        <td class="center">${data.QuantityPeriod- data.QuantityExportPeriod}</td>
+        <td class="right">${money(data.ImportPeriod- data.ImportOfExportPeriod)}</td>
+        <td class="center">${money(data.QuantityCurrent)}</td>
+        <td class="right">${money(data.ImportCurrent)}</td>
+        <td class="center">${money(data.QuantityExportCurrent)}</td>
+        <td class="right">${money(data.ExportCurrent)}</td>
+        <td class="center">${money( data.QuantityPeriod- data.QuantityExportPeriod  + data.QuantityCurrent - data.QuantityExportCurrent )}</td>
+        <td class="center">${money(data.ImportPeriod- data.ImportOfExportPeriod + data.ImportCurrent - data.ImportOfExportCurrent )}</td>
+    </tr>`)
 }
 
 function caculateInventory(data) {
-    return data.quantity_import_period - data.quantity_export_period + (data.quantity_import_current - data.quantity_export_current)
+    return data.QuantityPeriod - data.QuantityExportPeriod + (data.QuantityCurrent - data.QuantityExportCurrent)
 }
 
 function caculateMoneyInventory(data) {
-    return data.money_import_period - data.money_import_of_export_period + (data.money_import_current - data.money_import_of_export_current)
+    return data.ImportPeriod - data.ImportOfExportPeriod + (data.ImportCurrent - data.ImportOfExportCurrent)
 }
 
 function changeDraw() {

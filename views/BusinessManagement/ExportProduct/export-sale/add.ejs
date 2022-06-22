@@ -40,7 +40,7 @@
                   <input id="point_current" value="0" disabled class="form-control">
                 </div>
                 <div class="col-1 col-md-1 ralative">
-                  <button id="btn_show_popup_supplier" class="btn btn-primary hide-on-mobile"><i class="mdi mdi-account-plus" onclick="showPopup('')" title="Thêm mới nhà cung cấp"></i></button>
+                  <button id="btn_show_popup_supplier" onclick="showPopup('popupAdd',true)" class="btn btn-primary hide-on-mobile"><i class="mdi mdi-account-plus" title="Thêm mới nhà cung cấp"></i></button>
                 </div>
                 <div class="col-3 col-md-3 col-sm-4 col-lg-3 col-xl-2 div-employee-setting">
                   <label>Nhân viên lắp ráp</label>
@@ -150,6 +150,64 @@
           </div>
         </div>
         <!-- ====================================== -->
+        <div id="popupAdd" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog model-80" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Thêm khách hàng<i class="mdi mdi-account-minus"></i> </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-sm-4">
+                    <label>SĐT</label>
+                    <input type="text" class="form-control" aria-describedby="helpId" autocomplete="off" placeholder="Nhập SĐT">
+                  </div>
+                  <div class="col-sm-6">
+                    <label >Tên khách hàng</label>
+                    <input type="text" class="form-control" 
+                      aria-describedby="helpId" placeholder="Nhập tên khách hàng" autocomplete="off">
+                  </div>
+                  <div class="col-sm-12 col-md-3">
+                    <label >Ngày sinh</label>
+                    <input type="date" class="form-control">
+                    </input>
+                  </div>
+                  <div class="col-sm-12 col-md-3">
+                    <label>Giới tính</label>
+                    <select class="form-control" >
+                      <option value="Nam" selected>Nam</option>
+                      <option value="Nữ">Nữ</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-6">
+                    <label>Mật khẩu</label>
+                    <input type="text" class="form-control" 
+                      aria-describedby="helpId" autocomplete="off" placeholder="Nhập mật khẩu">
+                  </div>
+                 
+                  <div class="col-sm-4">
+                    <label >Email</label>
+                    <input type="text" class="form-control" 
+                      aria-describedby="helpId" autocomplete="off" placeholder="Nhập địa chỉ email">
+                  </div>
+                 
+                  <div class="col-sm-8">
+                    <label >Địa chỉ</label>
+                    <input type="text" class="form-control" 
+                      aria-describedby="helpId" autocomplete="off" placeholder="Nhập địa chỉ liên hệ">
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" onclick="confirmAdd()" class="btn btn-primary">Thêm mới</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <%- include('../../../footer') %>
         <script>
             const type_export = "Xuất hàng để bán"

@@ -30,13 +30,6 @@ input {
     max-width: 90% !important;
 }
 
-.model-100 {
-    max-width: 100% !important;
-}
-.model-95 {
-    max-width: 95% !important;
-}
-
 .model-85 {
     max-width: 85% !important;
 }
@@ -57,6 +50,48 @@ input {
     max-width: 100% !important;
 }
 .model-95 {
+    max-width: 95% !important;
+}
+.modal .show {
+    padding: 0 !important;
+}
+/* ----------------------- */
+.modal-80 {
+    max-width: 80% !important;
+}
+
+.modal-60 {
+    max-width: 60% !important;
+}
+
+.modal-70 {
+    max-width: 70% !important;
+}
+
+.modal-90 {
+    max-width: 90% !important;
+}
+
+.modal-85 {
+    max-width: 85% !important;
+}
+
+.modal-75 {
+    max-width: 75% !important;
+}
+
+.modal-65 {
+    max-width: 65% !important;
+}
+
+.modal-50 {
+    max-width: 50% !important;
+}
+
+.modal-100 {
+    max-width: 100% !important;
+}
+.modal-95 {
     max-width: 95% !important;
 }
 .modal .show {

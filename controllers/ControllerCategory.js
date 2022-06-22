@@ -1,4 +1,4 @@
-import { management , insert, update , addKey , updateKey,deleteKey , getDataClient} from "../api/ControllerCategory/index.js";
+import { management , insert, update , addKey , updateKey,deleteKey , getDataClient , edit_content} from "../api/ControllerCategory/index.js";
 
 function createControllerCategory(app) {
     management(app)
@@ -8,5 +8,6 @@ function createControllerCategory(app) {
     updateKey(app)
     deleteKey(app)
     getDataClient(app)
+    edit_content(app)
 }
 export default createControllerCategory

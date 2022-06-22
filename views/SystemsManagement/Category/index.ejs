@@ -53,6 +53,7 @@
                                 <th>Hình ảnh</th>
                                 <th>Trạng thái</th>
                                 <th>Danh mục cha</th>
+                                <th>Slide banner</th>
                                 <th>Chi tiết</th>
                             </tr>
                         </thead>
@@ -99,14 +100,13 @@
                                 <label>Tên danh mục</label>
                                 <input class="form-control" type="text" id="addName" placeholder="Nhập tên danh mục">
                             </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-12 col-md-3">
                                 <b>Danh mục cha:</b>
-                                <select id="select_parent_category_add" name="parent_id_add" class="form-control">
-                                    <!-- <option value="">?</option>
-                                    <option value="??">??</option>
-                                    <option value="?????">?????</option>
-                                    <option value="???????????">???????????</option> -->
-                                </select>
+                                <select id="select_parent_category_add" name="parent_id_add" class="form-control"></select>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <b>Slide banner:</b>
+                                <select id="select_slide_banner_add" name="slide_banner_add" class="form-control"></select>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label>Trạng thái hoạt động:</label>
@@ -172,14 +172,14 @@
                                 <input class="form-control" type="text" id="editName" placeholder="Nhập tên danh mục">
                             </div>
                             
-                            <div class="col-12 col-md-6">
+                            <div class="col-12 col-md-3">
                                 <b>Danh mục cha:</b>
-                                <select id="select_parent_category_edit"  class="form-control">
-                                    <!-- <option value="">?</option>
-                                    <option value="??">??</option>
-                                    <option value="?????">?????</option>
-                                    <option value="???????????">???????????</option> -->
-                                </select>
+                                <select id="select_parent_category_edit"  class="form-control"></select>
+                            </div>
+                            
+                            <div class="col-12 col-md-3">
+                                <b>Slide banner:</b>
+                                <select id="select_slide_banner_edit" name="slide_banner_edit" class="form-control"></select>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label>Trạng thái hoạt động</label>

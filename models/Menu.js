@@ -12,6 +12,9 @@ const SchemaMenu = new mongoose.Schema(
         id_represent_category: {
             ...validator.schemaObjectId,
         },
+        id_website_component: {
+            ...validator.schemaObjectId,
+        },
         serial_number: { ...validator.schemaNumber },
         display_app: { ...validator.schemaBoolean },
         display_website: { ...validator.schemaBoolean },

@@ -7,26 +7,10 @@ var subcategory_options = {}
 var arr_image_delete = []
 function getData()
 {
-    $.ajax({
-        type: 'GET',
-        url: `../api/subcategory/up-to-website?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            id_subcategory:id_subcategory
-        },
-      
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-            drawTable(data.dataSub, data.dataCategory, data.dataWarranty, data.dataPromotion)
-          
-        },
-        error: function (data) {
-            errAjax(data) 
-        }
-    })
+    callAPI('GET',`${API_SUBCATEGORY}/up-to-website`,{id_subcategory:id_subcategory},data =>{
+        drawTable(data.dataSub, data.dataCategory, data.dataWarranty, data.dataPromotion)
+    }  )
+    
 }
 
 function drawTable(dataSub, dataCategory, dataWarranty, dataPromotion)
@@ -68,41 +52,81 @@ function drawTable(dataSub, dataCategory, dataWarranty, dataPromotion)
             })
     }
   
-
+ 
    
-    if(dataCategory.category_options )
+    if(dataCategory)
     {
-        for(let i =0;i<dataCategory.category_options.length;i++){
-            var htmlCategory_options = `<tr><td>${dataCategory.category_options[i].category_options_name}</td><td>`
-            
-            for(let j = 0 ;j<dataCategory.category_options[i].category_options_values.length;j++)
-            {
-                var isCheched = ""
-                for(let g= 0 ;g<dataSub.subcategory_options.length;g++){
-                    if(dataSub.subcategory_options[g].category_options_name == dataCategory.category_options[i].category_options_name 
-                        && dataSub.subcategory_options[g].category_options_values == dataCategory.category_options[i].category_options_values[j]){
-                            isCheched = "checked"
-                            break
+      
+        for (let i = 0; i < dataCategory.length; i++) {
+            if (dataCategory[i].category_options && dataCategory[i].category_options != {}) {
+                var id_input = 0
+                for (let j = 0; j < dataCategory[i].category_options.length; j++) {
+                    let html = `<tr name="${dataCategory[i]._id}"><td name="${dataCategory[i].category_options[j].category_options_alt}">${dataCategory[i].category_options[j].category_options_name}</td><td>`
+                    for (let g = 0; g < dataCategory[i].category_options[j].category_options_values.length; g++) {
+                        html += `<div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="${dataCategory[i].category_options[j].category_options_alt}" value="${dataCategory[i].category_options[j].category_options_values[g]}" id="checkbox${id_input}">
+                                        <label class="form-check-label" for="checkbox${id_input++}">
+                                                ${dataCategory[i].category_options[j].category_options_values[g]}
+                                        </label>
+                                </div>`
+                    }
+    
+                    html += `</td><td>${dataCategory[i].category_name}</td></tr>`
+                    $("#table_category_specifications").append(html)
+                }
+            }
+        }
+     
+        if (typeof dataSub.subcategory_options != "undefined" && dataSub.subcategory_options) {
+            Object.keys(dataSub.subcategory_options).map((key) => {
+                const trs = $("#table_category_specifications tr")
+                for (let i = 0; i < trs.length; i++) {
+                    if ($(trs[i]).attr("name") == key) {
+                        const inputs = $(trs[i]).find("input")
+                        for (let j = 0; j < inputs.length; j++) {
+                            Object.keys(dataSub.subcategory_options[key]).map((query) => {
+                                for (let g = 0; g < dataSub.subcategory_options[key][query].length; g++) {
+                                    if ($(inputs[j]).attr("name") == query && $(inputs[j]).val() == dataSub.subcategory_options[key][query][g]) {
+                                        $(inputs[j]).prop("checked", true)
+                                    }
+                                }
+                            })
+                        }
                     }
                 }
-
-                // if(dataSub.subcategory_options != null && typeof dataSub.subcategory_options[key] != 'undefined' && dataCategory.category_options[key][i] == dataSub.subcategory_options[key]) isCheched = "checked"
-                htmlCategory_options += `
-                    <div class="form-check">
-                    <input ${isCheched} class="form-check-input" type="radio" name="${dataCategory.category_options[i].category_options_alt}" value="${dataCategory.category_options[i].category_options_values[j]}" id="category_options${stt}">
-                    <input value="${dataCategory.category_options[i].category_options_alt}" name="category_options_alt" style="display:none" type="text">
-                    <label class="form-check-label" for="category_options${stt}">
-                        ${dataCategory.category_options[i].category_options_values[j]}
-                    </label>
-                    </div>`
-                stt++
-                // isCheched = ""
-
-            }
-            htmlCategory_options += `</td><td><i onclick="cancelCategoryOpiton(this)" class="mdi mdi-delete-forever text-danger"></i></td></tr>`
-            $("#table_category_specifications").append(htmlCategory_options)
-             
+            })
         }
+        // for(let i =0;i<dataCategory.category_options.length;i++){
+        //     var htmlCategory_options = `<tr><td>${dataCategory.category_options[i].category_options_name}</td><td>`
+            
+        //     for(let j = 0 ;j<dataCategory.category_options[i].category_options_values.length;j++)
+        //     {
+        //         var isCheched = ""
+        //         for(let g= 0 ;g<dataSub.subcategory_options.length;g++){
+        //             if(dataSub.subcategory_options[g].category_options_name == dataCategory.category_options[i].category_options_name 
+        //                 && dataSub.subcategory_options[g].category_options_values == dataCategory.category_options[i].category_options_values[j]){
+        //                     isCheched = "checked"
+        //                     break
+        //             }
+        //         }
+
+        //         // if(dataSub.subcategory_options != null && typeof dataSub.subcategory_options[key] != 'undefined' && dataCategory.category_options[key][i] == dataSub.subcategory_options[key]) isCheched = "checked"
+        //         htmlCategory_options += `
+        //             <div class="form-check">
+        //             <input ${isCheched} class="form-check-input" type="radio" name="${dataCategory.category_options[i].category_options_alt}" value="${dataCategory.category_options[i].category_options_values[j]}" id="category_options${stt}">
+        //             <input value="${dataCategory.category_options[i].category_options_alt}" name="category_options_alt" style="display:none" type="text">
+        //             <label class="form-check-label" for="category_options${stt}">
+        //                 ${dataCategory.category_options[i].category_options_values[j]}
+        //             </label>
+        //             </div>`
+        //         stt++
+        //         // isCheched = ""
+
+        //     }
+        //     htmlCategory_options += `</td><td><i onclick="cancelCategoryOpiton(this)" class="mdi mdi-delete-forever text-danger"></i></td></tr>`
+        //     $("#table_category_specifications").append(htmlCategory_options)
+             
+        // }
         
     }
   
@@ -408,31 +432,6 @@ function getSpecifications()
     return arrData
 }
 
-function getOptions()
-{
-    const options = $("#table_category_specifications").find('tr')
-    var arrOptions = []
-    for(let i =0;i<options.length;i++)
-    {
-        const key = $($($(options[i]).find('td'))[0]).html()
-
-        const values = $($($($(options[i]).find('td'))[1]).find('input[type=radio]'))
-        const alts = $($($($(options[i]).find('td'))[1]).find('input[type=text][name=category_options_alt]'))
-        // console.log(values)
-        for(let i =0;i<values.length;i++)
-        {
-            if($(values[i]).is(":checked"))
-            {
-                arrOptions.push({
-                    category_options_name:key,
-                    category_options_alt : $(alts[i]).val(),
-                    category_options_values: $(values[i]).val(),
-                }) 
-            }
-        }
-    }
-    return arrOptions
-}
 
 function getStatus()
 {
@@ -450,4 +449,47 @@ function removeImagePeriod(btnRemove)
     const image_delete = $($($(btnRemove).closest('div').find('input'))[0]).val()
     arr_image_delete.push(image_delete)
     $(btnRemove).closest('div').remove()
+}
+
+function getOptions() {
+    const trs = $("#table_category_specifications").find("tr")
+    var options = {}
+
+    for (let i = 0; i < trs.length; i++) {
+        options = {
+            ...options,
+            [$(trs[i]).attr("name")]: {},
+        }
+    }
+    for (let i = 0; i < trs.length; i++) {
+        const key = $($(trs[i]).find("td")[0]).attr("name")
+
+        const inputs = $(trs[i]).find("input")
+        const id_category = $(trs[i]).attr("name")
+
+        for (let j = 0; j < inputs.length; j++) {
+            if ($(inputs[j]).is(":checked")) {
+                options[id_category] = {
+                    ...options[id_category],
+                    [key]: [],
+                }
+                break
+            }
+        }
+    }
+
+    for (let i = 0; i < trs.length; i++) {
+        const key = $($(trs[i]).find("td")[0]).attr("name")
+
+        const inputs = $(trs[i]).find("input")
+        const id_category = $(trs[i]).attr("name")
+
+        for (let j = 0; j < inputs.length; j++) {
+            if ($(inputs[j]).is(":checked")) {
+                options[id_category][key].push($(inputs[j]).val())
+            }
+        }
+    }
+
+    return options
 }

@@ -13,7 +13,9 @@ function checkData(){
 
 function drawTable(data){
     CKEDITOR.instances.editor.setData(data.news_content)
+    
     $("input[name=title_news]").val(data.news_title)
+    $("#new_brief").val(data.news_brief)
 
     if(data.news_image){
         old_img = data.news_image
@@ -32,11 +34,13 @@ function confirmSave(){
 
     const formData = new FormData();
     const image = $("#news_image")[0].files[0]
+    const news_brief = $("#new_brief").val()
     formData.append("image_news", image); // ảnh sản phẩm
     formData.append('news_content', CKEDITOR.instances.editor.getData())
     formData.append('id_news', id_news)
     formData.append('old_image', old_img)
     formData.append('title_news', title_news)
+    formData.append('news_brief', news_brief)
 
 
 

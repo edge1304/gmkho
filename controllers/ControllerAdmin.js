@@ -1,9 +1,37 @@
 import { login } from "../api/ControllerAdmin/login.js"
 import { ModelBranch } from "./../models/Branch.js"
+import { Model_Website_Component } from "./../models/WebsiteComponent.js"
 import * as helper from "../helper/helper.js"
 import * as validator from "../helper/validator.js"
 import sanitize from "mongo-sanitize"
 
+//
+async function get_data_website_components() {
+    let data_website_component = await Model_Website_Component.findById(_id_website_component)
+    // //lấy thông tin chi nhánh
+    // const arr_id_branch = data_website_component?.Content[_key_website_component__footer_branch]?.Content || []
+    // let arr_branch = []
+    // for (let i = 0; i < arr_id_branch.length; i++) {
+    //     const _data_branch = await ModelBranch.findById(arr_id_branch[i])
+    //     if (_data_branch) {
+    //         arr_branch.push(_data_branch)
+    //     }
+    // }
+    // data_website_component.Content[_key_website_component__footer_branch].data = arr_branch
+    // //thông tin sản phẩn flash sale
+    // const arr_id_flash_sale_products = data_website_component?.Content[_key_website_component__home_flash_sale_products]?.Products || []
+    // let arr_branch_products = []
+    // for (let i = 0; i < arr_id_flash_sale_products.length; i++) {
+    //     const _data_products = await ModelSubCategory.findById(arr_id_flash_sale_products[i])
+    //     if (_data_products) {
+    //         arr_branch_products.push(_data_products)
+    //     }
+    // }
+    // data_website_component.Content[_key_website_component__home_flash_sale_products].data = arr_branch_products
+    // //return data
+    return data_website_component
+}
+//
 function createControllerAdmin(app) {
     login(app)
 }
@@ -54,6 +82,10 @@ export const category = async (req, res) => {
     }
     return res.render("SystemsManagement/Category/index", { ...header_url(req), id_super_category: id_super_category })
 }
+export const category_content = async (req, res) => {
+    return res.render("SystemsManagement/Category/content", { ...header_url(req) })
+}
+
 export const accounting_entry = async (req, res) => {
     var type = ""
     if (validator.isDefine(req.query.type) && req.query.type.length > 0) type = req.query.type
@@ -71,6 +103,12 @@ export const menu = async (req, res) => {
 }
 export const website_component = async (req, res) => {
     return res.render("ContentsManagement/Website-Component/website-component", { ...header_url(req) })
+}
+export const slide_banner = async (req, res) => {
+    return res.render("ContentsManagement/Silde-Banner/slide-banner", { ...header_url(req) })
+}
+export const manage_policy = async (req, res) => {
+    return res.render("ContentsManagement/Policy/policy", { ...header_url(req) })
 }
 export const up_subcategory = async (req, res) => {
     const id_subcategory = req.query.id_subcategory
@@ -276,6 +314,9 @@ export const edit_add_news = async (req, res) => {
 }
 export const product_sold_by_date = async (req, res) => {
     return res.render("ReportsManagement/ProductSoldByDate/index", { ...header_url(req) })
+}
+export const device_separation = async (req, res) => {
+    return res.render("BusinessManagement/DeviceSeparation/index", { ...header_url(req) })
 }
 
 export default createControllerAdmin

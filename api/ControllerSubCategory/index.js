@@ -23,11 +23,41 @@ export const management = async(app) => {
             }
             var query = {}
             var sort = {_id:-1}
-            if (validator.isDefine(req.query.key)) {
-                const search_key = validator.viToEn(req.query.key).replace(/[^a-zA-Z0-9]/g, " ")
+            var data = []
+            var count = 0
+            const key = req.query.key
+            const status = req.query.subcategory_status
+            if (validator.isDefine(key)) {
                 query = {
-                    ...query,
-                    $or:[{$text: {$search: search_key}}],
+                    subcategory_name:{$regex:".*"+key+".*",$options:"$i"}
+                }
+                if (validator.isDefine(req.query.id_category) && validator.ObjectId.isValid(req.query.id_category)) {
+                    query = {
+                        ...query,
+                        id_category: req.query.id_category
+                    }
+                }
+                if (validator.isDefine(status) && !isNaN(parseInt(status))) {
+                    if (validator.tryParseInt(status) >= -1 && validator.tryParseInt(status) <= 1) {
+                        query = {
+                            ...query,
+                            subcategory_status: validator.tryParseInt(status)
+                        }
+                    }
+    
+                }
+       
+                data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+                count = await ModelSubCategory.countDocuments(query)
+                 if(data.length > 0)
+                    return res.json({ data: data, count: count, arrCategory: arrCategory })
+                
+                    
+            }
+            if (validator.isDefine(key)) {
+                const search_key = validator.viToEn(key).replace(/[^a-zA-Z0-9]/g, " ")
+                query = {
+                    $text: {$search: search_key},
                 }
                 sort= {
                     score: { $meta: "textScore" },
@@ -41,17 +71,18 @@ export const management = async(app) => {
                     id_category: req.query.id_category
                 }
             }
-            if (validator.isDefine(req.query.subcategory_status) && !isNaN(parseInt(req.query.subcategory_status))) {
-                if (parseInt(req.query.subcategory_status) >= -1 && parseInt(req.query.subcategory_status) <= 1) {
+            if (validator.isDefine(status) && !isNaN(validator.tryParseInt(status))) {
+                if (validator.tryParseInt(status) >= -1 && validator.tryParseInt(status) <= 1) {
                     query = {
                         ...query,
-                        subcategory_status: parseInt(req.query.subcategory_status)
+                        subcategory_status: validator.tryParseInt(status)
                     }
                 }
 
             }
-            const data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
-            const count = await ModelSubCategory.countDocuments(query)
+            data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+            count = await ModelSubCategory.countDocuments(query)
+            console.log("??dưới")
             return res.json({ data: data, count: count, arrCategory: arrCategory })
         } catch (e) {
             console.log(e)
@@ -81,11 +112,11 @@ export const findOther = async(app) => {
                 id_category: req.query.id_category
             }
         }
-        if (validator.isDefine(req.query.subcategory_status) && !isNaN(parseInt(req.query.subcategory_status))) {
-            if (parseInt(req.query.subcategory_status) >= -1 && parseInt(req.query.subcategory_status) <= 1) {
+        if (validator.isDefine(req.query.subcategory_status) && !isNaN(validator.tryParseInt(req.query.subcategory_status))) {
+            if (validator.tryParseInt(req.query.subcategory_status) >= -1 && validator.tryParseInt(req.query.subcategory_status) <= 1) {
                 query = {
                     ...query,
-                    subcategory_status: parseInt(req.query.subcategory_status)
+                    subcategory_status: validator.tryParseInt(req.query.subcategory_status)
                 }
             }
 

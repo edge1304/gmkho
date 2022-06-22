@@ -2,7 +2,8 @@ var arrData = []
 var getOther = true
 var arrSuperCategory = []
 getData()
-let DATA_ALL_CATEGORY = []
+var DATA_ALL_CATEGORY = []
+var DATA_ALL_SLIDE_BANNER = []
 
 function getData(isLoad = true) {
     isLoading(isLoading)
@@ -18,12 +19,25 @@ function getData(isLoad = true) {
     callAPI("GET", `${API_CATEGORY}?`, data, (data) => {
         throwValue(data)
         DATA_ALL_CATEGORY = data.data_all
+        DATA_ALL_SLIDE_BANNER = data.data_slide_banner
         drawTable(data.data)
         pagination(data.count, data.data.length)
         changeURL(`?limit=${limit}&page=${page}&category_name=${key}`)
     })
 }
-
+function draw_List_data_slide_banner(id_slide_banner, _div_select) {
+    let html = ``
+    html += `<option value="">____ Chọn website ____</option>`
+    for (let i = 0; i < DATA_ALL_SLIDE_BANNER.length; i++) {
+        if (DATA_ALL_SLIDE_BANNER[i]._id + "" == id_slide_banner + "") {
+            html += `<option selected value="${DATA_ALL_SLIDE_BANNER[i]._id}">${DATA_ALL_SLIDE_BANNER[i].Title}</option>`
+        } else {
+            html += `<option value="${DATA_ALL_SLIDE_BANNER[i]._id}">${DATA_ALL_SLIDE_BANNER[i].Title}</option>`
+        }
+    }
+    $(`#${_div_select}`).empty()
+    $(`#${_div_select}`).html(html)
+}
 function drawTable(data) {
     $("#tbodyTable").empty()
     arrData = []
@@ -35,10 +49,12 @@ function drawTable(data) {
                 <td>${data[i].category_name}</td>
                 <td>${data[i].category_image != null ? `<img src="${URL_IMAGE_CATEGORY}${data[i].category_image}">` : ""} </td>
                 <td>${data[i].category_status ? "Đang hoạt động" : "Đã ẩn"}</td>
-                <td>${data[i]?.data_parent?.category_name || "--"}</td>
+                <td>${data[i]?.data_parent?.category_name || "---"}</td>
+                <td>${data[i]?.data_slide_banner?.Title || "---"}</td>
                 <td>
                     <button onclick="showPopupEdit(${i})" class="btn btn-primary"><i class="mdi mdi-information"></i> Chi tiết</button>
                     <button onclick="showKeys(${i})" class="btn btn-success"><i class="mdi mdi-key-minus"></i> Từ khóa</button>
+                    <button onclick="newPage('/category-management/edit-content?id_category=${data[i]._id}')" class="btn btn-danger"><i class="fas fa-edit"></i>Bài viết</button>
                 </td>
             </tr>
         `)
@@ -66,7 +82,10 @@ function showPopupEdit(index) {
             return
         }
     })
-
+    //vẽ data slide bannner
+    const _id_slide_banner = arrData[index].id_slide_banner
+    draw_List_data_slide_banner(_id_slide_banner, `select_slide_banner_edit`)
+    //
     if (check == 0) {
         $("#select_parent_category_edit").append(`<option selected value="">_____________________</option>`)
     }
@@ -115,6 +134,7 @@ function confirmEdit(index) {
     const display_app = $("#display_app_edit").val()
     const display_website = $("#display_website_edit").val()
     const id_parent_category = $("#select_parent_category_edit").val()
+    const id_slide_banner = $("#select_slide_banner_edit").val()
 
     if (!category_name) {
         info("Tên danh mục không được để trống")
@@ -128,6 +148,7 @@ function confirmEdit(index) {
     data.append("display_app", display_app)
     data.append("display_website", display_website)
     data.append("id_parent_category", id_parent_category)
+    data.append("id_slide_banner", id_slide_banner)
     data.append("_id", _id)
 
     hidePopup("popupEdit")
@@ -145,20 +166,25 @@ function confirmEdit(index) {
 }
 function showPopupAdd() {
     $(`#addName`).val(null)
+    draw_List_data_slide_banner(``, `select_slide_banner_add`)
     //
     $(`#select_parent_category_add`).empty()
     $("#select_parent_category_add").append(`<option value="">_____________________</option>`)
+    //empty img
+    $(`#inputAddImage`).val(null)
+    $(`#imgAdd`).attr(`src`, null)
+    //
     load_parent_category("select_parent_category_add", null, "")
     showPopup(`popupAdd`)
 }
 function confirmAdd() {
     const category_name = $("#addName").val().trim()
-
-    const id_parent_category = $("#select_parent_category_add").val()
     const category_status = $(`input[type=radio][name=addStatus]:checked`).val()
     const category_image = $("#inputAddImage")[0].files[0] || null
     const display_app = $("#display_app_add").val()
     const display_website = $("#display_website_add").val()
+    const id_parent_category = $("#select_parent_category_add").val()
+    const id_slide_banner = $("#select_slide_banner_add").val()
 
     if (!category_name) {
         info("Tên danh mục không được để trống")
@@ -169,9 +195,10 @@ function confirmAdd() {
     data.append("category_name", category_name)
     data.append("category_status", category_status)
     data.append("category_image", category_image)
-    data.append("id_parent_category", id_parent_category)
     data.append("display_app", display_app)
     data.append("display_website", display_website)
+    data.append("id_parent_category", id_parent_category)
+    data.append("id_slide_banner", id_slide_banner)
 
     hidePopup("popupAdd")
     callAPI(

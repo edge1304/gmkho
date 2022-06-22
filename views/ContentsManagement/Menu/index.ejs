@@ -8,32 +8,37 @@
 <%- include("../../header",{title:"Quản lý content | Menu hiển thị"}) %>
 <div class="page-content">
     <div class="header-table">
-      
-      <div class="row">
-        <div class="col-6 col-md-2 col-lg-2 col-xl-1 col-sm-3 ">
-          <label>Hiển thị</label>
-          <select onchange="getData()" id="selectLimit">
-            <option value="<%- limit %>"><%- limit %></option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-        </div>
-        <div  class="col-6 col-md-2 col-lg-2 col-xl-2 col-sm-3">
-          <label>Tìm kiếm</label>
-          <input autocomplete="off" id="keyFind" placeholder="Tên menu..." type="text" class="form-control">
-        </div>
-        <div class="col-6 col-md-4 col-lg-4 col-xl-2">
-          <label>Menu cha</label>
-          <select id="select_Menu" onchange="getData()">
-            <option value="">Tất cả</option>
-          </select>
-      </div>
-      <div class="col col-md-2 col-lg-2 col-xl-2">
-        <button onclick="showPopupAdd()" class="btn btn-success">Thêm mới</button>
-      </div>
-      </div> 
+        <div class="row">
+            <div class="col-6 col-md-2 col-lg-2 col-xl-1 col-sm-3 ">
+            <label>Hiển thị</label>
+            <select onchange="getData()" id="selectLimit">
+                <option value="<%- limit %>"><%- limit %></option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            </div>
+            <div class="col-6 col-md-2 col-lg-2 col-xl-2 col-sm-3">
+                <label>Tìm kiếm</label>
+                <input autocomplete="off" id="keyFind" placeholder="Tên menu..." type="text" class="form-control">
+            </div>
+            <div class="col-6 col-md-4 col-lg-4 col-xl-2">
+                <label>Menu cha</label>
+                <select id="select_Menu" onchange="getData()">
+                    <option value="">Tất cả</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-4 col-lg-4 col-xl-2">
+                <label>Website</label>
+                <select id="select_website_component" onchange="getData()">
+                    <option value="">Tất cả</option>
+                </select>
+            </div>
+            <div class="col col-md-2 col-lg-2 col-xl-2">
+                <button onclick="showPopupAdd()" class="btn btn-success">Thêm mới</button>
+            </div>
+        </div> 
     </div>
     <div class="container-fluid">
         <div class="div-table">
@@ -45,6 +50,7 @@
                       <th class="text-center">Tên Menu</th>
                       <th class="text-center">Menu Cha</th>
                       <th class="text-center">Link</th>
+                      <th class="text-center">Thuộc website</th>
                       <th class="text-center">Hành động</th>
                     </tr>
                 </thead>
@@ -134,6 +140,12 @@
                                         <option value="??">??</option>
                                         <option value="?????">?????</option>
                                         <option value="???????????">???????????</option> -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Website</label>
+                                    <select id="add_select_website_component" onchange="getData()">
+                                        <option value="">Tất cả</option>
                                     </select>
                                 </div>
                             </div>
@@ -232,6 +244,13 @@
                                       <option value="???????????">???????????</option> -->
                                   </select>
                               </div>
+                              
+                              <div>
+                                <label>Website</label>
+                                <select id="edit_select_website_component" onchange="getData()">
+                                    <option value="">Tất cả</option>
+                                </select>
+                            </div>
                           </div>
                           <div class="row">
                               <div style="margin-top:20px;" class="col col-md-6">

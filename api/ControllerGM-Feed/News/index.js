@@ -96,12 +96,14 @@ export const insert = async (app)=>{
                     const title_news = req.body.title_news
                     const news_content = req.body.news_content
                     const image_news = req.body.old_image
+                    const news_brief = req.body.news_brief
                     
                     if(!validator.isDefine(title_news) || title_news.length ==0) return res.status(400).send("Tiêu đề không được để trống")
                     var values = {
                         news_title: title_news,
                         news_content:news_content,
-                        news_image:image_news
+                        news_image:image_news,
+                        news_brief:news_brief,
                     }
                    
                     if( req.file)

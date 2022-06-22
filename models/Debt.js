@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import * as validator from "./../helper/validator.js";
-import { ModelUser } from "./User.js";
+
 const SchemaDebt = new mongoose.Schema(
     {
         id_user: { 

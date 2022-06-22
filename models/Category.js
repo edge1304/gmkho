@@ -18,11 +18,14 @@ const SchemaCategory = new mongoose.Schema(
         display_app: { ...validator.schemaBoolean },
         display_website: { ...validator.schemaBoolean },
         id_parent_category: {
-            ...validator.schemaString,
-            ...validator.schemaIndex,
+            ...validator.schemaObjectId,
+        },
+        id_slide_banner: {
+            ...validator.schemaObjectId,
         },
         category_image: { ...validator.schemaString },
         category_options: { ...validator.schemaArray },
+        category_content: { ...validator.schemaString },
     },
     { timestamps: true }
 )

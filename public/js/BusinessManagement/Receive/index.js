@@ -9,8 +9,8 @@ function getData() {
     key = $("#keyFind").val()
     fromdate = $("#fromdate").val()
     todate = $("#todate").val()
-    let from_money = !$("#from_money").val() ? '' : tryParseInt($("#from_money").val())
-    let to_money = !$("#to_money").val() ? '' : tryParseInt($("#to_money").val())
+    const from_money = !$("#from_money").val() ? '' : tryParseInt($("#from_money").val())
+    const to_money = !$("#to_money").val() ? '' : tryParseInt($("#to_money").val())
     
     callAPI('GET', API_RECEIVE, {
         isOther: isOther,

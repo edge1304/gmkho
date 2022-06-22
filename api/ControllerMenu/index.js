@@ -4,12 +4,17 @@ import * as validator from "../../helper/validator.js"
 import { ModelMenu } from "../../models/Menu.js"
 import { ModelCategory } from "../../models/Category.js"
 import { ModelSuperCategory } from "../../models/SuperCategory.js"
+import { Model_Website_Component } from "./../../models/WebsiteComponent.js"
 
 const prefixApi = "/api/menu"
 const FIXED_LIMIT = 10
 import path from "path"
 import multer from "multer"
-
+const _id_website_component = validator.id_website_component_shopweb
+async function get_data_website_components() {
+    let data_website_component = await Model_Website_Component.find()
+    return data_website_component
+}
 function get_child_menu(arr, _id, arr_ids = [], arr_object_id = [], arr_child_category = []) {
     arr.forEach((element) => {
         if (element.id_parent + "" == _id + "") {
@@ -101,6 +106,18 @@ export const management = async (app) => {
                     $or: [{ _id: { $in: arr_id_parent_category } }, { _id: { $in: arr_object_id_parent_category } }],
                 }
             }
+            let id_website_component = ``
+            if (validator.isNotEmpty(req.query.id_website_component)) {
+                id_website_component = req.query.id_website_component
+                query = {
+                    ...query,
+                    id_website_component: validator.ObjectId(req.query.id_website_component),
+                }
+                query_2 = {
+                    ...query_2,
+                    id_website_component: validator.ObjectId(req.query.id_website_component),
+                }
+            }
             let data = await ModelMenu.find(query)
                 .sort(sort_conditions)
                 .skip((page - 1) * limit)
@@ -117,15 +134,29 @@ export const management = async (app) => {
             }
             for (let i = 0; i < data.length; i++) {
                 const data_parent = await ModelMenu.findById(data[i].id_parent).lean()
+                const data_website_component = await Model_Website_Component.findById(data[i].id_website_component).lean()
                 data[i] = {
                     ...data[i],
                     data_parent: data_parent,
+                    data_website_component: data_website_component,
                 }
             }
             //others
             const _data_all_category = await ModelCategory.find({}).sort({ LinkSlug: 1 }).lean()
             const max_serial_number = await ModelMenu.findOne({}).sort("-serial_number").lean()
-            return res.json({ data: data, data_all: _data_all, data_all_category: _data_all_category, max_serial_number: max_serial_number?.serial_number || 0, id_parent: id_parent, count: count, page: page })
+            const data_website_component = await get_data_website_components()
+            const object = {
+                data: data,
+                data_website_component: data_website_component,
+                id_website_component: id_website_component,
+                data_all: _data_all,
+                data_all_category: _data_all_category,
+                max_serial_number: max_serial_number?.serial_number || 0,
+                id_parent: id_parent,
+                count: count,
+                page: page,
+            }
+            return res.json(object)
         } catch (e) {
             console.log(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
@@ -180,11 +211,16 @@ export const management = async (app) => {
                     if (!validator.isNotEmpty(id_represent_category)) {
                         id_represent_category = null
                     }
+                    let id_website_component = req.body.id_website_component
+                    if (!validator.isNotEmpty(id_website_component)) {
+                        id_website_component = null
+                    }
                     let value = new ModelMenu({
                         name: name,
                         link: link,
                         id_parent: id_parent,
                         id_represent_category: id_represent_category,
+                        id_website_component: id_website_component,
                         serial_number: serial_number,
                         display_app: display_app,
                         display_website: display_website,
@@ -227,6 +263,7 @@ export const management = async (app) => {
                     if (!data_menu) {
                         return res.status(404).json(`Không tìm thấy menu cần chỉnh sửa`)
                     } else {
+                        console.log(req.body)
                         let check_delete_img_old = false
                         let check_delete_icon_old = false
                         const img_Old = data_menu?.image
@@ -243,9 +280,9 @@ export const management = async (app) => {
                             }
                         }
                         if (validator.isNotEmpty(req.body.check_delete_image)) {
-                            check_delete_img_old = true
                             const check_image = req.body.check_delete_image
                             if (parseInt(check_image) == 1) {
+                                check_delete_img_old = true
                                 query = {
                                     ...query,
                                     image: null,
@@ -261,9 +298,9 @@ export const management = async (app) => {
                             }
                         }
                         if (validator.isNotEmpty(req.body.check_delete_icon)) {
-                            check_delete_icon_old = true
                             const check_icon = req.body.check_delete_icon
                             if (parseInt(check_icon) == 1) {
+                                check_delete_icon_old = true
                                 query = {
                                     ...query,
                                     icon: null,
@@ -284,12 +321,19 @@ export const management = async (app) => {
                             }
                             query = { ...query, id_parent: parent_id }
                         }
-                        if (validator.isNotEmpty(req.body.id_represent_category)) {
+                        if (validator.isNotEmpty(req.body.check_id_represent_category)) {
                             let id_represent_category = req.body.id_represent_category
                             if (!validator.isNotEmpty(id_represent_category)) {
                                 id_represent_category = null
                             }
                             query = { ...query, id_represent_category: id_represent_category }
+                        }
+                        if (validator.isNotEmpty(req.body.check_id_website_component)) {
+                            let id_website_component = req.body.id_website_component
+                            if (!validator.isNotEmpty(id_website_component)) {
+                                id_website_component = null
+                            }
+                            query = { ...query, id_website_component: id_website_component }
                         }
                         if (validator.isNotEmpty(req.body.serial_number)) {
                             query = { ...query, serial_number: validator.tryParseInt(req.body.serial_number) }

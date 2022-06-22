@@ -9,16 +9,22 @@ routerAdmin.get("/permission-management", router.permission)
 routerAdmin.get("/branch-management", router.branch)
 routerAdmin.get("/warehouse-management", router.warehouse)
 routerAdmin.get("/category-management", router.category)
+routerAdmin.get("/category-management/edit-content", router.category_content)
+
 routerAdmin.get("/product-management", router.subcategory)
 routerAdmin.get("/subcategory-contents-management", router.up_subcategory)
 routerAdmin.get("/warranty-combo-management", router.warranty_combo)
 routerAdmin.get("/promotion-combo-management", router.promotion_combo)
 routerAdmin.get("/asset-management", router.asset)
-routerAdmin.get("/user-management", router.user)
+routerAdmin.get("/users-management", router.user)
 routerAdmin.get("/timekeeping-work-management", router.timekeeping_work)
 routerAdmin.get("/timekeeping-schedule-management", router.timekeeping_schedule)
 routerAdmin.get("/calendar-management", router.calendar)
+//thuan
+
+routerAdmin.get("/manage-policy", router.manage_policy)
 routerAdmin.get("/menu-management", router.menu)
+routerAdmin.get("/slide-banner-admin", router.slide_banner)
 routerAdmin.get("/component-website-management", router.website_component)
 
 routerAdmin.get("/import-product-from-supplier/find", router.import_supplier)
@@ -77,5 +83,6 @@ routerAdmin.get("/promotion-news-management/edit-promotion", router.edit_add_pro
 routerAdmin.get("/news-management", router.news)
 routerAdmin.get("/news-management/edit-news", router.edit_add_news)
 routerAdmin.get("/product-sold-by-date", router.product_sold_by_date)
+routerAdmin.get("/device-separation", router.device_separation)
 
 export default routerAdmin

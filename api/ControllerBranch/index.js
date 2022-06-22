@@ -78,6 +78,11 @@ export const update = async (app)=>{
                     const branch_address = req.body.branch_address.trim()
                     const branch_note = req.body.branch_note.trim()
                     const branch_header_content = req.body.branch_header_content.trim()
+
+                    const branch_map_address = req.body.branch_map_address.trim()
+                    const branch_email = req.body.branch_email.trim()
+                    const branch_time_active = req.body.branch_time_active.trim()
+
                     const id_branch = req.body.id_branch
 
                     if(branch_name.length == 0) return res.status(400).send("Thất bại! Tên chi nhánh không được để trống")
@@ -86,6 +91,9 @@ export const update = async (app)=>{
     
                     newValue ={
                         ...newValue,
+                        branch_map_address:branch_map_address,
+                        branch_email:branch_email,
+                        branch_time_active:branch_time_active,
                         branch_name:branch_name,
                         branch_note:branch_note,
                         branch_address:branch_address,
@@ -148,6 +156,10 @@ export const insert = async (app)=>{
                     const branch_address = req.body.branch_address.trim()
                     const branch_note = req.body.branch_note.trim()
                     const branch_header_content = req.body.branch_header_content.trim()
+                    const branch_map_address = req.body.branch_map_address.trim()
+                    const branch_email = req.body.branch_email.trim()
+                    const branch_time_active = req.body.branch_time_active.trim()
+
                     if(branch_name.length == 0) return res.status(400).send("Thất bại! Tên chi nhánh không được để trống")
 
                     newValue ={
@@ -157,6 +169,9 @@ export const insert = async (app)=>{
                         branch_address:branch_address,
                         branch_phone:branch_phone,
                         branch_header_content:branch_header_content,
+                        branch_map_address:branch_map_address,
+                        branch_email:branch_email,
+                        branch_time_active:branch_time_active,
                         in_morning: JSON.parse(sanitize(req.body.in_morning)),
                         out_morning: JSON.parse(sanitize(req.body.out_morning)),
                         in_afternoon: JSON.parse(sanitize(req.body.in_afternoon)),

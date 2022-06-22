@@ -9,6 +9,7 @@ const URL_IMAGE_PROMOTION = URL_MAIN + "images/images_promotion/"
 const URL_IMAGE_NEWS = URL_MAIN + "images/images_news/"
 const URL_IMAGE_MENU = URL_MAIN + "images/images_menu/"
 const URL_IMAGE_WEBSITE_COMPONENT = URL_MAIN + "images/images_website_component/"
+const URL_IMAGE_SLIDE_BANNER = URL_MAIN + "images/images_slide_banner"
 const IMAGE_NULL = "https://i.pinimg.com/originals/aa/be/6d/aabe6d6db5e5f569e69e56e851eba8f0.gif" // ảnh nào bị null tự động bị gán bằng ảnh này
 
 const API_CATEGORY = `/api/category` // api danh mục
@@ -45,7 +46,9 @@ const API_NEWS = `/api/gm-feed/news`
 //
 const API_MENU = `/api/menu`
 const API_WEBSITE_COMPONENT = `/api/website-component`
-
+const API_SLIDE_BANNER = `/api/slide-banner-admin`
+const API_POLICY = `/api/policy-admin`
+const API_DEVICE_SEPARATION = `/api/device-separation`
 //
 
 var stt = 1
@@ -285,20 +288,7 @@ function pagination(count, legth, isShow = 4) {
 
 function changePage(index, length) {
     stt = (index - 1) * length + 1
-    // if(index == -1)
-    // {
-    //     page -= 1; // ấn vào nút trước -1 page
-    // }
-    // else if(index == 0)
-    // {
-    //     page += 1
-    // }
-    // else
-    // {
     page = index
-    // stt = ((index+1)*length)+1
-    // }
-
     getData()
 }
 
@@ -861,3 +851,139 @@ function loadmore_customer(success = success_get_customer) {
         find_customer_callback(success, true)
     }
 }
+
+//#region phân trang 2
+// Phân trang
+const CLASS_PAGE_ITEM = `page-item`
+const CLASS_PAGE_ITEM_ACTIVE = `page-item active`
+const CLASS_PAGE_LINK = `page-link`
+function pagination2(total_count, curent_page, div_pagination, isShow = 3) {
+    const from_STT = (curent_page - 1) * limit + 1
+    const to_STT = (curent_page - 1) * limit + total_count - 1
+    let pagePatigation = ""
+    pagePatigation += `<div class="row dataTables_wrapper">`
+    pagePatigation += `<div class="col-sm-12 col-md-7"><div class="dataTables_info" id="dataTable_info" role="status" aria-live="polite">Đang hiển thị ${from_STT} -> ${to_STT} của ${total_count}</div></div>`
+    pagePatigation += '<div class="col-sm-12 col-md-5">'
+    pagePatigation += '<ul class="pagination" style="justify-content: flex-end;">'
+    if (tryParseInt(limit) == 0) {
+        limit = FIXED_LIMIT_TAB_SEARCH_CATEGORY
+    }
+    page = tryParseInt(curent_page)
+    const total_page = Math.ceil(tryParseInt(total_count) / tryParseInt(limit))
+    // console.log(`total_page:`, total_page)
+    if (total_page > 1) {
+        if (page > 1) {
+            //first page
+            pagePatigation += `<li onclick="changeOffset_1(0)" class="${CLASS_PAGE_ITEM}" ><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}"><i style="transform:rotate(180deg)" class="fas fa-angle-double-right"></i></a></li>`
+            //previouse page
+            pagePatigation += `<li onclick="previousPage()" class="${CLASS_PAGE_ITEM} previous"  ><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}"><i class="fas fa-chevron-left"></i></a></li>`
+        } else {
+            if (page == 1) {
+                //first page
+                pagePatigation += `<li class="${CLASS_PAGE_ITEM} disabled"><a href="javascript:void(0);"  class="${CLASS_PAGE_LINK}"><i style="transform:rotate(180deg)" class="fas fa-angle-double-right"></i></a></li>`
+            } else {
+                //first page
+                pagePatigation += `<li class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);"  class="${CLASS_PAGE_LINK}"><i style="transform:rotate(180deg)" class="fas fa-angle-double-right"></i></a></li>`
+            }
+        }
+        //pages
+        if (total_page <= 1 + isShow * 2) {
+            for (let i = 0; i < total_page - 1; i++) {
+                if (i == page - 1) {
+                    pagePatigation += `<li onclick="changeOffset_1(${i})" class="${CLASS_PAGE_ITEM_ACTIVE}"><a href="javascript:void(0);"  class="${CLASS_PAGE_LINK}">${i + 1}</a></li>`
+                } else {
+                    pagePatigation += `<li onclick="changeOffset_1(${i})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">${i + 1}</a></li>`
+                }
+            }
+        } else {
+            //enough pages to hide some
+            //close to beginning; only hide later pages
+            if (page <= isShow) {
+                for (let i = 0; i < isShow + 1; i++) {
+                    if (i == page - 1) {
+                        pagePatigation += `<li  onclick="changeOffset_1(${i})" class="${CLASS_PAGE_ITEM_ACTIVE}"><a href="javascript:void(0);"  class="${CLASS_PAGE_LINK}">${i + 1}</a></li>`
+                    } else {
+                        pagePatigation += `<li onclick="changeOffset_1(${i})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">${i + 1}</a></li>`
+                    }
+                }
+                pagePatigation += `<li onclick="changeOffset_1(${Math.round((page + total_page) / 2)})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">...</a></li>`
+            } else if (total_page - isShow > page && page > isShow) {
+                //in middle; hide some front and some back
+                //page 1
+                pagePatigation += `<li onclick="changeOffset_1(${0})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);"  class="${CLASS_PAGE_LINK}">${1}</a></li>`
+                //...
+                pagePatigation += `<li onclick="changeOffset_1(${Math.round(page / 2)})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">...</a></li>`
+                for (let i = page - 2; i < page + 1; i++) {
+                    if (i == page - 1) {
+                        pagePatigation += `<li onclick="changeOffset_1(${i})" class="${CLASS_PAGE_ITEM_ACTIVE}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">${i + 1}</a></li>`
+                    } else {
+                        pagePatigation += `<li onclick="changeOffset_1(${i})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);"  class="${CLASS_PAGE_LINK}">${i + 1}</a></li>`
+                    }
+                }
+                //...
+                pagePatigation += `<li onclick="changeOffset_1(${Math.round((page + total_page) / 2)})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">...</a></li>`
+            } else {
+                //close to end; only hide early pages
+                //page 1
+                pagePatigation += `<li onclick="changeOffset_1(${0})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">${1}</a></li>`
+                //...
+                pagePatigation += `<li onclick="changeOffset_1(${Math.round(page / 2)})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">...</a></li>`
+                for (let i = total_page - isShow - 1; i < total_page - 1; i++) {
+                    if (i == page - 1) {
+                        pagePatigation += `<li onclick="changeOffset_1(${i})" class="${CLASS_PAGE_ITEM_ACTIVE}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">${i + 1}</a></li>`
+                    } else {
+                        pagePatigation += `<li onclick="changeOffset_1(${i})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">${i + 1}</a></li>`
+                    }
+                }
+            }
+        }
+        //next button
+        if (page < total_page) {
+            pagePatigation += `<li onclick="changeOffset_1(${total_page - 1})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);"  class="${CLASS_PAGE_LINK}">${total_page}</a></li>`
+            pagePatigation += `<li onclick="nextPage()" class="${CLASS_PAGE_ITEM} next"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}"><i class="fas fa-chevron-right"></i></a></li>`
+            //last page
+            pagePatigation += `<li onclick="changeOffset_1(${total_page - 1})" class="${CLASS_PAGE_ITEM}"><a href="javascript:void(0);"  tabindex="10" class="${CLASS_PAGE_LINK}"><i class="fas fa-angle-double-right"></i></a></li>`
+        } else {
+            pagePatigation += `<li onclick="changeOffset_1(${total_page - 1})" class="${CLASS_PAGE_ITEM_ACTIVE}"><a href="javascript:void(0);"  class="${CLASS_PAGE_LINK}">${total_page}</a></li>`
+            pagePatigation += `<li class="${CLASS_PAGE_ITEM} disabled"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}"><i class="fas fa-angle-double-right"></i></a></li>`
+        }
+    } else {
+        pagePatigation += `<li onclick="changeOffset_1(${0})" class="${CLASS_PAGE_ITEM_ACTIVE}"><a href="javascript:void(0);" class="${CLASS_PAGE_LINK}">${1}</a></li>`
+    }
+    pagePatigation += "</ul>"
+    pagePatigation += "</div>"
+    pagePatigation += "</div>"
+    // $("#pagePatigation").addClass("mb-3");
+    $(`#${div_pagination}`).html(pagePatigation)
+}
+function nextPage() {
+    let theURL
+    theURL = new URL(`${window.location.href}`)
+    theURL.searchParams.set("page", page + 1)
+    // console.log(theURL.toString());
+    const new_URL = theURL.toString()
+    var a = document.createElement("a")
+    a.setAttribute("href", `${new_URL}`)
+    a.click()
+}
+function previousPage() {
+    let theURL
+    theURL = new URL(`${window.location.href}`)
+    theURL.searchParams.set("page", page - 1)
+    // console.log(theURL.toString());
+    const new_URL = theURL.toString()
+    var a = document.createElement("a")
+    a.setAttribute("href", `${new_URL}`)
+    a.click()
+}
+function changeOffset_1(index) {
+    let theURL
+    theURL = new URL(`${window.location.href}`)
+    theURL.searchParams.set("page", index + 1)
+    // console.log(theURL.toString());
+    const new_URL = theURL.toString()
+    var a = document.createElement("a")
+    a.setAttribute("href", `${new_URL}`)
+    a.click()
+}
+//#endregion

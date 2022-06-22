@@ -75,6 +75,10 @@ function editBranch(index) {
     $("#editNote").val(arrData[index].branch_note)
     $("#editAddress").val(arrData[index].branch_address)
 
+    $("#map_address_edit").val(arrData[index].branch_map_address)
+    $("#email_edit").val(arrData[index].branch_email)
+    $("#time_active_edit").val(arrData[index].branch_time_active)
+    
     $("#inputEditLogo").val(null)
     $("#inputEditImage").val(null)
 
@@ -123,6 +127,11 @@ function confirmEdit(index) {
     const branch_note = $("#editNote").val().trim()
     const branch_ipwifi = $("#ipwifi_edit").val().trim()
     const late_limit = tryParseInt($("#late_limit_add").val())
+
+    const branch_map_address = $("#map_address_edit").val().trim()
+    const branch_email = $("#email_edit").val().trim()
+    const branch_time_active = $("#time_active_edit").val().trim()
+
     if (branch_name.length == 0) {
         info("Tên chi nhánh không được để trống!")
         return;
@@ -142,6 +151,10 @@ function confirmEdit(index) {
     const in_night_schedule = new Date("1999-12-24 " + $("#in_night_schedule_edit").val())
 
     const data = new FormData()
+    data.append(`branch_map_address`,branch_map_address)
+    data.append(`branch_email`,branch_email)
+    data.append(`branch_time_active`,branch_time_active)
+
     data.append('branch_logo', branch_logo)
     data.append('branch_phone', branch_phone)
     data.append('branch_address', branch_address)
@@ -177,6 +190,9 @@ function confirmAdd() {
     const branch_image = $("#inputAddImage")[0].files[0];
     const branch_header_content = $("#addHeader").val().trim()
     const branch_note = $("#addNote").val().trim()
+    const branch_map_address = $("#map_address_add").val().trim()
+    const branch_email = $("#email_add").val().trim()
+    const branch_time_active = $("#time_active_add").val().trim()
 
 
     const branch_ipwifi = $("#ipwifi_add").val().trim()
@@ -190,6 +206,7 @@ function confirmAdd() {
     const out_noon_schedule = new Date("1999-12-24 " + $("#out_noon_schedule_add").val())
     const out_night_schedule = new Date("1999-12-24 " + $("#out_night_schedule_add").val())
     const in_night_schedule = new Date("1999-12-24 " + $("#in_night_schedule_add").val())
+
 
     if (branch_name.length == 0) {
         info("Tên chi nhánh không được để trống!")
@@ -208,7 +225,9 @@ function confirmAdd() {
     data.append('branch_name', branch_name)
     data.append('branch_header_content', branch_header_content)
     data.append('branch_note', branch_note)
-
+    data.append(`branch_map_address`,branch_map_address)
+    data.append(`branch_email`,branch_email)
+    data.append(`branch_time_active`,branch_time_active)
     data.append('branch_ipwifi ', branch_ipwifi)
     data.append('late_limit', tryParseInt(late_limit))
     data.append('in_morning', JSON.stringify({ hours: tryParseInt(in_morning.getHours()), minutes: tryParseInt(in_morning.getMinutes()), seconds: 0 }))

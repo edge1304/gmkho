@@ -7,10 +7,19 @@ const SchemaNews = new mongoose.Schema(
             ...validator.schemeRequired,
             ...validator.schemaTextIndex
         },
+        id_type:{
+            ...validator.schemaObjectId
+        },
         news_slug_link:{
             ...validator.schemaString,
             ...validator.schemeRequired,
             ...validator.schemaUnique
+        },
+        news_views:{
+           ...validator.schemaNumber,
+        },
+        news_index:{
+            ...validator.schemaNumber,
         },
         news_image:{
             ...validator.schemaString,

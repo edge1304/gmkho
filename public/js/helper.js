@@ -1,6 +1,6 @@
 const ACCESS_TOKEN = getCookie("token")
 const MAX_SIZE_IMAGE = 400000
-const URL_MAIN = "https://gmkho.appnganh.xyz/"
+const URL_MAIN = "https://gmkho.aecongnghe.com/"
 const URL_IMAGE_BRANCH = URL_MAIN + "images/images_branch/"
 const URL_IMAGE_EMPLOYEE = URL_MAIN + "images/images_employee/"
 const URL_IMAGE_CATEGORY = URL_MAIN + "images/images_category/"

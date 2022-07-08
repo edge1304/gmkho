@@ -31,6 +31,7 @@ export const TYPE_IMPORT_WARRANTY = "Nhập bảo hành"
 export const TYPE_IMPORT_RETURN = "Nhập hàng khách trả lại"
 
 export const TYPE_EXPORT_WARRANTY = "Xuất bảo hành"
+export const TYPE_EXPORT = "Xuất hàng để bán"
 export const TYPE_EXPORT_SEPARATION = "Xuất bóc tách"
 export const TYPE_IMPORT_SEPARATION = "Nhập bóc tách"
 //limit - page

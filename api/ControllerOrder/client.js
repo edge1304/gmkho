@@ -22,15 +22,28 @@ export const tracking = async (app)=>{
                     $and: [{ createdAt: { $gte: validator.dateTimeZone(undefined, new Date(req.query.fromdate)).startOfDay } },{ createdAt: { $lte:validator.dateTimeZone(undefined, new Date(req.query.todate)).endOfDay  } }]
                 }
             }
-            
-  
-            const data = await ModelOrder.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+            const status = req.query.status
+            const key = req.query.key
+            if(validator.isDefine(status)){
+                query = {
+                    ...query,
+                    order_status:status.trim()
+                }
+            }
+            if(validator.isDefine(key) && validator.ObjectId.isValid(key)){
+                query = {
+                    ...query,
+                    _id:validator.ObjectId(key)
+                }
+            }
+            const data = await ModelOrder.find(query).sort({_id:-1}).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+     
             return res.json(data)
             
         }
         catch(e)
         {
-            console.log(e)
+            console.error(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
@@ -51,6 +64,8 @@ export const insert = async (app) => {
             var money_voucher_code = 0
             var money_point = 0
             const dataUser = await ModelUser.findById(id_user)
+            if(!dataUser) return res.status(400).send(`Thất bại! Không tìm thấy người dùng`)
+
             if(!validator.ObjectId.isValid(id_branch)) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh")
             const dataBranch = await ModelBranch.findById(id_branch)
             if (!dataBranch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh")
@@ -72,7 +87,7 @@ export const insert = async (app) => {
                         product_export_price: dataSub.subcategory_export_price_web,
                         product_vat: 0,
                         product_ck: 0 ,
-                        product_discount:dataSub.subcategory_export_price_web - dataSub.subcategory_export_price ,
+                        product_discount:0 ,
                         product_warranty:dataSub.subcategory_warranty,
                         subcategory_point:  dataSub.subcategory_point,
                         subcategory_part: dataSub.subcategory_part,

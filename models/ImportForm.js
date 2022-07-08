@@ -51,6 +51,9 @@ const schemaProduct = {
     id_employee: {
         ...validator.schemaObjectId
     },
+    id_employee_setting: {
+        ...validator.schemaObjectId
+    },
     id_form_export: {
         ...validator.schemaObjectId
     },

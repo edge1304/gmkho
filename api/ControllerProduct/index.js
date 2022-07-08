@@ -455,3 +455,69 @@ export const report_sold_by_date = async (app)=>{
     })
 
 }
+
+export const check_warranty = async (app)=>{
+    app.get(prefixApi +"/check-warranty",  async (req, res)=>{
+        try{
+            const id_product = req.query.id_product
+
+            if(!id_product || id_product.trim().length == 0) return res.status(400).send(`Không tìm thấy thông tin`)
+            let query = {}
+            if(validator.ObjectId.isValid(id_product)){
+                query = {
+                    _id:validator.ObjectId(id_product)
+                }
+            }
+            else {
+                query = {
+                    id_product2:id_product
+                }
+            }
+            const data_product = await ModelProduct.findOne(query)
+            if(!data_product) return res.status(400).send(`Không tìm thấy thông tin`)
+
+            const dataExport = await ModelExportForm.find({
+                export_form_type:validator.TYPE_EXPORT,
+                "export_form_product.id_product":data_product._id,
+            }).sort({createdAt:-1}).limit(1)
+
+            if(dataExport.length == 0) return res.status(400).send(400).send(`Không tìm thấy dữ liệu`)
+           
+
+            const dataSub = await ModelSubCategory.findById(data_product.id_subcategory)
+            const dataUser = await ModelUser.findById(dataExport[0].id_user)
+            var data = {
+                ...dataSub,
+                user_fullname:dataUser.user_fullname || "",
+                user_phone:dataUser.user_phone || "",
+                user_address:dataUser.user_address || "",
+                date_export: dataExport[0].createdAt
+            }
+            
+            for(let i = 0 ;i<dataExport[0].export_form_product.length;i++){
+                if(dataExport[0].export_form_product[i].id_product.toString() == data_product._id.toString() ){
+                    data = {
+                        ...data,
+                        product_export_price: dataExport[0].export_form_product[i].product_export_price,
+                        product_vat: dataExport[0].export_form_product[i].product_vat,
+                        product_ck: dataExport[0].export_form_product[i].product_ck,
+                        product_discount: dataExport[0].export_form_product[i].product_discount,
+                        product_quantity: dataExport[0].export_form_product[i].product_quantity,
+                        product_warranty: dataExport[0].export_form_product[i].product_warranty,
+                        product_import_price: dataExport[0].export_form_product[i].product_import_price,
+                        subcategory_point: dataExport[0].export_form_product[i].subcategory_point,
+                        subcategory_part: dataExport[0].export_form_product[i].subcategory_part,
+                        money_voucher_code:dataExport[0].money_voucher_code,
+                    }
+                }
+            }
+            return res.json(data)
+        }
+        catch(e)
+        {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+        
+    })
+}

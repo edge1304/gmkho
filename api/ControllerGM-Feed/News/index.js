@@ -4,8 +4,23 @@ import * as helper from '../../../helper/helper.js'
 import * as validator from '../../../helper/validator.js'
 
 import { ModelNews } from '../../../models/News.js'
+import { ModelTypeNews } from '../../../models/TypeNews.js'
 import multer from 'multer'
 import path from 'path';
+
+export const checkPermission = async (app)=>{
+    app.get(prefixApi+"/check-permission",helper.authenToken, async (req, res)=>{
+        try {
+            const data = await ModelTypeNews.find()
+            return res.json(data)
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
 export const management = async (app)=>{
     app.get(prefixApi,helper.authenToken, async (req, res)=>{
         try {
@@ -19,7 +34,12 @@ export const management = async (app)=>{
                     ...validator.query_createdAt(req.query.fromdate , req.query.todate)
                 }
             }
-  
+            if(validator.isDefine(req.query.type_news) && validator.ObjectId.isValid(req.query.type_news)){
+                query = {
+                    ...query,
+                    id_type:validator.ObjectId(req.query.type_news)
+                }
+            }
             let sort = {_id:-1}
             if (validator.isDefine(req.query.key)) {
                 const search_key = validator.viToEn(req.query.key).replace(/[^a-zA-Z0-9]/g, " ")
@@ -73,9 +93,11 @@ export const get_by_id = async (app)=>{
             if(!await helper.checkPermission("62636bc5cb9c71fcc9f76989", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             const id_news = req.query.id_news
             
-            if(!validator.isDefine(id_news) || !validator.ObjectId.isValid(id_news)) return res.status(400).send("Thất bại! Không tìm thấy khuyển mại này")
-            const data = await ModelNews.findById(id_news)
-            return res.json(data)
+            // if(!validator.isDefine(id_news) || !validator.ObjectId.isValid(id_news)) return res.status(400).send("Thất bại! Không tìm thấy khuyển mại này")
+
+            const data_type = await ModelTypeNews.find()
+            const data = !validator.isDefine(id_news) || !validator.ObjectId.isValid(id_news)?null:await ModelNews.findById(id_news)
+            return res.json({data:data, data_type:data_type})
         }
         catch (e) {
             console.log(e)
@@ -97,6 +119,8 @@ export const insert = async (app)=>{
                     const news_content = req.body.news_content
                     const image_news = req.body.old_image
                     const news_brief = req.body.news_brief
+                    const id_type = req.body.id_type
+                    const news_index = validator.tryParseInt(req.body.news_index)
                     
                     if(!validator.isDefine(title_news) || title_news.length ==0) return res.status(400).send("Tiêu đề không được để trống")
                     var values = {
@@ -104,6 +128,8 @@ export const insert = async (app)=>{
                         news_content:news_content,
                         news_image:image_news,
                         news_brief:news_brief,
+                        id_type:id_type,
+                        news_index:news_index
                     }
                    
                     if( req.file)
@@ -177,6 +203,25 @@ export const get_data_client = async (app)=>{
             const data = await ModelNews.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
        
             return res.json({data:data})
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+export const insert_type = async (app)=>{
+    app.post(prefixApi+"/type-news",helper.authenToken, async (req, res)=>{
+        try {
+            if(!await helper.checkPermission("62636bc5cb9c71fcc9f76989", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const name = req.body.type_news_name
+            const data = await ModelTypeNews.findOne({type_news_name:name})
+            if(data) return res.status(400).send(`Thất bại! Kiểu tin tức đã tồn tại`)
+            await new ModelTypeNews({
+                type_news_name:name
+            }).save()
+            return res.json("success")
         }
         catch (e) {
             console.log(e)

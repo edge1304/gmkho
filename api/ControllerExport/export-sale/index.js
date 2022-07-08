@@ -397,9 +397,11 @@ export const print = async (app)=>{
             dataExport.user_phone = ""
             dataExport.user_address = ""
 
-            const dataReceive = await ModelReceive.findOne({id_form: dataExport._id})
+            const dataReceive = await ModelReceive.findOne({id_form: validator.ObjectId(dataExport._id)})
+           
             if(dataReceive){
-                dataExport.receive_money
+                
+                dataExport.receive_money = dataReceive.receive_money
                 const dataFund = await ModelFundBook.findById(dataReceive.id_fundbook)
                 if(dataFund) dataExport.fundbook_name = dataFund.fundbook_name
             }

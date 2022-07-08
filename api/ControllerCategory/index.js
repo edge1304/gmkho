@@ -4,6 +4,7 @@ import * as helper from "../../helper/helper.js"
 import * as validator from "../../helper/validator.js"
 import { ModelSuperCategory } from "../../models/SuperCategory.js"
 import { ModelCategory } from "../../models/Category.js"
+import { ModelSubCategory } from "../../models/SubCategory.js"
 import { Model_Slide_Banner } from "../../models/Slide-banner.js"
 
 import path from "path"
@@ -108,6 +109,7 @@ export const update = async (app) => {
                     const category_status = validator.tryParseBoolean(req.body.category_status)
                     const display_app = validator.tryParseBoolean(req.body.display_app)
                     const display_website = validator.tryParseBoolean(req.body.display_website)
+                    const category_part = validator.tryParseInt(req.body.part)
                     //
                     let id_parent_category = req.body.id_parent_category
                     if (!validator.isDefine(id_parent_category)) {
@@ -129,6 +131,7 @@ export const update = async (app) => {
                             display_website: display_website,
                             id_parent_category: id_parent_category,
                             id_slide_banner: id_slide_banner,
+                            category_part:category_part
                         })
 
                         if (typeof req.file != "undefined") {
@@ -180,6 +183,7 @@ export const insert = async (app) => {
                     const category_status = validator.tryParseBoolean(req.body.category_status)
                     const display_app = validator.tryParseBoolean(req.body.display_app)
                     const display_website = validator.tryParseBoolean(req.body.display_website)
+                    const category_part = validator.tryParseInt(req.body.part)
 
                     let id_parent_category = req.body.id_parent_category
                     if (!validator.isNotEmpty(id_parent_category)) {
@@ -189,7 +193,7 @@ export const insert = async (app) => {
                     if (!validator.isNotEmpty(id_slide_banner)) {
                         id_slide_banner = null
                     }
-                    let value = new ModelCategory({
+                    const value = new ModelCategory({
                         category_name: category_name,
                         category_sluglink: category_sluglink,
                         category_status: category_status,
@@ -199,6 +203,7 @@ export const insert = async (app) => {
                         id_slide_banner: id_slide_banner,
                         category_image: image,
                         category_options: [],
+                        category_part:category_part
                     })
                     await value.save()
                     return res.json("success")
@@ -319,6 +324,7 @@ export const getDataClient = async (app) => {
             validator.eshtml(req)
             var query = {}
             if (validator.isDefine(req.query.key)) query = { ...query, category_name: { $regex: ".*" + sanitize(req.query.key) + ".*", $options: "$i" } }
+            if (validator.isDefine(req.query.category_status)) query = { ...query, category_status: req.query.category_status === 'true' }
             if (validator.isDefine(req.query.id_super_category) && validator.ObjectId.isValid(req.query.id_super_category)) query = { ...query, id_super_category: req.query.id_super_category }
 
             const data = await ModelCategory.find(query).skip(validator.getOffset(req)).limit(validator.getLimit(req))
@@ -330,10 +336,20 @@ export const getDataClient = async (app) => {
     })
 }
 
-export const get_array_category = async () => {
+export const get_array_category = async (array_id) => {
     try {
-        const data = await ModelCategory.find({})
-        return data
+        if(array_id){
+            for(let i =0;i<array_id.length;i++){
+                array_id[i] = validator.ObjectId(array_id[i])
+            }
+            const data = await ModelCategory.find({_id:{$in:array_id}})
+            return data
+        }
+        else{
+            const data = await ModelCategory.find({})
+            return data
+        }
+       
     } catch (e) {
         return []
     }
@@ -354,6 +370,28 @@ export const edit_content = async (app) => {
                 category_content:category_content
             })
             return res.json(update_content)
+        }
+        catch(e)
+        {
+            console.error(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+    
+export const delete_category = async (app) => {
+    app.delete(prefixApi, helper.authenToken, async (req, res) => {
+        try {
+            if (!(await helper.checkPermission("61e15772f8bf2521b16be20c", req.body._caller.id_employee_group))) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const id_category = req.body.id_category
+            const dataCategory = await ModelCategory.findById(id_category)
+            if(!dataCategory) return res.status(400).send(`Thất bại! Không tìm thấy danh mục`)
+
+            const count = await ModelSubCategory.countDocuments({id_category:dataCategory._id})
+            if(count > 0) return res.status(400).send(`Thất bại! Đang có ${count} sản phẩm thuộc danh mục này, không thể xóa`)
+
+            await ModelCategory.findByIdAndDelete(dataCategory._id)
+            return res.json("Success")
         }
         catch(e)
         {

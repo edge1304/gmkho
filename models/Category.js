@@ -15,6 +15,7 @@ const SchemaCategory = new mongoose.Schema(
             ...validator.schemaUnique,
         },
         category_status: { ...validator.schemaBoolean },
+        category_part: { ...validator.schemaNumber },
         display_app: { ...validator.schemaBoolean },
         display_website: { ...validator.schemaBoolean },
         id_parent_category: {

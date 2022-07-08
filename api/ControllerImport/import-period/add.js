@@ -109,7 +109,7 @@ export const createFormImport = async (req, res) => {
                             ... arrProductFormImport[i],
                             id_import_form: insertImport._id,
                             id_warehouse: dataWarehouse._id,
-                            product_note:[`${new Date()} nhập hàng tồn đầu kì . mã phiếu nhập ${insertImport._id} với giá ${arrProductFormImport[i].product_import_price}`]
+                            product_note:[`${insertImport._id.toString()}`]
                         })
                     )
                 }

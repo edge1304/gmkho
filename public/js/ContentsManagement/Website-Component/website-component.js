@@ -7,6 +7,7 @@ var data_product_search
 var arr_product_find = []
 var check_slot = 0
 var flag_website_component = null
+var arrSubCategory = []
 function getData() {
     // console.log(`??????`)
     callAPI("GET", `${API_WEBSITE_COMPONENT}`, null, (data) => {
@@ -196,6 +197,18 @@ function editMenu(index, key) {
             //
             $("#btn_Save_edit_contact_info").attr("onclick", `confirm_Save_edit_contact_info(${index})`)
             showPopup("pupup_contact_info")
+            break
+        }
+        case `menu_build_pc`: {
+            load_data__menu_build_pc(index)
+            break
+        }
+        case `list_subcategory_build_pc`: {
+            load_data__list_subcategory_build_pc(index)
+            break
+        }
+        case `banner_build_pc`: {
+            load_data__banner_build_pc(index)
             break
         }
         // }
@@ -1173,6 +1186,9 @@ function select_Product(div_input, id_div_display, index) {
 function deleteRow(tagI) {
     $(tagI).closest("tr").remove()
 }
+function delete_parent(tagI) {
+    $(tagI).parent().remove()
+}
 function changeImage(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader()
@@ -1208,3 +1224,221 @@ $("#popup_template-home_banner_gaming_market_01")
         $("body").css("overflow", "auto")
     })
 //#endregion function
+function load_data__menu_build_pc(index){
+
+    $("#pupup_menu_build_pc .modal-body .div-list-menu-build-pc").empty()
+    const data = arrData[index].Content.menu_build_pc.array_category
+    for(let i =0;i<data.length; i++){
+        $("#pupup_menu_build_pc .modal-body .div-list-menu-build-pc").append(`
+            <div class="item-menu-build-pc">
+                <span name="${data[i]._id}">
+                    ${data[i].category_name}
+                </span>
+                <i onclick="delete_row_item_menu_build_pc()" class="fas fa-trash text-danger"></i>
+            </div>
+        `)
+    }
+    $("#btn_Save_menu_build_pc").attr("onclick",`confirm_save_menu_build_pc(${index})`)
+    showPopup('pupup_menu_build_pc')
+}
+
+const find_data_category = ()=>{
+
+    const input = $("#input_find_category")
+    const spinner = $("#pupup_menu_build_pc .div-find-category-menu-build-pc .spinner-border")
+    const div_show = $("#pupup_menu_build_pc .show-data-find-category")
+    const key = $(input).val().trim()
+    if(key.length == 0){
+        $(div_show).empty()
+        return
+    }
+    $(spinner).show()
+    callAPI('GET',`${API_CATEGORY}/client`,{
+        key: $(input).val().trim(),
+        limit:10,
+        page:1
+    }, data =>{
+        $(spinner).hide()
+        $(div_show).empty()
+
+        for(let i =0;i<data.length;i++){
+            $(div_show).append(`
+                <li><a href="javascript:void(0)" name="${data[i]._id}" onclick="select_category()">${data[i].category_name}<a/></li>
+            `)
+        }
+    })
+}
+
+function select_category(){
+    const element = $(event.target)
+    const id_category = $(element).attr("name")
+    const name = $(element).text()
+
+    const div_show = $("#pupup_menu_build_pc .show-data-find-category")
+    $(div_show).empty()
+    $("#input_find_category").val(name)
+    $("#input_find_category").attr("name",id_category)
+}
+
+function add_category_to_menu(){
+    const input = $("#input_find_category")
+    const id_category = $(input).attr("name")
+    const name = $(input).val()
+    if(id_category){
+        $("#pupup_menu_build_pc .modal-body .div-list-menu-build-pc").append(`
+        <div class="item-menu-build-pc">
+            <span name="${id_category}">
+                ${name}
+            </span>
+            <i onclick="delete_row_item_menu_build_pc()" class="fas fa-trash text-danger"></i>
+        </div>
+    `)
+    }
+    
+    $(input).val(null)
+    $(input).attr("name",null)
+}
+
+function delete_row_item_menu_build_pc(){
+    $($(event.target).parent()).remove()
+}
+
+function confirm_save_menu_build_pc(index){
+    const items = $("#pupup_menu_build_pc .modal-body .div-list-menu-build-pc .item-menu-build-pc")
+    const data = []
+    for(let i =0;i<items.length;i++){
+        const id_category = $($(items[i]).find('span')).attr("name")
+        if(id_category && id_category.length == 24){
+            data.push(id_category)
+        }
+    }
+    callAPI('PUT',`${API_WEBSITE_COMPONENT}/menu_build_pc`,{
+        array_category:JSON.stringify(data),
+        id_menu:arrData[index]._id
+    },data =>{
+        hidePopup('pupup_menu_build_pc')
+        success("Thành công")
+        getData()
+    })
+}
+
+function success_find_subcategory_build_pc(data , parent){
+
+    for(let i =0 ;i<data.length;i++){
+        arrSubCategory.push(data[i])
+        $("#div_data_subcategory_build_pc").append(`
+            <li><a onclick="select_subcategory_list_build_pc(${arrSubCategory.length-1})" href="javascript:void(0)">${data[i].subcategory_name}</a></li>
+        `)
+    }
+}
+
+function add_subcategory_to_menu(){
+    const input = $("#input_data_subcategory_build_pc")
+    const id_subcategory = $(input).attr("name")
+    const name = $(input).val()
+    if(id_subcategory){
+        $("#pupup_list_subcategory_build_pc .modal-body .div-list-menu-build-pc").append(`
+        <div class="item-menu-build-pc">
+            <span name="${id_subcategory}">
+                ${name}
+            </span>
+            <i onclick="delete_row_item_menu_build_pc()" class="fas fa-trash text-danger"></i>
+        </div>
+    `)
+    }
+    
+    $(input).val(null)
+    $(input).attr("name",null)
+}
+function select_subcategory_list_build_pc(index){
+
+   
+    if(arrSubCategory[index].subcategory_export_price <= 0){
+        info("Sản phẩm hiển thị phải có giá lớn hơn 0")
+        return
+    }
+    $("#input_data_subcategory_build_pc").val(arrSubCategory[index].subcategory_name)
+    $("#input_data_subcategory_build_pc").attr("name",arrSubCategory[index]._id)
+    const div_parent = $(event.target).closest("div").empty()
+
+}
+
+function load_data__list_subcategory_build_pc(index){
+
+    $("#pupup_list_subcategory_build_pc .modal-body .div-list-menu-build-pc").empty()
+    const data = arrData[index].Content.list_subcategory_build_pc.array_subcategory
+    for(let i =0;i<data.length; i++){
+        $("#pupup_list_subcategory_build_pc .modal-body .div-list-menu-build-pc").append(`
+            <div class="item-menu-build-pc">
+                <span name="${data[i]._id}">
+                    ${data[i].subcategory_name}
+                </span>
+                <i onclick="delete_row_item_menu_build_pc()" class="fas fa-trash text-danger"></i>
+            </div>
+        `)
+    }
+    $("#btn_Save_list_subcategory_build_pc").attr("onclick",`confirm_save_list_subcategory_build_pc(${index})`)
+    showPopup('pupup_list_subcategory_build_pc')
+}
+
+function confirm_save_list_subcategory_build_pc(index){
+    const items = $("#pupup_list_subcategory_build_pc .modal-body .div-list-menu-build-pc .item-menu-build-pc")
+    const data = []
+    for(let i =0;i<items.length;i++){
+        const id_subcategory = $($(items[i]).find('span')).attr("name")
+        if(id_subcategory && id_subcategory.length == 24){
+            data.push(id_subcategory)
+        }
+    }
+    callAPI('PUT',`${API_WEBSITE_COMPONENT}/list_subcategory_build_pc`,{
+        array_subcategory:JSON.stringify(data),
+        id_menu:arrData[index]._id
+    },data =>{
+        hidePopup('pupup_list_subcategory_build_pc')
+        success("Thành công")
+        getData()
+    })
+}
+
+function load_data__banner_build_pc(index){
+
+    const images = arrData[index].Content.banner_build_pc.array_images
+    $("#pupup_banner_build_pc .modal-body .old-images").empty()
+   
+    for(let i =0; i< images.length;i++)
+    {
+        $("#pupup_banner_build_pc .modal-body .old-images").append(`
+        <div class="item-old-image">
+            <i class="fas fa-trash text-danger" onclick="delete_parent(this)"></i>
+            <img src="${URL_IMAGE_WEBSITE_COMPONENT}${images[i]}">
+            <input type="text" class="input-old-image" style="display:none" value="${images[i]}">
+        </div>
+        `)
+    }
+    $("#btn_Save_banner_build_pc").attr("onclick",`confirm_save_banner_build_pc(${index})`)
+    showPopup('pupup_banner_build_pc')
+
+}
+
+function confirm_save_banner_build_pc(index){
+    const array_old_image = []
+
+    const inputs = $("#pupup_banner_build_pc input.input-old-image")
+
+
+    const formData = new FormData();
+    for (var i = 0; i < totalFiles.length; i++) {
+        formData.append("image_product", totalFiles[i].file); // ảnh sản phẩm
+    }
+    for (var i = 0; i < inputs.length; i++) {
+        array_old_image.push($(inputs[i]).val())
+    }
+    formData.append("old_images", JSON.stringify(array_old_image)) // ảnh sản phẩm
+    formData.append('id_menu',arrData[index]._id)
+    callAPI('PUT',`${API_WEBSITE_COMPONENT}/banner_build_pc`,formData, ()=>{
+        hidePopup('pupup_banner_build_pc')
+        success("Thành công")
+        getData()
+
+    },undefined, true)
+}

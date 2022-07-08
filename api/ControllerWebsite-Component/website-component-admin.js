@@ -9,9 +9,12 @@ const prefixApi = "/api/website-component"
 const FIXED_LIMIT = 10
 import path from "path"
 import multer from "multer"
+
+
+var url_image = "public/images/images_website_component"
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "public/images/images_website_component")
+        cb(null, url_image)
     },
     filename: function (req, file, cb) {
         cb(null, path.basename(file.originalname).replace(path.extname(file.originalname), "-") + Date.now() + path.extname(file.originalname))
@@ -40,6 +43,19 @@ export const management = async (app) => {
                         ...data[i],
                         data_product_flash_sale: arr_product_flash_sale,
                     }
+             
+                    if(validator.isDefine(data[i].Content.menu_build_pc)){
+                        for(let j =0;j<data[i].Content.menu_build_pc.array_category.length;j++){
+                            const data_category = await ModelCategory.findById(data[i].Content.menu_build_pc.array_category[j])
+                            data[i].Content.menu_build_pc.array_category[j] = data_category
+                        }
+                    }
+                    if(validator.isDefine(data[i].Content.list_subcategory_build_pc)){
+                        for(let j =0;j<data[i].Content.list_subcategory_build_pc.array_subcategory.length;j++){
+                            const data_subcategory = await ModelSubCategory.findById(data[i].Content.list_subcategory_build_pc.array_subcategory[j])
+                            data[i].Content.list_subcategory_build_pc.array_subcategory[j] = data_subcategory
+                        }
+                    }
                 }
                 return res.json({ data: data })
             } else {
@@ -54,6 +70,7 @@ export const management = async (app) => {
         try {
             if (!(await helper.checkPermission("6272511fda540000f1000fc2", req.body._caller.id_employee_group))) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             const component = req.params.component
+            url_image = "public/images/images_website_component"
             switch (component) {
                 case `title`: {
                     let upload = multer({ storage: storage, fileFilter: null }).array("image_title", 1)
@@ -898,13 +915,154 @@ export const management = async (app) => {
                     }
                     break
                 }
+                case `menu_build_pc`:{
+                    await update_menu_build_pc(req, res)
+                    break
+                }
+                case `list_subcategory_build_pc`:{
+                    await update_list_subcategory_build_pc(req, res)
+                    break
+
+                }
+                case `banner_build_pc`:{
+                    await update_banner_build_pc(req, res)
+                    break
+
+                    
+                }
                 default:
                     return res.status(404).json(`Không tìm thấy nội dung cần chỉnh sửa - Vui lòng thử lại hoặc liên hệ với bộ phận kỹ thuật!`)
-                    break
+           
             }
         } catch (e) {
             validator.throwError(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
+}
+
+
+const update_menu_build_pc = async (req, res) =>{
+    try{
+        const id_menu = req.body.id_menu
+        const array_category = JSON.parse(req.body.array_category)
+
+        const data_menu = await Model_Website_Component.findById(id_menu)
+        if(!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
+        for(let i =0;i<array_category.length;i++){
+            if(!validator.ObjectId.isValid(array_category[i])) return res.status(400).send(`Thất bại! Có lỗi xảy ra`)
+            array_category[i] = validator.ObjectId(array_category[i])
+        }
+
+        for(let i =0;i<array_category.length;i++){
+            for(let j =i+1;j<array_category.length;j++){
+                if(array_category[i].toString() == array_category[j].toString()){
+                    array_category.splice(j,1)
+                    j--
+                }
+            }
+        }
+        await Model_Website_Component.findByIdAndUpdate(data_menu._id,{
+            Content:{
+                ...data_menu.Content,
+                menu_build_pc:{
+                    ...data_menu.Content.menu_build_pc,
+                    array_category:array_category
+                }
+            }
+        })
+        return res.json("Success")
+    }
+    catch(e){
+        validator.throwError(e)
+        return res.status(500).send("Thất bại! Có lỗi xảy ra")
+    }
+}
+
+
+const update_list_subcategory_build_pc = async (req, res) =>{
+    try{
+        const id_menu = req.body.id_menu
+        const array_subcategory = JSON.parse(req.body.array_subcategory)
+
+        const data_menu = await Model_Website_Component.findById(id_menu)
+        if(!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
+        for(let i =0;i<array_subcategory.length;i++){
+            if(!validator.ObjectId.isValid(array_subcategory[i])) return res.status(400).send(`Thất bại! Có lỗi xảy ra`)
+            array_subcategory[i] = validator.ObjectId(array_subcategory[i])
+        }
+
+        for(let i =0;i<array_subcategory.length;i++){
+            for(let j =i+1;j<array_subcategory.length;j++){
+                if(array_subcategory[i].toString() == array_subcategory[j].toString()){
+                    array_subcategory.splice(j,1)
+                    j--
+                }
+            }
+        }
+        await Model_Website_Component.findByIdAndUpdate(data_menu._id,{
+            Content:{
+                ...data_menu.Content,
+                list_subcategory_build_pc:{
+                    ...data_menu.Content.list_subcategory_build_pc,
+                    array_subcategory:array_subcategory
+                }
+            }
+        })
+        return res.json("Success")
+    }
+    catch(e){
+        validator.throwError(e)
+        return res.status(500).send("Thất bại! Có lỗi xảy ra")
+    }
+}
+
+const update_banner_build_pc = async (req, res) =>{
+    try{
+        url_image = "public/images/images_website_component"
+        multer({
+            storage: storage,
+            fileFilter: function (req, file, cb) {
+                cb(null, true)
+            },
+        }).fields([{ name: "image_product" }]) (req, res, async  err =>{
+            try {
+
+                if (err) return res.status(400).send(err)
+                const id_menu = req.body.id_menu
+                const data_menu = await Model_Website_Component.findById(id_menu)
+                if(!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
+                const arrImage = []
+                const old_images = JSON.parse(req.body.old_images)
+                if (typeof req.files != "undefined" && req.files != null && typeof req.files.image_product != "undefined") {
+                    for (let i = 0;i < req.files.image_product.length;i++ ) {// thêm ảnh từ mảng mới up lên
+                        arrImage.push(req.files.image_product[i].filename)
+                    }
+                }
+                for (let i = 0;i < old_images.length;i++ ) {// thêm ảnh từ mảng mới up lên
+                    arrImage.push(old_images[i])
+                }
+
+                await Model_Website_Component.findByIdAndUpdate(data_menu._id,{
+                    Content:{
+                        ...data_menu.Content,
+                        banner_build_pc:{
+                            ...data_menu.Content.banner_build_pc,
+                            array_images:arrImage
+                        }
+                    }
+                })
+              
+                return res.json("success")
+                
+            } catch (e) {
+                console.error("____",e)
+                return res.status(500).send("Thất bại! Có lỗi xảy ra")
+            }
+        })
+    }
+    catch(e){
+        validator.throwError(e)
+        return res.status(500).send("Thất bại! Có lỗi xảy ra")
+    }
 }

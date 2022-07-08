@@ -42,3 +42,102 @@
 th {
     text-align: center;
 }
+
+#pupup_menu_build_pc .div-find-category-menu-build-pc{
+    position: relative;
+    margin-bottom: 10px;
+}
+
+#pupup_menu_build_pc .div-find-category-menu-build-pc input{
+    max-width: 90%;
+}
+#pupup_menu_build_pc .div-find-category-menu-build-pc button{
+    max-width: 10%;
+    position: absolute;
+    top: 22px;
+    right: 0px;
+}
+#pupup_menu_build_pc .div-list-menu-build-pc{
+    margin-top: 5px;
+    padding: 2px;
+    border: 1px dotted;
+    max-height: 500px;
+    overflow: auto;
+}
+
+#pupup_menu_build_pc .show-data-find-category{
+    position: absolute;
+    z-index: 100;
+    background-color: antiquewhite;
+}
+
+#pupup_menu_build_pc .div-find-category-menu-build-pc .spinner-border{
+    display: none;
+    top: 33px !important;
+    right: 70px !important;
+}
+#pupup_menu_build_pc .item-menu-build-pc{
+    margin-top: 5px;
+}
+/* ----------------------- */
+
+#pupup_list_subcategory_build_pc .div-find-category-menu-build-pc{
+    position: relative;
+    margin-bottom: 10px;
+}
+
+#pupup_list_subcategory_build_pc .div-find-category-menu-build-pc input{
+    max-width: 90%;
+}
+#pupup_list_subcategory_build_pc .div-find-category-menu-build-pc button{
+    max-width: 10%;
+    position: absolute;
+    top: 22px;
+    right: 0px;
+}
+#pupup_list_subcategory_build_pc .div-list-menu-build-pc{
+    margin-top: 5px;
+    padding: 2px;
+    border: 1px dotted;
+    max-height: 500px;
+    overflow: auto;
+}
+
+#pupup_list_subcategory_build_pc .show-data-find-category{
+    position: absolute;
+    z-index: 100;
+    background-color: antiquewhite;
+}
+
+#pupup_list_subcategory_build_pc .div-find-category-menu-build-pc .spinner-border{
+    display: none;
+    top: 33px !important;
+    right: 70px !important;
+}
+#pupup_list_subcategory_build_pc .item-menu-build-pc{
+    margin-top: 5px;
+}
+
+.old-images{
+    
+    margin-bottom: 10px;
+    max-width: 100%;
+    max-height: 200px;
+    overflow: auto;
+}
+.old-images img{
+    max-width: 100px;
+    max-height: 100px;
+}
+
+.old-images i{
+    position: absolute;
+    top: 0;
+    /* right: 68px; */
+}
+.item-old-image{
+    margin-bottom: 5px;
+    position: relative;
+    float: left;
+    margin-left: 5px;
+}

@@ -2,16 +2,23 @@
 var old_img = null
 checkData()
 function checkData(){
-    if(!id_news || id_news.length != 24) return
+    // if(!id_news || id_news.length != 24) return
 
     callAPI('GET',`${API_NEWS}/byId`,{
         id_news:id_news
     }, data =>{
-        drawTable(data)
+
+        for(let i =0;i<data.data_type.length;i++){
+            let isSelected = ""
+            if(data.data && data.data.id_type == data.data_type[i]._id) isSelected = "selected"
+            $("#select_type_news").append(`<option ${isSelected} value="${data.data_type[i]._id}">${data.data_type[i].type_news_name}</option>`)
+        }
+        drawTable(data.data)
     })
 }
 
 function drawTable(data){
+    if(!data) return
     CKEDITOR.instances.editor.setData(data.news_content)
     
     $("input[name=title_news]").val(data.news_title)
@@ -21,7 +28,8 @@ function drawTable(data){
         old_img = data.news_image
         $(".image_warp img").attr("src",`${URL_IMAGE_NEWS}${data.news_image}`)
     }
-   
+    console.log(data)
+    $("#inputIndex").val(data.news_index)
 }
 
 function confirmSave(){
@@ -41,6 +49,8 @@ function confirmSave(){
     formData.append('old_image', old_img)
     formData.append('title_news', title_news)
     formData.append('news_brief', news_brief)
+    formData.append('id_type', $("#select_type_news option:selected").val())
+    formData.append('news_index', tryParseInt($("#inputIndex").val()))
 
 
 

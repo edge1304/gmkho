@@ -8,6 +8,7 @@ function getData(){
 }
 
 function drawTable(dataBranch, dataExport) {
+    
     $(".div-print .logo-branch").attr("src",`${URL_IMAGE_BRANCH}/${dataBranch.branch_logo}`)
     $(".div-print .info-branch .branch-header-content").html(`${dataBranch.branch_header_content}`)
     $(".div-print .info-branch .branch-name").html(`<b>Chi nhánh: </b>${dataBranch.branch_name}`)

@@ -162,7 +162,7 @@ export const create_form = async (req, res) => {
         if (voucher_code) await update_status_voucher(voucher_code)
             
         for (let i = 0; i < arrProduct.length; i++){
-            await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, {$set:{ product_status: true, product_warranty: arrProduct[i].product_warranty, id_export_form: insertFormExport._id },$push:{product_note:`${new Date()} xuất bán hàng bởi nhân viên ${id_employee} mã phiếu xuất là ${insertFormExport._id}`}})
+            await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, {$set:{ product_status: true, product_warranty: arrProduct[i].product_warranty, id_export_form: insertFormExport._id },$push:{product_note:`${insertFormExport._id.toString()}`}})
             await ModelImportForm.findByIdAndUpdate(arrProduct[i].id_import_form,{import_form_status_paid:true})
         }
      
@@ -305,7 +305,7 @@ export const insertMore = async (app)=>{
                 
             for (let i = 0; i < arrProduct.length; i++){
          
-                await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, {$set:{ product_status: true, product_warranty: arrProduct[i].product_warranty, id_export_form: dataExport._id },$push:{product_note:`${new Date()} xuất bán hàng bởi nhân viên ${id_employee} mã phiếu xuất là ${insertFormExport._id}`}})
+                await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, {$set:{ product_status: true, product_warranty: arrProduct[i].product_warranty, id_export_form: dataExport._id },$push:{product_note:`${insertFormExport._id.toString()}`}})
                 await ModelImportForm.findByIdAndUpdate(arrProduct[i].id_import_form,{import_form_status_paid:true})
 
             }

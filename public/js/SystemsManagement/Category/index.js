@@ -55,6 +55,7 @@ function drawTable(data) {
                     <button onclick="showPopupEdit(${i})" class="btn btn-primary"><i class="mdi mdi-information"></i> Chi tiết</button>
                     <button onclick="showKeys(${i})" class="btn btn-success"><i class="mdi mdi-key-minus"></i> Từ khóa</button>
                     <button onclick="newPage('/category-management/edit-content?id_category=${data[i]._id}')" class="btn btn-danger"><i class="fas fa-edit"></i>Bài viết</button>
+                    <button onclick="delete_category(${i})" class="btn btn-warning"><i class="fas fa-trash"></i>Xóa</button>
                 </td>
             </tr>
         `)
@@ -135,6 +136,7 @@ function confirmEdit(index) {
     const display_website = $("#display_website_edit").val()
     const id_parent_category = $("#select_parent_category_edit").val()
     const id_slide_banner = $("#select_slide_banner_edit").val()
+    const part = tryParseInt($("#editPart").val())
 
     if (!category_name) {
         info("Tên danh mục không được để trống")
@@ -149,6 +151,7 @@ function confirmEdit(index) {
     data.append("display_website", display_website)
     data.append("id_parent_category", id_parent_category)
     data.append("id_slide_banner", id_slide_banner)
+    data.append("pard", part)
     data.append("_id", _id)
 
     hidePopup("popupEdit")
@@ -185,7 +188,7 @@ function confirmAdd() {
     const display_website = $("#display_website_add").val()
     const id_parent_category = $("#select_parent_category_add").val()
     const id_slide_banner = $("#select_slide_banner_add").val()
-
+    const part = tryParseInt($("#addPart").val())
     if (!category_name) {
         info("Tên danh mục không được để trống")
         return
@@ -199,6 +202,7 @@ function confirmAdd() {
     data.append("display_website", display_website)
     data.append("id_parent_category", id_parent_category)
     data.append("id_slide_banner", id_slide_banner)
+    data.append("part", part)
 
     hidePopup("popupAdd")
     callAPI(
@@ -406,5 +410,19 @@ function load_parent_category(id_div_select, _id, text = "") {
             $(`#${id_div_select}`).append(`<option value="${element["_id"]}">${text}${element["category_name"]}</option>`)
             load_parent_category(id_div_select, element["_id"], text + "--")
         }
+    })
+}
+
+function delete_category(index){
+    $("#popupDelete .modal-footer button:last-child").attr("onclick",`confirm_delete(${index})`)
+    showPopup('popupDelete')
+}
+
+const confirm_delete = (index)=>{
+    callAPI('DELETE',API_CATEGORY,{
+        id_category:arrData[index]._id
+    },()=>{
+        success("Thành công")
+        getData()
     })
 }

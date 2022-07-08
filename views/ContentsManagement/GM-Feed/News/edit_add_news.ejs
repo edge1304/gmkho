@@ -25,7 +25,18 @@
                             <button onclick="confirmSave()" class="btn btn-danger absulate btn-save">Lưu thay đổi</button>
                           </span>
                         </div>
-                       
+                        <div class="post__form">
+                          <div>
+                            <label class="form-label">Thứ tự hiển thị</label>
+                            <input class="number form-control" id="inputIndex" value="0" oninput="inputNumber()" >
+                          </div>
+                        </div>
+                        <div class="post__form">
+                          <div>
+                            <label class="form-label">Loại tin tức</label>
+                            <select id="select_type_news"></select>
+                          </div>
+                        </div>
                         <div class="post__form">
                           <div class="mb-3">
                             <label for="descriptPro2" class="form-label">Tiêu đề tin tức</label>

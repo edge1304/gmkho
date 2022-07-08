@@ -85,7 +85,7 @@ export const management = async (app)=>{
             ])
            
             await Promise.all( data.map(async order => {
-              
+                console.log(order)
                 order.user_fullname = order.user[0].user_fullname
                 order.user_phone = order.user[0].user_phone
                 order.fundbook_name = ""

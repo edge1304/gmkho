@@ -99,6 +99,7 @@ export const create_form = async (req, res) => {
                 if (dataExport.export_form_product[j].id_product.toString() == product._id.toString()) {
                     arrProduct[i].subcategory_point = dataExport.export_form_product[j].subcategory_point
                     arrProduct[i].id_employee = dataExport.export_form_product[j].id_employee
+                    arrProduct[i].id_employee_setting = dataExport.id_employee_setting
                     arrProduct[i].subcategory_part = dataExport.export_form_product[j].subcategory_part
                     arrProduct[i].subcategory_name = sub_category.subcategory_name
                     arrProduct[i].id_form_export = dataExport._id
@@ -106,7 +107,7 @@ export const create_form = async (req, res) => {
                     arrProduct[i].id_subcategory = product.id_subcategory,
                     arrProduct[i].product_export_price = validator.totalMoney(dataExport.export_form_product[j].product_export_price,0,dataExport.export_form_product[j].product_ck, dataExport.export_form_product[j].product_discount)
                 
-                    arrProduct[i].product_import_price_return = validator.totalMoney(product.product_import_price,0,product.product_ck) // giá nhập của sản phẩm
+                    // arrProduct[i].product_import_price_return = validator.totalMoney(product.product_import_price,0,product.product_ck) // giá nhập của sản phẩm
                     arrProduct[i].id_import_form = product.id_import_form // gán lại id phiếu nhập đầu tiên của để tí update thành đã thanh toán để ko sửa giá nhập nữa
                     totalPointNeg += dataExport.export_form_product[j].subcategory_point // trừ điểm đã cộng cho khách
                     if (dataExport.export_form_product[j].id_employee && validator.ObjectId.isValid(dataExport.export_form_product[j].id_employee)) { // trừ bạc nhân viên
@@ -134,7 +135,8 @@ export const create_form = async (req, res) => {
             await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, {
                 product_warranty: arrProduct[i].product_warranty,
                 product_status: false,
-                id_warehouse:dataWarehouse._id
+                id_warehouse:dataWarehouse._id,
+                product_import_price:arrProduct[i].product_import_price_return
             })
 
             await ModelImportForm.findByIdAndUpdate(arrProduct[i].id_import_form,{import_form_status_paid:true})

@@ -249,13 +249,7 @@ app.get("/addPermission/:group/:function", async (req, res) => {
     return res.json(data)
 })
 
-app.get("/ccc", async (req, res) => {
-    await ModelPermission.findByIdAndUpdate("61e1580320006610c388a127", {
-        permission_status: true,
-    })
 
-    return res.json("ok")
-})
 
 app.get("/xoa", async (req, res) => {
     await ModelImportForm.deleteMany({})
@@ -270,9 +264,28 @@ app.get("/xoa", async (req, res) => {
     await ModelReportInventory.deleteMany({})
     return res.json("ok")
 })
+
 app.get("/USUB", async (req, res) => {
-    await new ModelFunction({_id:validator.ObjectId("62a011e42be116263e3f815e"), function_name: "Bóc tách & dựng máy"}).save()
-    return res.json("ok")
+    //  await Model_Website_Component.findByIdAndUpdate("62733731a23200000c005a23")'
+    const data = await Model_Website_Component.findById("62733731a23200000c005a23")
+    if(data){
+        await Model_Website_Component.findByIdAndUpdate(data._id,{
+            Content:{
+                ...data.Content,
+                list_subcategory_build_pc: {
+                    Active: true,
+                    Description: "Danh sách sản phẩm trong trang build pc",
+                    array_subcategory: [
+                        "6244647aaf23eb577a11575d",
+                        "623d8c869162705f634e8038",
+                        "623d4490da38fdc60f3a1b2a",
+                        "623d41ccda38fdc60f3a1af4"
+                    ]
+                 }
+            }
+        })
+        return res.json("ok")
+    }
 })
 app.get("/*", async (req, res) => {
     return res.status(404).render("pages/samples/error-404")
@@ -302,6 +315,10 @@ function get_Model(req) {
     switch (name_model) {
         case `Function`: {
             db = ModelFunction
+            break
+        }
+        case `Component`: {
+            db = Model_Website_Component
             break
         }
         case `Permission`: {
@@ -442,6 +459,10 @@ function get_Model(req) {
         }
         case `Policy`: {
             db = Model_Policy
+            break
+        }
+        case `Category`: {
+            db = ModelCategory
             break
         }
         case `News`: {
@@ -586,3 +607,4 @@ function empty_Model(req) {
     }
     return db
 }
+

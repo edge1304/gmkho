@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <link rel="stylesheet" href="/css/menu.css">
+<link rel="stylesheet" href="/css/imageuploadify.min.css">
 <%- include("../../header",{title:"Quản lý content | Thành phần website"}) %>
 <div class="page-content">
     <div class="container-fluid">
@@ -24,21 +25,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="collapseItem">
-                    <div class="btn-collapse" data-toggle="collapse" data-target="#panelsOpen-Two"
-                        aria-expanded="false" aria-controls="panelsOpen-Two">
-                        Website LapTop 24h
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="collapse multi-collapse" id="panelsOpen-Two">
-                        <div class="card card-body">
-                            <ul class="list-group" id="ul_laptop">
-
-                            </ul>
-                        </div>
-                    </div>
-                </div> -->
-
             </div>
         </div>
     </div>
@@ -868,3 +854,99 @@
         </div>
     </div>
 </div>
+
+<div id="pupup_menu_build_pc" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-50">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Menu danh mục dựng máy</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="div-find-category-menu-build-pc">
+                    <label>Tìm kiếm danh mục</label>
+                    <div>
+                        <input class="form-control" oninput="find_data_category()" id="input_find_category" placeholder="Nhập tên danh mục">
+                        <button onclick="add_category_to_menu()" class="btn btn-primary">Thêm</button>
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <div class="show-data-find-category"></div>
+                    </div>
+                </div>
+                <div class="div-list-menu-build-pc">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_Save_menu_build_pc">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="pupup_list_subcategory_build_pc" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-50">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Menu sản phẩm dựng máy</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="div-find-category-menu-build-pc">
+                    <label>Tìm kiếm sản phẩm</label>
+                    <div>
+                        <input class="form-control" oninput="findSubCategory(false, success_find_subcategory_build_pc)" id="input_data_subcategory_build_pc"  placeholder="Nhập tên sản phẩm">
+                        <button onclick="add_subcategory_to_menu()" class="btn btn-primary">Thêm</button>
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <div onscroll="loadmoreSubCategory(success_find_subcategory_build_pc)" id="div_data_subcategory_build_pc" class="show-data-find-category"></div>
+                    </div>
+                </div>
+                <div class="div-list-menu-build-pc">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_Save_list_subcategory_build_pc">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="pupup_banner_build_pc" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-50">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ảnh sản phẩm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="old-images">
+                   
+                </div>
+                <div class="new-images div-multiple-image">
+                    <input class="multiple_image_select" type="file" accept="image/*" multiple>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_Save_banner_build_pc">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/assets/js/imageuploadify.js"></script>
+<script>
+     $('input.multiple_image_select').imageuploadify();
+</script>

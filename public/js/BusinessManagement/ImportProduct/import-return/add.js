@@ -39,6 +39,7 @@ function drawTable(){
         <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập VAT . . ."></td>
         <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập Chiết khấu . . ."></td>
         <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập giảm giá. . ."></td>
+        <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Giá vốn . . ."></td>
         <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập bảo hành . . ."></td>
         <td>
             <input oninput="findEmployee()" value="" class="form-control" disabled placeholder="Nhập tên nhân viên . . .">
@@ -133,9 +134,10 @@ function findProduct() {
             $($(tr).find('input')[2]).val(money(data.product_export_vat))
             $($(tr).find('input')[3]).val(money(data.product_export_ck))
             $($(tr).find('input')[4]).val(money(data.product_export_discount))
-            $($(tr).find('input')[5]).val(money(data.product_export_warranty))
-            $($(tr).find('input')[6]).val(data.employee_fullname)
-            $($(tr).find('input')[6]).attr("name",data.id_employee)
+            $($(tr).find('input')[5]).val(money(data.product_import_price))
+            $($(tr).find('input')[6]).val(money(data.product_warranty))
+            $($(tr).find('input')[7]).val(data.employee_fullname)
+            $($(tr).find('input')[7]).attr("name",data.id_employee)
             
             changeMoney()
             drawTable()
@@ -278,9 +280,10 @@ $("#btnConfirm").click(e => {
             const product_vat = tryParseInt($(inputs[2]).val())
             const product_ck = tryParseInt($(inputs[3]).val())
             const product_discount = tryParseInt($(inputs[4]).val())
-            const product_warranty = tryParseInt($(inputs[5]).val())
+            const product_import_price_return = tryParseInt($(inputs[5]).val())
+            const product_warranty = tryParseInt($(inputs[6]).val())
             const product_quantity = 1
-            const id_employee = $(inputs[6]).attr("name")
+            const id_employee = $(inputs[7]).attr("name")
 
             arrProduct.push({
                 id_product:id_product,
@@ -290,6 +293,7 @@ $("#btnConfirm").click(e => {
                 product_discount:product_discount,
                 product_warranty:product_warranty,
                 product_quantity: product_quantity,
+                product_import_price_return:product_import_price_return,
                 id_employee:id_employee,
             })
            

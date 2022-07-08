@@ -186,25 +186,66 @@ export const signin = async (app) => {
     })
 }
 
-// export const update_client = async (app) => {
-//     app.put(prefixApi, helper.authenToken, async (req, res) => {
-//         const id_user = req.body._caller._id
-//         try {
-//             const data = {
-//                 user_fullname: req.body.user_fullname,
-//                 user_gender: req.body.user_gender,
-//                 user_email: req.body.user_email,
-//                 user_password: req.body.user_password,
-//                 user_phone: req.body.user_phone,
-//                 user_birthday: req.body.user_birthday,
-//                 user_address: req.body.user_address,
-//             }
-//             const update = await ModelUser.findByIdAndUpdate(req.body.id_user, data);
-//             return res.status(200).json(update);
-//         }
-//         catch (e) {
-//             console.log(e)
-//             return res.status(500).send("Thất bại! Có lỗi xảy ra")
-//         }
-//     })
-// }
+export const update_client = async (app) => {
+    app.put(prefixApi+"/client", helper.authenToken, async (req, res) => {
+        const id_user = req.body._caller._id
+        try {
+            const dataUser = await ModelUser.findById(id_user)
+            if(!dataUser) return res.status(400).send(`Thất bại! Không tìm thấy người dùng.`)
+
+            const user_email = sanitize(req.body.user_email)
+            const user_fullname = sanitize(req.body.user_fullname)
+            const user_address = sanitize(req.body.user_address)
+            const user_phone = sanitize(req.body.user_phone)
+
+            if(!validator.isDefine(user_fullname) || !validator.isDefine(user_phone)) return res.status(400).send(`Số điện thoại và họ tên không được để trống!`)
+            
+            if( !check_usable_phone(user_phone)) return res.status(400).send(`Thất bại! Số tài khoản không hợp lệ.`)
+            const dataUser2 = await ModelUser.findOne({user_phone: user_phone.trim()})
+            if(dataUser2){
+                if(dataUser2._id.toString() != dataUser._id.toString()) return res.status(400).send(`Thất bại! Số điện thoại này đã được sử dụng bởi khách hàng khác`)
+            }
+            const update_user = await ModelUser.findByIdAndUpdate(dataUser._id,{
+                user_email:user_email,
+                user_fullname:user_fullname,
+                user_address:user_address,
+                user_phone:user_phone
+            },{new:true})
+            return res.json(update_user)
+        }
+        catch (e) {
+            console.error(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+function check_usable_phone(phone){
+    const reg = /[a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g
+    if(!phone || phone.length != 10) return false
+    if(phone.substring(0,1) != '0') return false
+    if(reg.test(phone)) return false
+    return true
+}
+
+export const change_password = async(app)=>{
+    app.put(prefixApi +"/client/change-password", helper.authenToken, async (req, res) => {
+        try {
+            const old_password = req.body.old_password
+            const new_password = req.body.new_password
+            const id_user = req.body._caller._id
+    
+            const dataUser = await ModelUser.findById(id_user)
+            if(!dataUser) return res.status(400).send(`Thất bại! Có lỗi xảy ra`)
+            if(dataUser.user_password != old_password) return res.status(400).send(`Mật khẩu cũ không khớp`)
+            if(!new_password || new_password.length == 0) return res.status(400).send(`Mật khẩu mới không được để trống`)
+            await ModelUser.findByIdAndUpdate(dataUser._id,{
+                user_password:new_password
+            })
+            return res.json("Success")
+        } catch (e) {
+            console.error(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}

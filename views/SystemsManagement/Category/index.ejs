@@ -25,12 +25,6 @@
                         <label>Tìm kiếm</label>
                         <input oninput="getData(false)" id="keyFind" autocomplete="off" value="<%- key %>" placeholder="Nhập tên hoặc số điện thoại . . ." type="text" class="form-control">
                     </div>
-                    <!-- <div class="col-7 col-md-3">
-                        <label>Danh mục lớn &nbsp; &nbsp; <i onclick="showPopup('popupAddSuper',true)" class="mdi mdi-comment-plus-outline text-primary"> <span class="hide-on-mobile">Thêm</span></i></label>
-                        <select onchange="getData()" name="selectSuper" id="selectSuperCategory">
-                          <option value="">Tất cả</option>
-                        </select>
-                    </div> -->
                     <div class="col-5 col-md-4 col-lg-2 col-xl-2 relative">
                         <div class="btn-add">
                             <div><button id="btnAdd" onclick="showPopupAdd()" class="btn btn-success"><i class="mdi mdi-chart-pie"></i> <span class="hide-on-mobile"> Thêm mới </span></button></div>
@@ -108,6 +102,10 @@
                                 <b>Slide banner:</b>
                                 <select id="select_slide_banner_add" name="slide_banner_add" class="form-control"></select>
                             </div>
+                            <div class="col-12 col-md-3">
+                                <b>Part thưởng:</b>
+                                <input class="number form-control" id="addPart" type="text" value="0">
+                            </div>
                             <div class="col-12 col-md-6">
                                 <label>Trạng thái hoạt động:</label>
                                 <div style="display: flex;" class="form-group">
@@ -180,6 +178,10 @@
                             <div class="col-12 col-md-3">
                                 <b>Slide banner:</b>
                                 <select id="select_slide_banner_edit" name="slide_banner_edit" class="form-control"></select>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <b>Part thưởng:</b>
+                                <input class="number form-control" id="editPart" type="text" value="0">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label>Trạng thái hoạt động</label>
@@ -329,8 +331,30 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" id="btnconfirmDeleteKey" class="btn btn-danger">Lưu chỉnh sửa</button>
+                        <button type="button" id="btnconfirmDeleteKey" class="btn btn-danger">Xóa/button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="popupDelete" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog model" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Xóa danh mục<i class="mdi mdi-delete-forever text-danger"></i> </h5>
+                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+                    </div>
+                    <div class="modal-body">
+                        Bạn có chắc muốn xóa danh mục này không?
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                        <button type="button" data-dismiss="modal" class="btn btn-danger">Xóa</button>
+
                     </div>
                 </div>
             </div>

@@ -25,6 +25,7 @@ function getData()
 function drawTable(data)
 {
     $("#divTable").empty();
+    arrData = []
     $("#divTable").html(`
     <table id="dataTable" class="table data">
         <thead>
@@ -47,6 +48,7 @@ function drawTable(data)
 
     for(let i =0;i<data.length;i++)
     {
+        arrData.push(data[i])
         if(data[i].data != null)
         {
             let in_morning = addZero(data[i].data.in_morning.hours)+":"+addZero(data[i].data.in_morning.minutes)+":"+addZero(data[i].data.in_morning.seconds)
@@ -66,7 +68,7 @@ function drawTable(data)
     
             let late_afternoon = addZero(data[i].data.late_afternoon.hours)+" giờ "+ addZero(data[i].data.late_afternoon.minutes)+" phút"
             if(!isChecked(data[i].data.late_afternoon)) late_afternoon = "";
-    
+            
             $("#tbodyTable").append(`<tr>
                 <td class="center">${i+1}</td>
                 <td >${data[i].employee_fullname}</td>
@@ -78,7 +80,9 @@ function drawTable(data)
                 <td class="center">${late_morning}</td>
                 <td class="center">${late_afternoon}</td>
                 <td class="center">${achievement(data[i].data.in_morning,data[i].data.out_morning,data[i].data.in_afternoon, data[i].data.out_afternoon)}</td>
-                <td></td>
+                <td>
+                    <i class="fas fa-edit text-primary" onclick="edit_Timekeeping(${arrData.length-1})"></i>
+                </td>
             </tr>`)
         }
         else
@@ -192,4 +196,52 @@ function confirmAdd()
         getData()
     })
   
+}
+
+function edit_Timekeeping(index){
+
+    $("#edit_in_morning").val(getStringTime(arrData[index].data.in_morning))
+    $("#edit_out_morning").val(getStringTime(arrData[index].data.out_morning))
+    $("#edit_in_afternoon").val(getStringTime(arrData[index].data.in_afternoon))
+    $("#edit_out_afternoon").val(getStringTime(arrData[index].data.out_afternoon))
+
+    $("#btn_save_edit").attr("onclick",`confirm_edit(${index})`)
+    showPopup('popupEdit')
+}
+
+function getStringTime(time){
+    if(time.hours == 0 && time.minutes == 0) return null
+    return addZero(time.hours)+":"+addZero(time.minutes)+":"+addZero(time.seconds)
+}
+
+function confirm_edit(index){
+
+    const date_in_morning = $("#edit_in_morning").val().length == 0?new Date($("#edit_in_morning").val()):new Date(getTime().current+" "+ $("#edit_in_morning").val())
+    const in_morning = date_in_morning == 'Invalid Date'?{hours:0,minutes:0,seconds:0}:{hours:date_in_morning.getHours(), minutes:date_in_morning.getMinutes(), seconds:date_in_morning.getSeconds()}
+
+    const date_out_morning =$("#edit_out_morning").val().length == 0?new Date($("#edit_out_morning").val()):new Date(getTime().current+" "+ $("#edit_out_morning").val()) 
+    const out_morning = date_out_morning == 'Invalid Date'?{hours:0,minutes:0,seconds:0}:{hours:date_out_morning.getHours(), minutes:date_out_morning.getMinutes(), seconds:date_out_morning.getSeconds()}
+    
+    const date_in_afternoon = $("#edit_in_afternoon").val().length == 0?new Date($("#edit_in_afternoon").val()):new Date(getTime().current+" "+ $("#edit_in_afternoon").val()) 
+    const in_afternoon = date_in_afternoon == 'Invalid Date'?{hours:0,minutes:0,seconds:0}:{hours:date_in_afternoon.getHours(), minutes:date_in_afternoon.getMinutes(), seconds:date_in_afternoon.getSeconds()}
+
+    const date_out_afternoon = $("#edit_out_afternoon").val().length == 0?new Date($("#edit_out_afternoon").val()):new Date(getTime().current+" "+ $("#edit_out_afternoon").val())
+    const out_afternoon = date_out_afternoon == 'Invalid Date'?{hours:0,minutes:0,seconds:0}:{hours:date_out_afternoon.getHours(), minutes:date_out_afternoon.getMinutes(), seconds:date_out_afternoon.getSeconds()}
+
+    if(date_in_morning == 'Invalid Date' && date_in_afternoon == 'Invalid Date')
+    {
+        info("Bắt buộc phải có giờ vào")
+        return;
+    }
+    // hidePopup('popupEdit')
+    callAPI('PUT',`${API_TIMEKEEPING}/admin`,{
+        in_morning:in_morning,
+        out_morning:out_morning,
+        in_afternoon:in_afternoon,
+        out_afternoon:out_afternoon,
+        id_timekeeping:arrData[index].data._id
+    },()=>{
+        success("Thành công")
+        getData()
+    })
 }

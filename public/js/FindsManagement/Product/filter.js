@@ -53,6 +53,8 @@ function drawTable(data){
                 <tr>
                     <th>STT</th>
                     <th>Tên sản phẩm</th>
+                    <th>Ngày nhập</th>
+                    <th>Nhà cung cấp</th>
                     <th>Bảo hành</th>
                     <th>Trạng thái</th>
                     <th>Giá (nhập gần nhất)</th>
@@ -64,13 +66,15 @@ function drawTable(data){
             <tfoot></tfoot>
         </table>
     `)
-    console.log(data)
+
 
     for(let i =0;i<data.length;i++){
         $(".div-table tbody").append(`
             <tr>
                 <td>${i+1}</td>
                 <td>${data[i].subcategory_name}</td>
+                <td>${formatDate(data[i].date_import).fulldate}</td>
+                <td>${data[i].user_fullname}</td>
                 <td>${data[i].product_warranty}</td>
                 <td>${data[i].product_status?"Đã xuất":"Chưa xuất"}</td>
                 <td>${money(data[i].product_import_price)}</td>

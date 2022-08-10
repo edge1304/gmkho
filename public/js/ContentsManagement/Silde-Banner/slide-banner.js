@@ -28,11 +28,16 @@ function loadData(data) {
     arr_Data = []
     for (var i = 0; i < data.length; i++) {
         arr_Data.push(data[i])
+
+        const checked = data[i].Active_Mobile?"checked":""
         let html = ``
         html += `<tr>
             <td style="text-align:center;" >${stt + i}</td>
             <td>${data[i]["Title"]}</td>
             <td>${data[i]["Description"]}</td>
+            <td>
+                <input ${checked} onchange="updateActiveMobile(${arr_Data.length-1})" type="checkbox" >
+            </td>
             <td><button onclick="Show_popup_edit(${i})" class="btn btn-primary btn-infos" title="Sửa"><i class="fas fa-user-edit"></i></button></td>
         </tr>`
 
@@ -248,4 +253,15 @@ function changeImage(input) {
 
 function deleteRow(tagI) {
     $(tagI).closest("tr").remove()
+}
+
+
+function updateActiveMobile(index){
+    const element = $(event.target)
+    const status_active = $(element).is(":checked")
+
+    callAPI('PUT',`${API_SLIDE_BANNER}/active-mobile`,{
+        id_banner: arr_Data[index]._id,
+        status_active:status_active
+    })
 }

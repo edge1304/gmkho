@@ -125,7 +125,6 @@ function generateString(length) {
 export const checkValueCode = async (app)=>{
   
     app.get(prefixApi + "/value", async (req, res) => {
-
         validator.eshtml(req)
 
         const voucher_code = req.query.voucher_code

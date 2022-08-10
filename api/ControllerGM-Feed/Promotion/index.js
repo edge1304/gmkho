@@ -59,11 +59,11 @@ const storage = multer.diskStorage({
 const upload_image = multer({
     storage: storage,
     fileFilter: function(req, file, cb) {
-        if (file.mimetype == "image/bmp" || file.mimetype == "image/png" || file.mimetype == "image/jpeg" || file.mimetype == "image/jpg" || file.mimetype == "image/jfif") {
+        // if (file.mimetype == "image/bmp" || file.mimetype == "image/png" || file.mimetype == "image/jpeg" || file.mimetype == "image/jpg" || file.mimetype == "image/jfif") {
             cb(null, true)
-        } else {
-            return cb(new Error('Only image are allowed!'))
-        }
+        // } else {
+        //     return cb(new Error('Only image are allowed!'))
+        // }
     }
 }).fields([{name:'image_promotion'}]);
 
@@ -97,7 +97,7 @@ export const insert = async (app)=>{
                     const promotion_url = req.body.promotion_url
                     const title_promotion = req.body.title_promotion
                     const promotion_content = req.body.promotion_content
-    
+                    const promotion_index = validator.tryParseInt(req.body.promotion_index)
                     if(!validator.isDefine(title_promotion) || title_promotion.length ==0) return res.status(400).send("Tiêu đề không được để trống")
                     const arrImage = []
                  
@@ -130,7 +130,8 @@ export const insert = async (app)=>{
                         promotion_url:promotion_url,
                         promotion_title:title_promotion,
                         promotion_content:promotion_content,
-                        promotion_images:arrImage
+                        promotion_images:arrImage,
+                        promotion_index:promotion_index
                     }
     
                     if(validator.isDefine(id_promotion) && id_promotion.length > 0 && validator.ObjectId.isValid(id_promotion)){

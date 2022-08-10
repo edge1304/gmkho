@@ -12,7 +12,7 @@ import {ModelDebt} from '../../models/Debt.js'
 import {ModelAccountingEntry} from '../../models/AccountingEntry.js'
 import {getAllAccountingEntry} from './../ControllerAccountingEntry/index.js'
 import {getFundbookByBranch} from './../ControllerFundBook/index.js'
-
+import { get_branch_ById} from '../ControllerBranch/index.js'
 
 export const management = async (app)=>{
     try
@@ -328,6 +328,86 @@ export const report_payment_and_receipts = async (app) =>{
         catch(e){
             console.log(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+
+export const delete_payment = async (app) =>{
+    app.delete(prefixApi , helper.authenToken, async (req, res) => {
+        try{
+            const id_payment = req.body.id_payment
+            if(!validator.isDefine(id_payment) || !validator.ObjectId.isValid(id_payment)) return res.status(400).send(`Thất bại! Không tìm thấy phiếu chi`)
+
+            const data_payment = await ModelPayment.findById(id_payment)
+            if(!data_payment) return res.status(400).send(`Thất bại! Không tìm thấy phiếu chi`)
+            if(data_payment.id_form) return res.status(400).send(`Thất bại! Không thể xóa phiếu chi phát sinh từ nghiệp vụ nhập hàng`)
+
+            const data_debt = await ModelDebt.findOne({$and:[{debt_type:"payment"}, {id_form:data_payment._id}]})
+            if(data_debt){
+                await ModelDebt.findByIdAndDelete(data_debt._id)
+            }
+            await ModelPayment.findByIdAndDelete(id_payment)
+            return res.json("Success")
+
+        }
+        catch(e){
+            console.error(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+
+export const get_data_print = async (app)=>{
+    app.get(prefixApi +"/print", helper.authenToken, async (req, res) => {
+        try
+        {
+            if(!await helper.checkPermission("62185023ab5e6548aafac8f5", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const id_payment = req.query.id_payment
+            if(!id_payment || !validator.ObjectId.isValid(id_payment)) return res.status(400).send("Thất bại! Không tìm thấy phiếu thu")
+            
+            const dataPayment = await ModelPayment.findById(id_payment)
+            if(!dataPayment) return res.status(400).send("Thất bại! Không tìm thấy phiếu thu")
+            const id_branch = req.body._caller.id_branch_login
+            const dataBranch = await get_branch_ById(id_branch)
+
+            dataPayment.user_address = ""
+            dataPayment.user_fullname = ""
+            dataPayment.user_phone = ""
+            dataPayment.employee_fullname = ""
+
+            dataPayment.fundbook_name = ""            
+            dataPayment.accounting_entry_name = ""            
+
+            if(validator.ObjectId.isValid(dataPayment.id_user)){
+                const dataUser = await ModelUser.findById(dataPayment.id_user)
+                if(dataUser){
+                    dataPayment.user_fullname = dataUser.user_fullname
+                    dataPayment.user_phone = dataUser.user_phone
+                    dataPayment.user_address = dataUser.user_address
+                }
+            }
+            if(validator.ObjectId.isValid(dataPayment.id_fundbook)){
+                const dataFund = await ModelFundBook.findById(dataPayment.id_fundbook)
+                if(dataFund){
+                    dataPayment.fundbook_name = dataFund.fundbook_name
+                }
+
+            }
+            if(validator.ObjectId.isValid(dataPayment.receive_content)){
+                const dataAccounting = await ModelAccountingEntry.findById(dataPayment.receive_content)
+                if(dataAccounting){
+                    dataPayment.accounting_entry_name = dataAccounting.accounting_entry_name
+                }
+                
+            }
+            return res.json({dataBranch:dataBranch, dataPayment:dataPayment})
+        }
+        catch(e)
+        {
+                console.log(e)
+                return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
 }

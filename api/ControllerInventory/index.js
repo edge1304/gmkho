@@ -7,6 +7,7 @@ import {ModelCategory} from '../../models/Category.js'
 import {ModelSubCategory} from '../../models/SubCategory.js'
 import {ModelExportForm} from '../../models/ExportForm.js'
 import {ModelImportForm} from '../../models/ImportForm.js'
+import {ModelProduct} from '../../models/Product.js'
 import { ModelReportInventory } from '../../models/ReportInventory.js'
 
 import * as warehouse from '../ControllerWarehouse/index.js'
@@ -211,6 +212,7 @@ const get_inventory = async (fromdate , todate , id_warehouse) =>{
         const dataImport = await ModelImportForm.aggregate([ // nhập hiện tại
         {
             $match: {
+                import_form_type:{$ne: validator.TYPE_IMPORT_BORROWING},
                 id_warehouse:validator.ObjectId(id_warehouse),
                 createdAt: { $lte: todate}
             }
@@ -290,6 +292,7 @@ const get_inventory = async (fromdate , todate , id_warehouse) =>{
     const dataExport = await ModelExportForm.aggregate([ // nhập hiện tại
     {
         $match: {
+            export_form_type:{$ne: validator.TYPE_EXPORT_BORROWING},
             id_warehouse: validator.ObjectId(id_warehouse),
             createdAt: { $lte: todate }
         }
@@ -387,6 +390,7 @@ const get_inventory = async (fromdate , todate , id_warehouse) =>{
             
         }
         for (let j = 0; j < dataExport.length; j++){
+           
             if (dataImport[i]._id.toString() == dataExport[j]._id.toString()) {
                
                     dataImport[i].QuantityExportCurrent += dataExport[j].QuantityExportCurrent 
@@ -403,9 +407,23 @@ const get_inventory = async (fromdate , todate , id_warehouse) =>{
         }
     }
     for(let i =0;i<dataImport.length;i++){
+        if(dataImport[i]._id.toString() == "62e25982ac23489afdaa708c"){
+            console.log(dataImport[i])
+        }
         dataImport[i].Name = ""
         dataImport[i].CategoryName = ""
         dataImport[i].ID_Category = ""
+        dataImport[i].ImportNew = 0
+
+        const dataPro = await ModelProduct.find({$and:
+            [
+                {id_warehouse:validator.ObjectId(id_warehouse)},
+                {id_subcategory:validator.ObjectId(dataImport[i]._id)}
+            ]}).sort({_id:-1}).limit(1)
+
+        if(dataPro && dataPro.length == 1){
+            dataImport[i].ImportNew = dataPro[0].product_import_price
+        }
         const dataSub = await ModelSubCategory.findById(dataImport[i]._id).lean()
         if(dataSub) {
             dataImport[i].Name = dataSub.subcategory_name

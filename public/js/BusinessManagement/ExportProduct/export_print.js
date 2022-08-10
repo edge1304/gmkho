@@ -18,6 +18,7 @@ function drawTable(dataBranch, dataExport) {
     let title = "PHIẾU XUẤT BÁN"
     if(dataExport.export_form_type == "Xuất hàng trả lại nhà cung cấp") title = "XUẤT TRẢ NHÀ CUNG CẤP"
     if(dataExport.export_form_type == "Xuất bảo hành") title = "XUẤT BẢO HÀNH"
+    if(dataExport.export_form_type == "Xuất hàng dịch vụ sửa chữa ngoài") title = "XUẤT HÀNG DỊCH VỤ SỬA CHỮA NGOÀI"
     const dateExport = new Date(dataExport.createdAt);
    
     $(".div-print .info-date").html(`

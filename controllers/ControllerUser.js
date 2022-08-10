@@ -1,5 +1,5 @@
 
-import { management, insert, update, getUser, signup, signin, insertMany ,update_client ,change_password} from "../api/ControllerUser/index.js";
+import { management, insert, update, getUser, signup, signin, insertMany ,update_client ,change_password , get_history, check_is_register} from "../api/ControllerUser/index.js";
 
 
 function createControllerUser(app) {
@@ -12,5 +12,7 @@ function createControllerUser(app) {
     insertMany(app)
     update_client(app)
     change_password(app)
+    get_history(app)
+    check_is_register(app)
 }
 export default createControllerUser

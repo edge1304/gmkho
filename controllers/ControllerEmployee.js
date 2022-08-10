@@ -1,5 +1,5 @@
 import { login} from '../api/ControllerEmployee/login.js'
-import { management,update, insert, getInfo} from '../api/ControllerEmployee/index.js'
+import { management,update, insert, getInfo , insert_group} from '../api/ControllerEmployee/index.js'
 
 function createControllerEmployee(app) {
     login(app)
@@ -7,6 +7,7 @@ function createControllerEmployee(app) {
     update(app)
     insert(app)
     getInfo(app)
+    insert_group(app)
 }
 
 export default createControllerEmployee;

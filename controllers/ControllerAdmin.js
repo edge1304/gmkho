@@ -1,5 +1,6 @@
 import { login } from "../api/ControllerAdmin/login.js"
 import { ModelBranch } from "./../models/Branch.js"
+import { ModelEmployee } from "./../models/Employee.js"
 import { Model_Website_Component } from "./../models/WebsiteComponent.js"
 import * as helper from "../helper/helper.js"
 import * as validator from "../helper/validator.js"
@@ -104,12 +105,21 @@ export const menu = async (req, res) => {
 export const website_component = async (req, res) => {
     return res.render("ContentsManagement/Website-Component/website-component", { ...header_url(req) })
 }
+export const app_component = async (req, res) => {
+    return res.render("ContentsManagement/App-Component/app-component", { ...header_url(req) })
+}
 export const slide_banner = async (req, res) => {
     return res.render("ContentsManagement/Silde-Banner/slide-banner", { ...header_url(req) })
 }
 export const manage_policy = async (req, res) => {
     return res.render("ContentsManagement/Policy/policy", { ...header_url(req) })
 }
+//#region CRM
+export const manage_email_announcement_promotion = async (req, res) => {
+    return res.render("CRM_Management/Email_Announcement_Promotion/email-announcement-promotion", { ...header_url(req) })
+}
+//#endregion CRM
+
 export const up_subcategory = async (req, res) => {
     const id_subcategory = req.query.id_subcategory
 
@@ -279,12 +289,22 @@ export const filter_product = async (req, res) => {
     return res.render("FindsManagement/Product/filter", { ...header_url(req) })
 }
 
+export const find_all_product_import = async (req, res) => {
+    return res.render("FindsManagement/Product/find_all", { ...header_url(req) })
+}
+
 export const payment_and_receive = async (req, res) => {
     return res.render("ReportsManagement/PaymentAndReceive/index", { ...header_url(req) })
 }
 
 export const revenue_product = async (req, res) => {
     return res.render("ReportsManagement/RevenueProduct/index", { ...header_url(req) })
+}
+
+export const revenue_product_by_employee = async (req, res) => {
+    const employees = await ModelEmployee.find()
+    const html_employee = get_html_employee(employees)
+    return res.render("ReportsManagement/RevenueProduct/by_employee", { ...header_url(req), html_employee:html_employee })
 }
 
 export const print_export = async (req, res) => {
@@ -295,6 +315,10 @@ export const print_import = async (req, res) => {
 }
 export const print_receive = async (req, res) => {
     return res.render("BusinessManagement/Receive/print", { ...header_url(req) })
+}
+
+export const print_payment = async (req, res) => {
+    return res.render("BusinessManagement/Payment/print", { ...header_url(req) })
 }
 
 export const promotion = async (req, res) => {
@@ -317,6 +341,31 @@ export const product_sold_by_date = async (req, res) => {
 }
 export const device_separation = async (req, res) => {
     return res.render("BusinessManagement/DeviceSeparation/index", { ...header_url(req) })
+}
+export const youtube_management = async (req, res) => {
+    return res.render("ContentsManagement/Youtube/index", { ...header_url(req) })
+}
+
+export const history_customer = async (req, res) => {
+    return res.render("FindsManagement/Customer/history", { ...header_url(req) })
+}
+
+export const external_repair_service = async (req, res) => {
+    return res.render("BusinessManagement/ExternalRepairService/index", { ...header_url(req) })
+}
+
+export const external_repair_service_export = async (req, res) => {
+    return res.render("BusinessManagement/ExternalRepairService/export", { ...header_url(req) })
+}
+export const external_repair_service_import = async (req, res) => {
+    return res.render("BusinessManagement/ExternalRepairService/import", { ...header_url(req) })
+}
+
+export const change_warehouse = async (req, res) => {
+    return res.render("BusinessManagement/ChangeWarehouse/index", { ...header_url(req) })
+}
+export const change_warehouse_export = async (req, res) => {
+    return res.render("BusinessManagement/ChangeWarehouse/export", { ...header_url(req) })
 }
 
 export default createControllerAdmin
@@ -365,4 +414,13 @@ const header_url = (req) => {
         }
     }
     return query
+}
+
+const get_html_employee = (employees) =>{
+    let html = ''
+    employees.map( item =>{
+
+        html += `<option value="${item._id}">${item.employee_fullname}</option>`
+    })
+    return html
 }

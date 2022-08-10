@@ -1,3 +1,7 @@
+tr.filters input {
+    width: 100% !important;
+}
+
 input {
     color: black;
 }
@@ -49,13 +53,18 @@ input {
 .model-100 {
     max-width: 100% !important;
 }
+
 .model-95 {
     max-width: 95% !important;
 }
+
 .modal .show {
     padding: 0 !important;
 }
+
+
 /* ----------------------- */
+
 .modal-80 {
     max-width: 80% !important;
 }
@@ -91,9 +100,11 @@ input {
 .modal-100 {
     max-width: 100% !important;
 }
+
 .modal-95 {
     max-width: 95% !important;
 }
+
 .modal .show {
     padding: 0 !important;
 }
@@ -118,14 +129,12 @@ b {
     display: none;
 }
 
-
 .loader-inner {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
-
 
 .div-table {
     background-color: white;
@@ -215,6 +224,7 @@ td {
     font-size: 0.9375rem;
     border-radius: 0.25rem;
 }
+
 .flex {
     display: flex;
 }
@@ -225,41 +235,61 @@ td {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
 }
-.div-print , .div-print label, .div-print h1, .div-print td ,.div-print b {
+
+.div-print{
+    font-size: 20px;
+}
+.div-print,
+.div-print label,
+.div-print h1,
+.div-print td,
+.div-print b {
     font-family: 'Times New Roman', Times, serif !important;
 }
-.div-print .logo-branch{
-    width: 130px;
+
+.div-print .logo-branch {
+    width: 100%;
     height: auto;
 }
 
-.div-print .info-branch{
+
+.div-print .info-branch {
     margin-left: 10px;
 }
-.div-print .info-branch .branch-header-content{
-    font-size: 18px;
-}
 
-.div-print .info-branch label{
-    font-size: 12px;
+.div-print .info-branch .branch-header-content {
+    font-size: 22px;
 }
-.div-print div:first-child div:nth-child(3){
+.div-print .info-customer{
+    font-size: 20px;
+}
+/* .div-print .info-branch label {
+    font-size: 18px;
+} */
+
+.div-print div:first-child div:nth-child(3) {
     text-align: right;
 }
 
-.div-print div:first-child div:nth-child(3) svg{
+.div-print div:first-child div:nth-child(3) svg {
     width: 250px;
 }
 
-.div-print .info-date{
+.div-print .info-date {
     text-align: center;
 }
-.div-print .info-date b{
-    font-size: 35px;
-}
-.div-print .info-customer{
 
+.div-print .info-date b {
+    font-size: 40px;
 }
+/* .div-print .content-product table{
+    font-size: 18px;
+} */
+.div-print .info-customer {
+    margin-top: 15px;
+    /* font-size: 18px; */
+}
+
 .div-print .content-product table tbody td:nth-child(3),
 .div-print .content-product table tbody td:nth-child(4),
 .div-print .content-product table tbody td:nth-child(5),
@@ -268,9 +298,9 @@ td {
 .div-print .content-product table tbody td:nth-child(8),
 .div-print .content-product table tbody td:nth-child(9),
 .div-print .content-product table tbody td:nth-child(10),
-.div-print .content-product table tbody td:nth-child(11)
-{
+.div-print .content-product table tbody td:nth-child(11) {
     text-align: right;
+    /* font-size: 20px; */
 }
 
 .div-print .content-product table tfoot td:nth-child(3),
@@ -281,33 +311,45 @@ td {
 .div-print .content-product table tfoot td:nth-child(8),
 .div-print .content-product table tfoot td:nth-child(9),
 .div-print .content-product table tfoot td:nth-child(10),
-.div-print .content-product table tfoot td:nth-child(11)
-{
+.div-print .content-product table tfoot td:nth-child(11) {
     text-align: right;
 }
 
-.div-print .content-product{
-    margin-top: 15px;
-}
 
-.div-print .content-product table thead,.div-print .content-product table tbody,.div-print .content-product table tfoot,.div-print .content-product table th, .div-print .content-product table td{
+
+.div-print .content-product table thead,
+.div-print .content-product table tbody,
+.div-print .content-product table tfoot,
+.div-print .content-product table th,
+.div-print .content-product table td {
     border-style: double !important;
     border-color: black !important;
     border-width: 1px !important;
-
 }
-.div-print .text-number{
+
+.div-print .text-number {
     margin-top: 20px;
 }
-.div-print .div-money div b{
+
+.div-print .div-money div b {
     text-align: left;
 }
-.div-print .note{
+
+.div-print .note {
     margin-top: 20px;
     text-align: center;
 }
 
-.div-print .signature{
+.div-print .signature {
     margin-top: 20px;
     text-align: center;
+}
+
+.div-button-relative {
+    position: relative;
+}
+
+.div-button-relative button {
+    position: absolute;
+    top: 21px;
 }

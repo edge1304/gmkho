@@ -113,7 +113,7 @@ export const update = async (app)=>{
 
 export const getWarehouseByBranch = async (idbranch) =>{
     try{
-        const data = await ModelWarehouse.find({id_branch:idbranch})
+        const data = await ModelWarehouse.find({$and:[{id_branch:idbranch}, {warehouse_status:true}]})
         return data
     }
     catch(e){
@@ -124,7 +124,7 @@ export const getWarehouseByBranch = async (idbranch) =>{
 
 export const getWarehouseOtherBranch = async (idbranch) =>{
     try{
-        const data = await ModelWarehouse.find({id_branch:{$ne:idbranch}})
+        const data = await ModelWarehouse.find({$and:[{id_branch:{$ne:idbranch}},{warehouse_status:true}]})
         return data
     }
     catch(e){

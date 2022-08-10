@@ -64,6 +64,7 @@ function drawTable(data) {
                 <td>
                     <i onclick="showEdit(${i})" class="fas fa-edit text-warning"></i>
                     <i onclick="newPage('/payment/print/${data[i]._id}')" class="fas fa-print text-primary"></i>
+                    <i class="fas fa-trash text-danger" onclick="delete_payment(${i})"></i>
                 </td>
             </tr>
         `)
@@ -134,6 +135,20 @@ function confirmSave() {
         
     }, data => {
         success("Thành công")
+        getData()
+    })
+}
+
+function delete_payment(index){
+    $("#popupDelete .modal-footer button:last-child").attr("onclick",`confirm_delete(${index})`)
+    showPopup('popupDelete')
+}
+
+function confirm_delete(index){
+    callAPI('DELETE',API_PAYMENT,{
+        id_payment:arrData[index]._id
+    }, ()=>{
+        success()
         getData()
     })
 }

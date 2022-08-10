@@ -22,14 +22,17 @@
                         <label>Tìm kiếm</label>
                         <input id="keyFind" value="<%- key %>" placeholder="Nhập tên hoặc số điện thoại . . ." type="text" class="form-control">
                     </div>
-                    <div class="col-7 col-md-3">
+                    <div class="col-7 col-md-2">
                         <label>Chức danh</label>
                         <select onchange="getData()" name="selectGroup" id="selectEmployeeGroup">
                           <option value="">Tất cả</option>
                         </select>
+                    </div>
+                <div class="col-5 col-md-2 relative">
+                  <button id="btnAdd" onclick="showPopup('popupAdd',true)" class="btn btn-success absulate"><i class="mdi mdi-account-plus"></i> <span class="hide-on-mobile">Thêm mới</span> </button>
                 </div>
                 <div class="col-5 col-md-3 relative">
-                  <button id="btnAdd" onclick="showPopup('popupAdd',true)" class="btn btn-success absulate"><i class="mdi mdi-account-plus"></i> <span class="hide-on-mobile">Thêm mới</span> </button>
+                  <button style="top: 21px;" onclick="showPopup('popupAddGroup',true)" class="btn btn-warning absulate"><i class="mdi mdi-account-plus"></i> <span class="hide-on-mobile">Thêm chức danh</span> </button>
                 </div>
               </div>
             </div>
@@ -228,6 +231,32 @@
           </div>
         </div>
         
+        <div id="popupAddGroup" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Thêm chức danh nhân viên <i class="mdi mdi-account-minus"></i> </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                  <div>
+                    <label>Nhập tên chức danh</label>
+                    <input class="form-control" type="text" placeholder="nhập tên chức danh nhân viên">
+                  </div>
+                  <div>
+                    <label>Chọn nhóm</label>
+                    <select name="supper_group"></select>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" onclick="confirm_add_group()" class="btn btn-danger">Thêm mới</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- ====================================== -->
         <%- include('../../footer') %>
         <script src="css-login/js/sha512.min.js"></script>

@@ -9,13 +9,13 @@ const SchemaYoutube = new mongoose.Schema({
     },
     youtube_id:{
         ...validator.schemaString
+    },
+    youtube_status:{
+        ...validator.schemaBoolean
     }
 }, { timestamps: true });
 
 
 validator.schePre(SchemaYoutube);
 
-export const ModelYoutube = mongoose.model("Youtube", SchemaVoucher);
-
-// nếu là tiền : limit sẽ là tổng tiền phải trên
-// nếu là % limit sẽ là  tổng tiền phải dưới
+export const ModelYoutube = mongoose.model("Youtube", SchemaYoutube);

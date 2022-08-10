@@ -29,11 +29,16 @@ export const DEFAULT_LIMIT = 100
 
 export const TYPE_IMPORT_WARRANTY = "Nhập bảo hành"
 export const TYPE_IMPORT_RETURN = "Nhập hàng khách trả lại"
-
+export const TYPE_IMPORT_BORROWING = 'Nhập hàng mượn kho'
+export const TYPE_EXPORT_BORROWING = 'Xuất hàng mượn kho'
 export const TYPE_EXPORT_WARRANTY = "Xuất bảo hành"
 export const TYPE_EXPORT = "Xuất hàng để bán"
+export const TYPE_EXPORT_CHANGE_WAREHOUSE = "Xuất đổi kho"
 export const TYPE_EXPORT_SEPARATION = "Xuất bóc tách"
+export const TYPE_EXPORT_EXTERNAL_REPAIR_SERVICE = "Xuất hàng dịch vụ sửa chữa ngoài"
 export const TYPE_IMPORT_SEPARATION = "Nhập bóc tách"
+export const TYPE_IMPORT_CHANGE_WAREHOUSE = "Nhập đổi kho"
+export const TYPE_IMPORT_EXTERNAL_REPAIR_SERVICE = "Nhập hàng dịch vụ sửa chữa ngoài"
 //limit - page
 export const URL_IMAGE_CATEGORY = "public/images/images_category"
 export const URL_IMAGE_EMPLOYEE = "public/images/images_employee"
@@ -56,13 +61,46 @@ export const isDefine = function (val) {
 }
 
 //check empty
+
+const jsonConstructor = {}.constructor
+const arrayConstructor = [].constructor
+const stringConstructor = "string-test".constructor
 export const isNotEmpty = function (val) {
     try {
         if (val == undefined || val == `undefined` || val == null || val == `null` || val.toString().length == 0) return false
+        if (val.constructor === jsonConstructor) {
+            return isDefineJson(val)
+        }
+        if (val.constructor === arrayConstructor) {
+            return isDefineArray(val)
+        }
+        if (val.constructor === stringConstructor) {
+            return isDefineString(val)
+        }
         return true
     } catch (err) {
         return false
     }
+}
+
+function isDefineJson(obj) {
+    for (var prop in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+            return true
+        }
+    }
+    return false
+}
+function isDefineArray(array) {
+    if (Array.isArray(array) && array.length) {
+        // array exists and is not empty
+        return true
+    }
+    return false
+}
+function isDefineString(str) {
+    if (str == undefined || str == `undefined` || str == null || str == `null` || str == `` || str.length == 0) return false
+    return true
 }
 
 //valid date
@@ -760,18 +798,22 @@ export const calculateMoneyImport = (data) => {
 }
 
 export const calculateMoneyExport = (data) => {
+
     let total = 0
     if (Array.isArray(data)) {
         data.map((product) => {
+           
             total += totalMoney(product.product_export_price, product.product_vat, product.product_ck, product.product_discount, product.product_quantity)
         })
     } else {
+        
         total += totalMoney(data.product_export_price, data.product_vat, data.product_ck, data.product_discount, data.product_quantity)
     }
     return total
 }
 
 function escapehtml(s) {
+    if (!s) return ""
     return s.replace(/([.*+?\^$(){}|\[\]\/\\])/g, "\\$1")
 }
 export const eshtml = (req) => {
@@ -827,4 +869,108 @@ export const notifyTopic = (topicName, title, body) => {
         .catch((error) => {
             console.log("Error sending message:", error)
         })
+}
+export const load_parent_category = (arr, _id, arr_ids = [], arr_child_category = []) => {
+    arr.forEach((element) => {
+        if (element.id_parent_category && element.id_parent_category.toString() == _id.toString()) {
+            arr_ids.push(ObjectId(element._id))
+            arr_child_category.push(element)
+            load_parent_category(arr, element._id, arr_ids)
+        }
+    })
+
+    return {
+        arr_ids: arr_ids,
+        arr_child_category: arr_child_category,
+    }
+}
+
+export const display_money = (nStr) => {
+    nStr = tryParseInt(nStr)
+    nStr += ""
+    let x = nStr.split(".")
+    let x1 = x[0]
+    let x2 = x.length > 1 ? "." + x[1] : ""
+    var rgx = /(\d+)(\d{3})/
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, "$1" + "." + "$2")
+    }
+    return x1 + x2 + "₫"
+}
+var mangso = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"]
+
+function dochangchuc(so, daydu) {
+    var chuoi = ""
+    var chuc = Math.floor(so / 10)
+    var donvi = so % 10
+    if (chuc > 1) {
+        chuoi = " " + mangso[chuc] + " mươi"
+        if (donvi == 1) {
+            chuoi += " mốt"
+        }
+    } else if (chuc == 1) {
+        chuoi = " mười"
+        if (donvi == 1) {
+            chuoi += " một"
+        }
+    } else if (daydu && donvi > 0) {
+        chuoi = " lẻ"
+    }
+    if (donvi == 5 && chuc > 1) {
+        chuoi += " lăm"
+    } else if (donvi > 1 || (donvi == 1 && chuc == 0)) {
+        chuoi += " " + mangso[donvi]
+    }
+    return chuoi
+}
+
+function docblock(so, daydu) {
+    var chuoi = ""
+    var tram = Math.floor(so / 100)
+    so = so % 100
+    if (daydu || tram > 0) {
+        chuoi = " " + mangso[tram] + " trăm"
+        chuoi += dochangchuc(so, true)
+    } else {
+        chuoi = dochangchuc(so, false)
+    }
+    return chuoi
+}
+
+function dochangtrieu(so, daydu) {
+    var chuoi = ""
+    var trieu = Math.floor(so / 1000000)
+    so = so % 1000000
+    if (trieu > 0) {
+        chuoi = docblock(trieu, daydu) + " triệu"
+        daydu = true
+    }
+    var nghin = Math.floor(so / 1000)
+    so = so % 1000
+    if (nghin > 0) {
+        chuoi += docblock(nghin, daydu) + " nghìn"
+        daydu = true
+    }
+    if (so > 0) {
+        chuoi += docblock(so, daydu)
+    }
+    return chuoi
+}
+
+export const  tranfer_number_to_text = (so) => {
+    if (so == 0) return mangso[0]
+    var chuoi = "",
+        hauto = ""
+    do {
+       var ty = so % 1000000000
+        so = Math.floor(so / 1000000000)
+        if (so > 0) {
+            chuoi = dochangtrieu(ty, true) + hauto + chuoi
+        } else {
+            chuoi = dochangtrieu(ty, false) + hauto + chuoi
+        }
+        hauto = " tỷ"
+    } while (so > 0)
+    chuoi = chuoi.trim()
+    return chuoi.charAt(0).toUpperCase() + chuoi.slice(1)
 }

@@ -147,6 +147,21 @@ createControllerDeviceSeparation(app)
 import createControllerComment from "./controllers/ControllerComment.js"
 createControllerComment(app)
 
+import createControllerBuildPc from "./controllers/ControllerBuildPc.js"
+createControllerBuildPc(app)
+
+import createControllerYoutube from "./controllers/ControllerYoutube.js"
+createControllerYoutube(app)
+
+import controller_email_announcement_promotion from "./controllers/ControllerEmail_Announcement_Promotion.js"
+controller_email_announcement_promotion(app)
+
+import createControllerExternalRepairService from "./controllers/ControllerExternalRepairService.js"
+createControllerExternalRepairService(app)
+
+import createControllerChangeWarehouse from "./controllers/ControllerChangeWarehouse.js"
+createControllerChangeWarehouse(app)
+
 app.use(routerAdmin)
 
 import { ModelBranch } from "./models/Branch.js"
@@ -194,6 +209,7 @@ import { ModelAsset } from "./models/Asset.js"
 import { ModelWarrantyCombo } from "./models/WarrantyCombo.js"
 import { ModelMenu } from "./models/Menu.js"
 import { Model_Website_Component } from "./models/WebsiteComponent.js"
+import { Model_App_Component } from "./models/AppComponent.js"
 import { ModelCalendar } from "./models/Calendar.js"
 import { ModelFundBook } from "./models/FundBook.js"
 import { ModelAccountingEntry } from "./models/AccountingEntry.js"
@@ -218,6 +234,7 @@ import { ModelNotificationUser } from "./models/Notification_User.js"
 import { Model_Slide_Banner } from "./models/Slide-banner.js"
 import { Model_Policy } from "./models/Policy.js"
 import { ModelNews } from "./models/News.js"
+import { Model_Email_Announcement_Promotion } from "./models/Email_Announcement_Promotion.js"
 
 app.get("/lay:name", async (req, res) => {
     let query = {}
@@ -249,8 +266,6 @@ app.get("/addPermission/:group/:function", async (req, res) => {
     return res.json(data)
 })
 
-
-
 app.get("/xoa", async (req, res) => {
     await ModelImportForm.deleteMany({})
     await ModelProduct.deleteMany({})
@@ -268,27 +283,19 @@ app.get("/xoa", async (req, res) => {
 app.get("/USUB", async (req, res) => {
     //  await Model_Website_Component.findByIdAndUpdate("62733731a23200000c005a23")'
     const data = await Model_Website_Component.findById("62733731a23200000c005a23")
-    if(data){
-        await Model_Website_Component.findByIdAndUpdate(data._id,{
-            Content:{
+    if (data) {
+        await Model_Website_Component.findByIdAndUpdate(data._id, {
+            Content: {
                 ...data.Content,
                 list_subcategory_build_pc: {
                     Active: true,
                     Description: "Danh sách sản phẩm trong trang build pc",
-                    array_subcategory: [
-                        "6244647aaf23eb577a11575d",
-                        "623d8c869162705f634e8038",
-                        "623d4490da38fdc60f3a1b2a",
-                        "623d41ccda38fdc60f3a1af4"
-                    ]
-                 }
-            }
+                    array_subcategory: ["6244647aaf23eb577a11575d", "623d8c869162705f634e8038", "623d4490da38fdc60f3a1b2a", "623d41ccda38fdc60f3a1af4"],
+                },
+            },
         })
         return res.json("ok")
     }
-})
-app.get("/*", async (req, res) => {
-    return res.status(404).render("pages/samples/error-404")
 })
 
 import { ModelNotification } from "./models/Notification.js"
@@ -317,8 +324,8 @@ function get_Model(req) {
             db = ModelFunction
             break
         }
-        case `Component`: {
-            db = Model_Website_Component
+        case `AppComponent`: {
+            db = Model_App_Component
             break
         }
         case `Permission`: {
@@ -453,6 +460,10 @@ function get_Model(req) {
             db = Model_Website_Component
             break
         }
+        case `AppComponent`: {
+            db = Model_App_Component
+            break
+        }
         case `SlideBanner`: {
             db = Model_Slide_Banner
             break
@@ -469,11 +480,16 @@ function get_Model(req) {
             db = ModelNews
             break
         }
+        case `Email_Promotion`: {
+            db = Model_Email_Announcement_Promotion
+            break
+        }
         default:
             break
     }
     return db
 }
+
 function empty_Model(req) {
     const name_model = req.params.name
     let db = null
@@ -608,3 +624,61 @@ function empty_Model(req) {
     return db
 }
 
+app.get("/cak", async (req, res) => {
+    const dataInternal = await ModelInternalOrder.find()
+    for (let i = 0; i < dataInternal.length; i++) {
+        if (dataInternal[i].id_import_form && validator.ObjectId(dataInternal[i].id_import_form)) {
+            const dataImport = await ModelImportForm.findById(dataInternal[i].id_import_form)
+            if (!dataImport || !dataImport.import_form_product) console.log(dataInternal[i].id_import_form)
+            for (let j = 0; j < dataImport.import_form_product.length; j++) {
+                if (dataImport.import_form_product[j].product_import_price == 0) {
+                    const dataPro = await ModelProduct.findById(dataImport.import_form_product[j].id_product)
+                    dataImport.import_form_product[j].product_import_price = dataPro.product_import_price
+                }
+            }
+            const total_import = validator.calculateMoneyImport(dataImport.import_form_product)
+            await ModelImportForm.findByIdAndUpdate(dataImport._id, {
+                import_form_product: dataImport.import_form_product,
+            })
+
+            await ModelDebt.findOneAndUpdate(
+                { $and: [{ debt_type: "import" }, { id_form: dataImport._id }] },
+                {
+                    $set: {
+                        debt_money_import: total_import,
+                    },
+                }
+            )
+        }
+
+        if (dataInternal[i].id_export_form && validator.ObjectId(dataInternal[i].id_export_form)) {
+            const dataExport = await ModelExportForm.findById(dataInternal[i].id_export_form)
+
+            for (let j = 0; j < dataExport.export_form_product.length; j++) {
+                if (dataExport.export_form_product[j].product_export_price == 0) {
+                    const dataPro = await ModelProduct.findById(dataExport.export_form_product[j].id_product)
+                    dataExport.export_form_product[j].product_export_price = dataPro.product_import_price
+                    dataExport.export_form_product[j].product_import_price = dataPro.product_import_price
+                }
+            }
+            const total_export = validator.calculateMoneyExport(dataExport.export_form_product)
+            await ModelExportForm.findByIdAndUpdate(dataExport._id, {
+                export_form_product: dataExport.export_form_product,
+            })
+
+            await ModelDebt.findOneAndUpdate(
+                { $and: [{ debt_type: "export" }, { id_form: dataExport._id }] },
+                {
+                    $set: {
+                        debt_money_export: total_export,
+                    },
+                }
+            )
+        }
+    }
+    return res.json("ok")
+})
+
+app.get("/*", async (req, res) => {
+    return res.status(404).render("pages/samples/error-404")
+})

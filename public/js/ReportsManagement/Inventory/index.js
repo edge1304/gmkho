@@ -1,5 +1,6 @@
 var arrData = []
 checkPermission()
+
 function checkPermission() {
     callAPI("GET", API_INVENTORY + "/checkPermission", null, (data) => {
         data.warehouses.map((warehouse) => {
@@ -19,8 +20,7 @@ function getData() {
 
     callAPI(
         "GET",
-        API_INVENTORY,
-        {
+        API_INVENTORY, {
             fromdate: fromdate,
             todate: todate,
             id_warehouse: id_warehouse,
@@ -46,6 +46,7 @@ function changeCategory(data) {
             <th>STT</th>
           
             <th>Tên sản phẩm</th>
+            <th>Đơn giá</th>
             <th>Danh mục</th>
             <th>Đơn VT</th>
             <th>Tồn đầu</th>
@@ -85,11 +86,12 @@ function changeCategory(data) {
             } else if (inventory == "ne" && caculateInventory(data[i]) != 0) {
                 drawTable(data[i])
             } else if (inventory == "all") {
-         
+
                 drawTable(data[i])
             }
         }
     }
+
     dataTable()
 }
 
@@ -98,6 +100,7 @@ function drawTable(data) {
     <tr>
         <td class="center">${stt++}</td>
         <td>${data.Name}</td>
+        <td>${money(data.ImportNew)}</td>
         <td>${$(`#selectCategory option[value="${data.ID_Category}"]`).text()}</td>
         <td>${data.Unit}</td>
         <td class="center">${data.QuantityPeriod- data.QuantityExportPeriod}</td>

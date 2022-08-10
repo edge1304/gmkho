@@ -109,7 +109,8 @@ export const createFormImport = async (req, res) => {
                             ... arrProductFormImport[i],
                             id_import_form: insertImport._id,
                             id_warehouse: dataWarehouse._id,
-                            product_note:[`${insertImport._id.toString()}`]
+                            product_note:[`${insertImport._id.toString()}`],
+                            product_status:false
                         })
                     )
                 }

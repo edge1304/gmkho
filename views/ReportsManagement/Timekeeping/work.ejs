@@ -105,6 +105,44 @@
             </div>
           </div>
         </div>
+
+        <div id="popupEdit" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Chọn ngày</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-12 col-md-6">
+                    <label>Vào sáng</label>
+                    <input id="edit_in_morning" type="time" class="form-control">
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label>Ra sáng</label>
+                    <input id="edit_out_morning" type="time" class="form-control">
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label>Vào chiều</label>
+                    <input id="edit_in_afternoon" type="time" class="form-control">
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label>Ra chiều</label>
+                    <input id="edit_out_afternoon" type="time" class="form-control">
+                  </div>
+                </div>
+              </div>
+       
+              <div class="modal-footer">
+                <button type="button" id="btn_save_edit"  class="btn btn-primary">Lưu chỉnh sửa</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Popup -->
         <!-- ====================================== -->
         <%- include('../../footer') %>

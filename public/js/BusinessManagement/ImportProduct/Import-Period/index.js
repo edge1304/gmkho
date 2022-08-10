@@ -219,7 +219,7 @@ function downloadID(index) {
         const arrDownload = []
         for (let i = 0; i < data.length; i++){
             arrDownload.push({
-                "Mã hệ thống": data[i]._id,
+                "Mã sản phẩm": data[i]._id,
                 "Mã có sẵn": data[i].id_product2,
                 "Tên sản phẩm":data[i].subcategory_name,
                 "Giá nhập":data[i].product_import_price,

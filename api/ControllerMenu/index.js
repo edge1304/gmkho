@@ -263,7 +263,7 @@ export const management = async (app) => {
                     if (!data_menu) {
                         return res.status(404).json(`Không tìm thấy menu cần chỉnh sửa`)
                     } else {
-                        console.log(req.body)
+                        // console.log(req.body)
                         let check_delete_img_old = false
                         let check_delete_icon_old = false
                         const img_Old = data_menu?.image
@@ -311,9 +311,11 @@ export const management = async (app) => {
                         if (validator.isNotEmpty(req.body.name)) {
                             query = { ...query, name: req.body.name }
                         }
-                        if (validator.isNotEmpty(req.body.link)) {
-                            query = { ...query, link: req.body.link }
-                        }
+                        //sửa link
+                        query = { ...query, link: req.body.link }
+                        // if (validator.isNotEmpty(req.body.link)) {
+                        //     query = { ...query, link: req.body.link }
+                        // }
                         if (validator.isNotEmpty(req.body.check_parent_category)) {
                             let parent_id = req.body.id_parent
                             if (!validator.isNotEmpty(parent_id)) {

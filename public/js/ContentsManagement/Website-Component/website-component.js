@@ -160,6 +160,12 @@ function editMenu(index, key) {
             showPopup("pupup_footer_note")
             break
         }
+        case `footer_business_license`: {
+            $("#btn_Save_edit_footer_business_license").attr("onclick", `confirm_Save_Edit_footer_business_license(${index})`)
+            $(`#input_footer_business_license`).val(arrData[index].Content.footer_business_license.Content)
+            showPopup("pupup_footer_business_license")
+            break
+        }
         case `logo_header`: {
             $("#btn_Save_edit_logo_header").attr("onclick", `confirm_Save_Edit_logo_header(${index})`)
             $("#img_logo_header").attr("src", `${URL_IMAGE_WEBSITE_COMPONENT}${arrData[index]?.Content?.logo_header?.Content}`)
@@ -174,6 +180,13 @@ function editMenu(index, key) {
             showPopup("popup_home_image_banner_flash_sale")
             break
         }
+        case `mobile_home_image_banner_flash_sale`: {
+            $("#btn_Save_edit_mobile_home_image_banner_flash_sale").attr("onclick", `confirm_Save_Edit_mobile_home_image_banner_flash_sale(${index})`)
+            $("#img_mobile_home_image_banner_flash_sale").attr("src", `${URL_IMAGE_WEBSITE_COMPONENT}${arrData[index]?.Content?.mobile_home_image_banner_flash_sale?.Content}`)
+            $("#input_mobile_home_image_banner_flash_sale").val(null)
+            showPopup("popup_mobile_home_image_banner_flash_sale")
+            break
+        }
         case `home_flash_sale_products`: {
             load_data__home_flash_sale_products(index)
             //
@@ -181,6 +194,16 @@ function editMenu(index, key) {
         }
         case `home_slide_banner`: {
             load_data__home_slide_banner(index)
+            //
+            break
+        }
+        case `mobile_home_slide_banner_1`: {
+            load_data__mobile_home_slide_banner_1(index)
+            //
+            break
+        }
+        case `mobile_home_slide_banner_2`: {
+            load_data__mobile_home_slide_banner_2(index)
             //
             break
         }
@@ -209,6 +232,10 @@ function editMenu(index, key) {
         }
         case `banner_build_pc`: {
             load_data__banner_build_pc(index)
+            break
+        }
+        case `banner_news`: {
+            load_data__banner_news(index)
             break
         }
         // }
@@ -759,6 +786,21 @@ function confirm_Save_Edit_footer_note(index) {
     })
 }
 //#endregion footer_note
+//#region footer_business_license
+function confirm_Save_Edit_footer_business_license(index) {
+    const _id = arrData[index]._id
+    const receive_data = $("#input_footer_business_license").val()
+    var data = {
+        _id: _id,
+        receive_data: receive_data,
+    }
+    hidePopup("pupup_footer_business_license")
+    callAPI("PUT", `${API_WEBSITE_COMPONENT}/footer_business_license`, data, () => {
+        success("Thành công")
+        getData()
+    })
+}
+//#endregion footer_business_license
 
 //#region logo_header
 function confirm_Save_Edit_logo_header(index) {
@@ -802,6 +844,27 @@ function confirm_Save_Edit_home_image_banner_flash_sale(index) {
     )
 }
 //#endregion home_image_banner_flash_sale
+//#region mobile_home_image_banner_flash_sale
+function confirm_Save_Edit_mobile_home_image_banner_flash_sale(index) {
+    const _id = arrData[index]._id
+    const mobile_home_image_banner_flash_sale = $("#input_mobile_home_image_banner_flash_sale")[0].files[0]
+    var data = new FormData()
+    data.append("_id", _id)
+    data.append("mobile_home_image_banner_flash_sale", mobile_home_image_banner_flash_sale)
+    hidePopup("popup_mobile_home_image_banner_flash_sale")
+    callAPI(
+        "PUT",
+        `${API_WEBSITE_COMPONENT}/mobile_home_image_banner_flash_sale`,
+        data,
+        () => {
+            success("Thành công")
+            getData()
+        },
+        undefined,
+        true
+    )
+}
+//#endregion mobile_home_image_banner_flash_sale
 //#region home_flash_sale_products
 function load_data__home_flash_sale_products(index) {
     const data = arrData[index]?.data_product_flash_sale
@@ -979,6 +1042,224 @@ function confirmEdit_home_slide_banner(index) {
     )
 }
 //#endregion home_slide_banner
+//#region mobile_home_slide_banner_1
+function load_data__mobile_home_slide_banner_1(index) {
+    $($("#popup_mobile_home_slide_banner_1").find("#div__mobile_home_slide_banner_1")[0]).empty()
+    const data_banner_mobile_home_slide_banner_1 = arrData[index].Content.mobile_home_slide_banner_1.Content
+    check_slot = 0
+    for (let i = 0; i < data_banner_mobile_home_slide_banner_1.length; i++) {
+        check_slot++
+        $($("#popup_mobile_home_slide_banner_1").find("#div__mobile_home_slide_banner_1")[0]).append(`
+        <div style="position: relative; border-style: ridge; padding: 20px 20px; margin-bottom: 20px;" id="tr_mobile_home_slide_banner_1_${i}" class="thuan-2022-mobile_home_slide_banner_1">
+            <div class="row">
+                <i onclick="confirm_delete_banner_mobile_home_slide_banner_1('tr_mobile_home_slide_banner_1_${i}')" style="padding: 0px 0px; position: absolute; top: 0; left: 0;" class="fas fa-trash text-danger"></i>
+                <div class="col col-md-9">
+                    <div class="row" style="margin-top: 20px;">
+                        <label class="col-md-2"><b>Tiêu đề:</b></label>
+                        <input autocomplete="off" class="col-md-9 form-control thuan-2022-title-mobile_home_slide_banner_1" id="title_mobile_home_slide_banner_1_${i}" value="${data_banner_mobile_home_slide_banner_1[i]?.title}">
+                    </div>
+                    <div class="row" style="margin-top: 20px">
+                        <label class="col-md-2"><b>Link bài viết:</b></label>
+                        <input autocomplete="off" class="col-md-9 form-control thuan-2022-link-mobile_home_slide_banner_1" id="link_mobile_home_slide_banner_1_${i}" value="${data_banner_mobile_home_slide_banner_1[i]?.link}">
+                    </div>
+                </div>
+                <div class="col col-md-3">
+                    <img alt="Vui lòng chọn ảnh" style="width:200px; height: auto;" src="${URL_IMAGE_WEBSITE_COMPONENT}${data_banner_mobile_home_slide_banner_1[i]?.image}">
+                    <input class="thuan-2022-name-image-mobile_home_slide_banner_1" style="display:none;" id="name_image_mobile_home_slide_banner_1_${i}" value="${data_banner_mobile_home_slide_banner_1[i]?.image}">
+                    <input class="thuan-2022-img-mobile_home_slide_banner_1" autocomplete="off" accept="image/*" type="file" onchange="changeImage(this)" placeholder="Chọn file ảnh">
+                </div>
+                
+            </div>
+        </div>
+        `)
+    }
+    $("#btn_Save_edit_mobile_home_slide_banner_1").attr("onclick", `confirmEdit_mobile_home_slide_banner_1(${index})`)
+    showPopup(`popup_mobile_home_slide_banner_1`)
+}
+//mobile_home_slide_banner_1
+function add_more_mobile_home_slide_banner_1() {
+    check_slot++
+    const numb = check_slot
+    $($("#popup_mobile_home_slide_banner_1").find("#div__mobile_home_slide_banner_1")[0]).append(`
+    <div style="position: relative; border-style: ridge; padding: 20px 20px; margin-bottom: 20px;" id="tr_mobile_home_slide_banner_1_${numb}"  class="thuan-2022-mobile_home_slide_banner_1">
+    <i onclick="confirm_delete_banner_mobile_home_slide_banner_1('tr_mobile_home_slide_banner_1_${numb}')" style="padding: 0px 0px; position: absolute; top: 0; left: 0;" class="fas fa-trash text-danger"></i>
+        <div class="row">
+            <div class="col col-md-9">
+                <div class="row" style="margin-top: 20px;">
+                    <label class="col-md-2"><b>Tiêu đề:</b></label>
+                    <input autocomplete="off" class="col-md-9 form-control thuan-2022-title-mobile_home_slide_banner_1" id="title_mobile_home_slide_banner_1_${numb}" value="">
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <label class="col-md-2"><b>Link bài viết:</b></label>
+                    <input autocomplete="off" class="col-md-9 form-control thuan-2022-link-mobile_home_slide_banner_1" id="link_mobile_home_slide_banner_1_${numb}" value="">
+                </div>
+            </div>
+            <div class="col col-md-3">
+                <img alt="Vui lòng chọn ảnh" style="width:200px; height: auto;" src="">
+                <input class="thuan-2022-name-image-mobile_home_slide_banner_1" style="display:none;" id="name_image_mobile_home_slide_banner_1_${numb}" value="">
+                <input class="thuan-2022-img-mobile_home_slide_banner_1" autocomplete="off" accept="image/*" type="file"  onchange="changeImage(this)" placeholder="Chọn file ảnh">
+            </div>
+        </div>
+    </div>
+    `)
+}
+
+function confirm_delete_banner_mobile_home_slide_banner_1(id_tr) {
+    if (confirm("Bạn có muốn xóa banner này?") == true) {
+        $(`#${id_tr}`).remove()
+    }
+}
+function confirmEdit_mobile_home_slide_banner_1(index) {
+    const _id = arrData[index]._id
+    var data = new FormData()
+    //
+    const List_Content = document.querySelectorAll(".thuan-2022-mobile_home_slide_banner_1")
+    let arr_data_img = []
+    for (const itemSub of List_Content) {
+        const _id_title = itemSub.querySelector(".thuan-2022-title-mobile_home_slide_banner_1").getAttribute("id")
+        const _id_link = itemSub.querySelector(".thuan-2022-link-mobile_home_slide_banner_1").getAttribute("id")
+        const _id_name_image = itemSub.querySelector(".thuan-2022-name-image-mobile_home_slide_banner_1").getAttribute("id")
+        const tag_input_img = itemSub.querySelector(".thuan-2022-img-mobile_home_slide_banner_1")
+        // console.log($(`#${_id_title}`).val())
+
+        let name = $(`#${_id_name_image}`).val()
+        const img = tag_input_img.files[0]
+        data.append("mobile_home_slide_banner_1", img)
+        if (typeof img != "undefined" && img != null) name = img.name
+        arr_data_img.push({
+            title: $(`#${_id_title}`).val(),
+            link: $(`#${_id_link}`).val(),
+            image: name,
+        })
+    }
+    // console.log(arr_data_img)
+    data.append("receive_data", JSON.stringify(arr_data_img))
+    data.append("_id", _id)
+
+    hidePopup("popup_mobile_home_slide_banner_1")
+    // console.log(data)
+    callAPI(
+        "PUT",
+        `${API_WEBSITE_COMPONENT}/mobile_home_slide_banner_1`,
+        data,
+        () => {
+            success("Thành công")
+            getData()
+        },
+        undefined,
+        true
+    )
+}
+//#endregion mobile_home_slide_banner_1
+//#region mobile_home_slide_banner_2
+function load_data__mobile_home_slide_banner_2(index) {
+    $($("#popup_mobile_home_slide_banner_2").find("#div__mobile_home_slide_banner_2")[0]).empty()
+    const data_banner_mobile_home_slide_banner_2 = arrData[index].Content.mobile_home_slide_banner_2.Content
+    check_slot = 0
+    for (let i = 0; i < data_banner_mobile_home_slide_banner_2.length; i++) {
+        check_slot++
+        $($("#popup_mobile_home_slide_banner_2").find("#div__mobile_home_slide_banner_2")[0]).append(`
+        <div style="position: relative; border-style: ridge; padding: 20px 20px; margin-bottom: 20px;" id="tr_mobile_home_slide_banner_2_${i}" class="thuan-2022-mobile_home_slide_banner_2">
+            <div class="row">
+                <i onclick="confirm_delete_banner_mobile_home_slide_banner_2('tr_mobile_home_slide_banner_2_${i}')" style="padding: 0px 0px; position: absolute; top: 0; left: 0;" class="fas fa-trash text-danger"></i>
+                <div class="col col-md-9">
+                    <div class="row" style="margin-top: 20px;">
+                        <label class="col-md-2"><b>Tiêu đề:</b></label>
+                        <input autocomplete="off" class="col-md-9 form-control thuan-2022-title-mobile_home_slide_banner_2" id="title_mobile_home_slide_banner_2_${i}" value="${data_banner_mobile_home_slide_banner_2[i]?.title}">
+                    </div>
+                    <div class="row" style="margin-top: 20px">
+                        <label class="col-md-2"><b>Link bài viết:</b></label>
+                        <input autocomplete="off" class="col-md-9 form-control thuan-2022-link-mobile_home_slide_banner_2" id="link_mobile_home_slide_banner_2_${i}" value="${data_banner_mobile_home_slide_banner_2[i]?.link}">
+                    </div>
+                </div>
+                <div class="col col-md-3">
+                    <img alt="Vui lòng chọn ảnh" style="width:200px; height: auto;" src="${URL_IMAGE_WEBSITE_COMPONENT}${data_banner_mobile_home_slide_banner_2[i]?.image}">
+                    <input class="thuan-2022-name-image-mobile_home_slide_banner_2" style="display:none;" id="name_image_mobile_home_slide_banner_2_${i}" value="${data_banner_mobile_home_slide_banner_2[i]?.image}">
+                    <input class="thuan-2022-img-mobile_home_slide_banner_2" autocomplete="off" accept="image/*" type="file" onchange="changeImage(this)" placeholder="Chọn file ảnh">
+                </div>
+                
+            </div>
+        </div>
+        `)
+    }
+    $("#btn_Save_edit_mobile_home_slide_banner_2").attr("onclick", `confirmEdit_mobile_home_slide_banner_2(${index})`)
+    showPopup(`popup_mobile_home_slide_banner_2`)
+}
+//mobile_home_slide_banner_2
+function add_more_mobile_home_slide_banner_2() {
+    check_slot++
+    const numb = check_slot
+    $($("#popup_mobile_home_slide_banner_2").find("#div__mobile_home_slide_banner_2")[0]).append(`
+    <div style="position: relative; border-style: ridge; padding: 20px 20px; margin-bottom: 20px;" id="tr_mobile_home_slide_banner_2_${numb}"  class="thuan-2022-mobile_home_slide_banner_2">
+    <i onclick="confirm_delete_banner_mobile_home_slide_banner_2('tr_mobile_home_slide_banner_2_${numb}')" style="padding: 0px 0px; position: absolute; top: 0; left: 0;" class="fas fa-trash text-danger"></i>
+        <div class="row">
+            <div class="col col-md-9">
+                <div class="row" style="margin-top: 20px;">
+                    <label class="col-md-2"><b>Tiêu đề:</b></label>
+                    <input autocomplete="off" class="col-md-9 form-control thuan-2022-title-mobile_home_slide_banner_2" id="title_mobile_home_slide_banner_2_${numb}" value="">
+                </div>
+                <div class="row" style="margin-top: 20px">
+                    <label class="col-md-2"><b>Link bài viết:</b></label>
+                    <input autocomplete="off" class="col-md-9 form-control thuan-2022-link-mobile_home_slide_banner_2" id="link_mobile_home_slide_banner_2_${numb}" value="">
+                </div>
+            </div>
+            <div class="col col-md-3">
+                <img alt="Vui lòng chọn ảnh" style="width:200px; height: auto;" src="">
+                <input class="thuan-2022-name-image-mobile_home_slide_banner_2" style="display:none;" id="name_image_mobile_home_slide_banner_2_${numb}" value="">
+                <input class="thuan-2022-img-mobile_home_slide_banner_2" autocomplete="off" accept="image/*" type="file"  onchange="changeImage(this)" placeholder="Chọn file ảnh">
+            </div>
+        </div>
+    </div>
+    `)
+}
+
+function confirm_delete_banner_mobile_home_slide_banner_2(id_tr) {
+    if (confirm("Bạn có muốn xóa banner này?") == true) {
+        $(`#${id_tr}`).remove()
+    }
+}
+function confirmEdit_mobile_home_slide_banner_2(index) {
+    const _id = arrData[index]._id
+    var data = new FormData()
+    //
+    const List_Content = document.querySelectorAll(".thuan-2022-mobile_home_slide_banner_2")
+    let arr_data_img = []
+    for (const itemSub of List_Content) {
+        const _id_title = itemSub.querySelector(".thuan-2022-title-mobile_home_slide_banner_2").getAttribute("id")
+        const _id_link = itemSub.querySelector(".thuan-2022-link-mobile_home_slide_banner_2").getAttribute("id")
+        const _id_name_image = itemSub.querySelector(".thuan-2022-name-image-mobile_home_slide_banner_2").getAttribute("id")
+        const tag_input_img = itemSub.querySelector(".thuan-2022-img-mobile_home_slide_banner_2")
+        // console.log($(`#${_id_title}`).val())
+
+        let name = $(`#${_id_name_image}`).val()
+        const img = tag_input_img.files[0]
+        data.append("mobile_home_slide_banner_2", img)
+        if (typeof img != "undefined" && img != null) name = img.name
+        arr_data_img.push({
+            title: $(`#${_id_title}`).val(),
+            link: $(`#${_id_link}`).val(),
+            image: name,
+        })
+    }
+    // console.log(arr_data_img)
+    data.append("receive_data", JSON.stringify(arr_data_img))
+    data.append("_id", _id)
+
+    hidePopup("popup_mobile_home_slide_banner_2")
+    // console.log(data)
+    callAPI(
+        "PUT",
+        `${API_WEBSITE_COMPONENT}/mobile_home_slide_banner_2`,
+        data,
+        () => {
+            success("Thành công")
+            getData()
+        },
+        undefined,
+        true
+    )
+}
+//#endregion mobile_home_slide_banner_2
 //#region home_banner_gaming_market_01
 function load_data__home_banner_gaming_market_01(index) {
     const _data = arrData[index].Content.home_banner_gaming_market_01
@@ -1224,11 +1505,10 @@ $("#popup_template-home_banner_gaming_market_01")
         $("body").css("overflow", "auto")
     })
 //#endregion function
-function load_data__menu_build_pc(index){
-
+function load_data__menu_build_pc(index) {
     $("#pupup_menu_build_pc .modal-body .div-list-menu-build-pc").empty()
     const data = arrData[index].Content.menu_build_pc.array_category
-    for(let i =0;i<data.length; i++){
+    for (let i = 0; i < data.length; i++) {
         $("#pupup_menu_build_pc .modal-body .div-list-menu-build-pc").append(`
             <div class="item-menu-build-pc">
                 <span name="${data[i]._id}">
@@ -1238,38 +1518,42 @@ function load_data__menu_build_pc(index){
             </div>
         `)
     }
-    $("#btn_Save_menu_build_pc").attr("onclick",`confirm_save_menu_build_pc(${index})`)
-    showPopup('pupup_menu_build_pc')
+    $("#btn_Save_menu_build_pc").attr("onclick", `confirm_save_menu_build_pc(${index})`)
+    showPopup("pupup_menu_build_pc")
 }
 
-const find_data_category = ()=>{
-
+const find_data_category = () => {
     const input = $("#input_find_category")
     const spinner = $("#pupup_menu_build_pc .div-find-category-menu-build-pc .spinner-border")
     const div_show = $("#pupup_menu_build_pc .show-data-find-category")
     const key = $(input).val().trim()
-    if(key.length == 0){
+    if (key.length == 0) {
         $(div_show).empty()
         return
     }
     $(spinner).show()
-    callAPI('GET',`${API_CATEGORY}/client`,{
-        key: $(input).val().trim(),
-        limit:10,
-        page:1
-    }, data =>{
-        $(spinner).hide()
-        $(div_show).empty()
+    callAPI(
+        "GET",
+        `${API_CATEGORY}/client`,
+        {
+            key: $(input).val().trim(),
+            limit: 10,
+            page: 1,
+        },
+        (data) => {
+            $(spinner).hide()
+            $(div_show).empty()
 
-        for(let i =0;i<data.length;i++){
-            $(div_show).append(`
+            for (let i = 0; i < data.length; i++) {
+                $(div_show).append(`
                 <li><a href="javascript:void(0)" name="${data[i]._id}" onclick="select_category()">${data[i].category_name}<a/></li>
             `)
+            }
         }
-    })
+    )
 }
 
-function select_category(){
+function select_category() {
     const element = $(event.target)
     const id_category = $(element).attr("name")
     const name = $(element).text()
@@ -1277,14 +1561,14 @@ function select_category(){
     const div_show = $("#pupup_menu_build_pc .show-data-find-category")
     $(div_show).empty()
     $("#input_find_category").val(name)
-    $("#input_find_category").attr("name",id_category)
+    $("#input_find_category").attr("name", id_category)
 }
 
-function add_category_to_menu(){
+function add_category_to_menu() {
     const input = $("#input_find_category")
     const id_category = $(input).attr("name")
     const name = $(input).val()
-    if(id_category){
+    if (id_category) {
         $("#pupup_menu_build_pc .modal-body .div-list-menu-build-pc").append(`
         <div class="item-menu-build-pc">
             <span name="${id_category}">
@@ -1294,49 +1578,53 @@ function add_category_to_menu(){
         </div>
     `)
     }
-    
+
     $(input).val(null)
-    $(input).attr("name",null)
+    $(input).attr("name", null)
 }
 
-function delete_row_item_menu_build_pc(){
+function delete_row_item_menu_build_pc() {
     $($(event.target).parent()).remove()
 }
 
-function confirm_save_menu_build_pc(index){
+function confirm_save_menu_build_pc(index) {
     const items = $("#pupup_menu_build_pc .modal-body .div-list-menu-build-pc .item-menu-build-pc")
     const data = []
-    for(let i =0;i<items.length;i++){
-        const id_category = $($(items[i]).find('span')).attr("name")
-        if(id_category && id_category.length == 24){
+    for (let i = 0; i < items.length; i++) {
+        const id_category = $($(items[i]).find("span")).attr("name")
+        if (id_category && id_category.length == 24) {
             data.push(id_category)
         }
     }
-    callAPI('PUT',`${API_WEBSITE_COMPONENT}/menu_build_pc`,{
-        array_category:JSON.stringify(data),
-        id_menu:arrData[index]._id
-    },data =>{
-        hidePopup('pupup_menu_build_pc')
-        success("Thành công")
-        getData()
-    })
+    callAPI(
+        "PUT",
+        `${API_WEBSITE_COMPONENT}/menu_build_pc`,
+        {
+            array_category: JSON.stringify(data),
+            id_menu: arrData[index]._id,
+        },
+        (data) => {
+            hidePopup("pupup_menu_build_pc")
+            success("Thành công")
+            getData()
+        }
+    )
 }
 
-function success_find_subcategory_build_pc(data , parent){
-
-    for(let i =0 ;i<data.length;i++){
+function success_find_subcategory_build_pc(data, parent) {
+    for (let i = 0; i < data.length; i++) {
         arrSubCategory.push(data[i])
         $("#div_data_subcategory_build_pc").append(`
-            <li><a onclick="select_subcategory_list_build_pc(${arrSubCategory.length-1})" href="javascript:void(0)">${data[i].subcategory_name}</a></li>
+            <li><a onclick="select_subcategory_list_build_pc(${arrSubCategory.length - 1})" href="javascript:void(0)">${data[i].subcategory_name}</a></li>
         `)
     }
 }
 
-function add_subcategory_to_menu(){
+function add_subcategory_to_menu() {
     const input = $("#input_data_subcategory_build_pc")
     const id_subcategory = $(input).attr("name")
     const name = $(input).val()
-    if(id_subcategory){
+    if (id_subcategory) {
         $("#pupup_list_subcategory_build_pc .modal-body .div-list-menu-build-pc").append(`
         <div class="item-menu-build-pc">
             <span name="${id_subcategory}">
@@ -1346,28 +1634,24 @@ function add_subcategory_to_menu(){
         </div>
     `)
     }
-    
-    $(input).val(null)
-    $(input).attr("name",null)
-}
-function select_subcategory_list_build_pc(index){
 
-   
-    if(arrSubCategory[index].subcategory_export_price <= 0){
+    $(input).val(null)
+    $(input).attr("name", null)
+}
+function select_subcategory_list_build_pc(index) {
+    if (arrSubCategory[index].subcategory_export_price <= 0) {
         info("Sản phẩm hiển thị phải có giá lớn hơn 0")
         return
     }
     $("#input_data_subcategory_build_pc").val(arrSubCategory[index].subcategory_name)
-    $("#input_data_subcategory_build_pc").attr("name",arrSubCategory[index]._id)
+    $("#input_data_subcategory_build_pc").attr("name", arrSubCategory[index]._id)
     const div_parent = $(event.target).closest("div").empty()
-
 }
 
-function load_data__list_subcategory_build_pc(index){
-
+function load_data__list_subcategory_build_pc(index) {
     $("#pupup_list_subcategory_build_pc .modal-body .div-list-menu-build-pc").empty()
     const data = arrData[index].Content.list_subcategory_build_pc.array_subcategory
-    for(let i =0;i<data.length; i++){
+    for (let i = 0; i < data.length; i++) {
         $("#pupup_list_subcategory_build_pc .modal-body .div-list-menu-build-pc").append(`
             <div class="item-menu-build-pc">
                 <span name="${data[i]._id}">
@@ -1377,36 +1661,39 @@ function load_data__list_subcategory_build_pc(index){
             </div>
         `)
     }
-    $("#btn_Save_list_subcategory_build_pc").attr("onclick",`confirm_save_list_subcategory_build_pc(${index})`)
-    showPopup('pupup_list_subcategory_build_pc')
+    $("#btn_Save_list_subcategory_build_pc").attr("onclick", `confirm_save_list_subcategory_build_pc(${index})`)
+    showPopup("pupup_list_subcategory_build_pc")
 }
 
-function confirm_save_list_subcategory_build_pc(index){
+function confirm_save_list_subcategory_build_pc(index) {
     const items = $("#pupup_list_subcategory_build_pc .modal-body .div-list-menu-build-pc .item-menu-build-pc")
     const data = []
-    for(let i =0;i<items.length;i++){
-        const id_subcategory = $($(items[i]).find('span')).attr("name")
-        if(id_subcategory && id_subcategory.length == 24){
+    for (let i = 0; i < items.length; i++) {
+        const id_subcategory = $($(items[i]).find("span")).attr("name")
+        if (id_subcategory && id_subcategory.length == 24) {
             data.push(id_subcategory)
         }
     }
-    callAPI('PUT',`${API_WEBSITE_COMPONENT}/list_subcategory_build_pc`,{
-        array_subcategory:JSON.stringify(data),
-        id_menu:arrData[index]._id
-    },data =>{
-        hidePopup('pupup_list_subcategory_build_pc')
-        success("Thành công")
-        getData()
-    })
+    callAPI(
+        "PUT",
+        `${API_WEBSITE_COMPONENT}/list_subcategory_build_pc`,
+        {
+            array_subcategory: JSON.stringify(data),
+            id_menu: arrData[index]._id,
+        },
+        (data) => {
+            hidePopup("pupup_list_subcategory_build_pc")
+            success("Thành công")
+            getData()
+        }
+    )
 }
 
-function load_data__banner_build_pc(index){
-
+function load_data__banner_build_pc(index) {
     const images = arrData[index].Content.banner_build_pc.array_images
     $("#pupup_banner_build_pc .modal-body .old-images").empty()
-   
-    for(let i =0; i< images.length;i++)
-    {
+
+    for (let i = 0; i < images.length; i++) {
         $("#pupup_banner_build_pc .modal-body .old-images").append(`
         <div class="item-old-image">
             <i class="fas fa-trash text-danger" onclick="delete_parent(this)"></i>
@@ -1415,30 +1702,79 @@ function load_data__banner_build_pc(index){
         </div>
         `)
     }
-    $("#btn_Save_banner_build_pc").attr("onclick",`confirm_save_banner_build_pc(${index})`)
-    showPopup('pupup_banner_build_pc')
-
+    $("#btn_Save_banner_build_pc").attr("onclick", `confirm_save_banner_build_pc(${index})`)
+    showPopup("pupup_banner_build_pc")
 }
 
-function confirm_save_banner_build_pc(index){
+function load_data__banner_news(index) {
+    const images = arrData[index].Content.banner_news.array_images
+    $("#pupup_banner_build_pc .modal-body .old-images").empty()
+
+    for (let i = 0; i < images.length; i++) {
+        $("#pupup_banner_build_pc .modal-body .old-images").append(`
+        <div class="item-old-image">
+            <i class="fas fa-trash text-danger" onclick="delete_parent(this)"></i>
+            <img src="${URL_IMAGE_WEBSITE_COMPONENT}${images[i]}">
+            <input type="text" class="input-old-image" style="display:none" value="${images[i]}">
+        </div>
+        `)
+    }
+    $("#btn_Save_banner_build_pc").attr("onclick", `confirm_save_banner_news(${index})`)
+    showPopup("pupup_banner_build_pc")
+}
+
+function confirm_save_banner_build_pc(index) {
     const array_old_image = []
 
     const inputs = $("#pupup_banner_build_pc input.input-old-image")
 
-
-    const formData = new FormData();
+    const formData = new FormData()
     for (var i = 0; i < totalFiles.length; i++) {
-        formData.append("image_product", totalFiles[i].file); // ảnh sản phẩm
+        formData.append("image_product", totalFiles[i].file) // ảnh sản phẩm
     }
     for (var i = 0; i < inputs.length; i++) {
         array_old_image.push($(inputs[i]).val())
     }
     formData.append("old_images", JSON.stringify(array_old_image)) // ảnh sản phẩm
-    formData.append('id_menu',arrData[index]._id)
-    callAPI('PUT',`${API_WEBSITE_COMPONENT}/banner_build_pc`,formData, ()=>{
-        hidePopup('pupup_banner_build_pc')
-        success("Thành công")
-        getData()
+    formData.append("id_menu", arrData[index]._id)
+    callAPI(
+        "PUT",
+        `${API_WEBSITE_COMPONENT}/banner_build_pc`,
+        formData,
+        () => {
+            hidePopup("pupup_banner_build_pc")
+            success("Thành công")
+            getData()
+        },
+        undefined,
+        true
+    )
+}
 
-    },undefined, true)
+function confirm_save_banner_news(index) {
+    const array_old_image = []
+
+    const inputs = $("#pupup_banner_build_pc input.input-old-image")
+
+    const formData = new FormData()
+    for (var i = 0; i < totalFiles.length; i++) {
+        formData.append("image_product", totalFiles[i].file) // ảnh sản phẩm
+    }
+    for (var i = 0; i < inputs.length; i++) {
+        array_old_image.push($(inputs[i]).val())
+    }
+    formData.append("old_images", JSON.stringify(array_old_image)) // ảnh sản phẩm
+    formData.append("id_menu", arrData[index]._id)
+    callAPI(
+        "PUT",
+        `${API_WEBSITE_COMPONENT}/banner_news`,
+        formData,
+        () => {
+            hidePopup("pupup_banner_build_pc")
+            success("Thành công")
+            getData()
+        },
+        undefined,
+        true
+    )
 }

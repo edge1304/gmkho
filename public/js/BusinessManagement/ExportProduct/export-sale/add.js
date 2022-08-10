@@ -535,8 +535,13 @@ function confirmAdd(){
         user_address:user_address
       })
     }, data =>{
-      success("Thành công")
-
+        success("Thêm thành công")
+        const div = $("#div_find_supplier").parent()
+        id_user = data._id
+        $($(div).find('input')[0]).val(data.user_fullname)
+        $($(div).find('input')[1]).val(data.user_phone)
+        $($(div).find('input')[2]).val(data.user_address)
+        $($(div).find('input')[3]).val(data.user_point)
     })
   }
   

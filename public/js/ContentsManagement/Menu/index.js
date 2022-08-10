@@ -10,13 +10,13 @@ $(function () {
     const page = 1
     getData(page)
 })
-function getData(page) {
+function getData(page = 1) {
     isLoading()
     limit = parseInt($("#selectLimit").val())
     let key = $("#keyFind").val()
     $.ajax({
         type: "GET",
-        url: `../api/menu`,
+        url: `${URL_API}/menu`,
         headers: {
             token: ACCESS_TOKEN,
         },
@@ -40,8 +40,9 @@ function getData(page) {
             DATA_ALL_WEBSITE_COMPONENT = data.data_website_component
             draw_List_data_website_component(id_website_component, `select_website_component`)
             //
-            drawTable(data.data)
-            pagination(data.count, data.data.length)
+            drawTable(data.data, data.page)
+            // pagination2(data.count, data.data.length)
+            pagination2(data.count, data.page)
         },
         error: function (data) {
             errAjax(data)
@@ -77,7 +78,8 @@ function draw_List_category_website(id_parent) {
     }
     load_parent_menu("select_Menu", null, "")
 }
-function drawTable(data) {
+function drawTable(data, current_page) {
+    let stt_table = (current_page - 1) * data.length + 1
     arrCategory = []
     $("#tbodyTable").empty()
     for (let i = 0; i < data.length; i++) {
@@ -86,7 +88,7 @@ function drawTable(data) {
         if (data[i]["Image"] == null || typeof data[i]["Image"] == "undefined") image = ""
         $("#tbodyTable").append(`
             <tr>
-                <td class="center">${i + 1}</td>
+                <td class="center">${stt_table}</td>
                 <td class="text-center"><input onchange="change_serial_number('${data[i]._id}',this)" type="number" value="${data[i].serial_number}" class="form-control"></td>
                 <td>${data[i].name}</td>
                 <td>${data[i]?.data_parent?.name || "---"}</td>
@@ -95,6 +97,7 @@ function drawTable(data) {
                 <td class="center"><button onclick="showPopupEdit(${i})" class="btn btn-danger">Chi tiết</button></td>
             </tr>
         `)
+        stt_table++
     }
 }
 function showPopupEdit(index) {

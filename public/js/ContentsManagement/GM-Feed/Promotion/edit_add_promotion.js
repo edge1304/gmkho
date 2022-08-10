@@ -15,6 +15,7 @@ function drawTable(data){
     CKEDITOR.instances.editor.setData(data.promotion_content)
     $("input[name=title_promotion]").val(data.promotion_title)
     $("input[name=promotion_url]").val(data.promotion_url)
+    $("input[name=promotion_index]").val(tryParseInt(data.promotion_index))
 
     for(let i =0;i<data.promotion_images.length;i++)
     {
@@ -41,6 +42,7 @@ function confirmSave(){
         return
     }
     const promotion_url = $("input[name=promotion_url]").val()
+    const promotion_index = tryParseInt($("input[name=promotion_index]").val())
     
     const formData = new FormData();
     for (var i = 0; i < totalFiles.length; i++) {
@@ -50,6 +52,7 @@ function confirmSave(){
     formData.append('title_promotion', title_promotion)
     formData.append('promotion_url', promotion_url)
     formData.append('id_promotion', id_promotion)
+    formData.append('promotion_index', promotion_index)
     formData.append('array_image_delete', JSON.stringify(array_image_delete))
 
 

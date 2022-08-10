@@ -5,6 +5,7 @@ import * as validator from '../../helper/validator.js'
 import path from 'path';
 import { ModelBranch } from '../../models/Branch.js'
 import { ModelEmployeeGroup } from '../../models/EmployeeGroup.js'
+import { ModelEmployeeSuperGroup } from '../../models/EmployeeSuperGroup.js'
 import { ModelEmployee } from '../../models/Employee.js'
 import multer from 'multer'
 import fs from 'fs'
@@ -32,8 +33,10 @@ export const management = async (app) => {
                 if (page <= 0) page = 1
             }
             var arrGroup = []
+            var supperGroup = []
             if (req.query.getGroup === 'true') {
                 arrGroup = await ModelEmployeeGroup.find()
+                supperGroup = await ModelEmployeeSuperGroup.find()
             }
 
             const data = await ModelEmployee.find(query).sort({ _id: -1 }).skip((page - 1) * limit).limit(limit)
@@ -44,7 +47,7 @@ export const management = async (app) => {
             }
             const count = await ModelEmployee.countDocuments(query)
 
-            return res.json({ data: data, count: count, arrGroup: arrGroup })
+            return res.json({ data: data, count: count, arrGroup: arrGroup, supperGroup:supperGroup })
 
         }
         catch (e) {
@@ -216,3 +219,28 @@ export const getInfo = async (app) => {
        
     })
 }
+
+export const insert_group = async (app) => {
+    app.post(prefixApi + "/add-group", helper.authenToken, async (req, res) => {
+        try {
+            if (!await helper.checkPermission("61e15741f8bf2521b16be201", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const id_supper = req.body.id_supper
+            const group_name = req.body.group_name
+            if(!validator.isDefine(group_name)) return res.status(400).send(`Thất bại! Tên chức danh không được để trống.`)
+            if(!validator.ObjectId.isValid(id_supper))  return res.status(400).send(`Thất bại! Hãy chọn nhóm nhân viên.`)
+            
+            const insert_new = await new ModelEmployeeGroup({
+                employee_group_name: group_name,
+                id_super_group: id_supper,
+                employee_level: 1,
+            }).save()
+            return res.json(insert_new)
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+       
+    })
+}
+

@@ -103,7 +103,7 @@
 <script>
     $(".name_admin").html(getCookie('employee_fullname'))
     $(".name_group").html(getCookie('name_group'))
-    $(".page-title").html(getCookie('name_branch'))
+    $(".page-title").html(`${getCookie('name_branch')} | &ensp; ${getCookie('name_group')} `)
     
     function formatNumber() {
         $('.number').mask("#,###,###,###,###,###,###,###,###,###,###,###,###,###", {

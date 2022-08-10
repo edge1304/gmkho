@@ -9,6 +9,9 @@ const Schema = new mongoose.Schema(
             ...validator.schemaString,
         },
         SlideBanner: validator.schemaArray,
+        Active_Mobile:{
+            ...validator.schemaBooleanFalse
+        }
     },
     { timestamps: true }
 )

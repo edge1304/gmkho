@@ -43,7 +43,11 @@ const schemaSubCategory = new mongoose.Schema(
             ...validator.schemaNumber,
         },
         subcategory_number_sale: {
-            // số lượng đã
+            // số lượng đã bán
+            ...validator.schemaNumber,
+        },
+        subcategory_number_view: {
+            // số lượng đã xem
             ...validator.schemaNumber,
         },
         subcategory_number_star: {
@@ -189,13 +193,17 @@ const schemaSubCategory = new mongoose.Schema(
 validator.schePre(schemaSubCategory)
 
 schemaSubCategory.pre(["findByIdAndUpdate", "findOneAndUpdate"], async function (next) {
-    this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name)
-    this.subcategory_slug_link = validator.stringToSlug(this.subcategory_name)
+    if(validator.isDefine(this.subcategory_name)){
+        this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name)
+        this.subcategory_slug_link = validator.stringToSlug(this.subcategory_name)
+    }
+
     return next()
 })
 
 schemaSubCategory.pre(["save", "insertMany"], async function (next) {
-    ;(this.subcategory_replace_name = this.subcategory_name), (this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name))
+    this.subcategory_replace_name = this.subcategory_name
+    this.subcategory_text_search = validator.stringTextSearch(this.subcategory_name)
     this.subcategory_slug_link = validator.stringToSlug(this.subcategory_name)
     return next()
 })

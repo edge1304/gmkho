@@ -4,7 +4,7 @@ var getAllUser = true;
 getData()
 
 function getData(isLoad = true) {
-    isLoading(isLoading)
+   
     if (!getAllUser) {
         id_employee_group = $("#selectEmployeeGroup option:selected").val()
     }
@@ -30,9 +30,13 @@ function getData(isLoad = true) {
                 else $("select[name=selectGroup]").append(`<option value="${group._id}">${group.employee_group_name}</option>`)
 
             })
+            data.supperGroup.forEach(supper_group => {
+                $("select[name=supper_group]").append(`<option value="${supper_group._id}" selected>${supper_group.employee_super_group_name}</option>`)
+
+            })
             getAllUser = false
         }
-    })
+    },undefined,undefined,isLoad)
 }
 
 
@@ -189,4 +193,22 @@ function confirmAdd() {
         getData()
     }, undefined, true)
 
+}
+
+function confirm_add_group(){
+    const group_name = $("#popupAddGroup .modal-body input[type=text]").val().trim()
+    const id_supper = $("#popupAddGroup .modal-body select[name=supper_group] option:selected").val()
+
+    if(group_name.length == 0){
+        info("Tên chức danh không được trống!")
+        return
+    }
+    hidePopup('popupAddGroup')
+    callAPI('POST',`${API_EMPLOYEE}/add-group`,{
+        group_name:group_name,
+        id_supper:id_supper
+    }, ()=>{
+        success("Thành công")
+        location.reload()
+    })
 }

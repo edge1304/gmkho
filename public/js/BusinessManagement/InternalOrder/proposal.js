@@ -3,12 +3,13 @@ var offsetSubcategory = 1
 var arrSubCategory = []
 var arrData = []
 var arrSupplier = []
+
 function checkPermission() {
     callAPI('GET', `${API_INTERNAL_ORDER}/checkPermission`, null, data => {
-        
+
         data.warehouses_of_branch.map(warehouse => {
             var is_selected = ""
-            if(warehouse._id.toString() == id_warehouse) is_selected = "selected"
+            if (warehouse._id.toString() == id_warehouse) is_selected = "selected"
             $("select[name=warehouse]").append(`<option ${is_selected} value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
         })
         data.warehouses.map(warehouse => {
@@ -17,15 +18,16 @@ function checkPermission() {
         data.fundbooks.map(fund => {
             $("#selectTypePayment").append(`<option value="${fund._id}">${fund.fundbook_name}</option>`)
         })
-        getData() 
+        getData()
     })
 }
 
 function showPopupAdd() {
     $("#tbodyAdd").empty()
     drawTableAdd()
-    showPopup('popupAdd',true)
+    showPopup('popupAdd', true)
 }
+
 function drawTableAdd(tbody = "#tbodyAdd") {
     $(`${tbody}`).append(`
     <tr>
@@ -46,27 +48,28 @@ function drawTableAdd(tbody = "#tbodyAdd") {
     `)
     formatNumber()
 }
-function loadmoreProduct(){
+
+function loadmoreProduct() {
     const div = $(event.path[0])
-    if($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
-        offsetSubcategory ++
+    if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
+        offsetSubcategory++
         const key = $($(div).closest('td').find('input')[0]).val().trim()
 
         const div_loading = $(div).closest('td').find('div')[0]
-    
-        if(key.length == 0){
+
+        if (key.length == 0) {
             $(div).empty()
             return
         }
-    
+
         $(div_loading).show()
-        callAPI('GET',`${API_SUBCATEGORY}/client?`,{
-            key:key,
-            limit:10,
-            page:offsetSubcategory
-        }, data =>{
+        callAPI('GET', `${API_SUBCATEGORY}/client?`, {
+            key: key,
+            limit: 10,
+            page: offsetSubcategory
+        }, data => {
             $(div_loading).hide()
-            for(let i =0;i<data.length;i++){
+            for (let i = 0; i < data.length; i++) {
                 arrSubCategory.push(data[i])
                 $(div).append(`
                     <li><a onclick="selectProduct(${arrSubCategory.length - 1})" href="javascript:void(0)">${data[i].subcategory_name}</a></li>
@@ -74,57 +77,59 @@ function loadmoreProduct(){
             }
         }, (data) => {
             $(div_loading).hide()
-            errAjax(data) 
-        },false,false)
+            errAjax(data)
+        }, false, false)
     }
 
 }
-function findProduct(input){
-    
+
+function findProduct(input) {
+
     offsetSubcategory = 1
     const key = $(input).val().trim()
     const div_subcategory = $(input).closest('td').find('div')[1]
     const div_loading = $(input).closest('td').find('div')[0]
 
-    if(key.length == 0){
+    if (key.length == 0) {
         $(div_subcategory).empty()
         return
     }
 
     $(div_loading).show()
-    callAPI('GET',`${API_SUBCATEGORY}/client?`,{
-        key:key,
-        limit:10,
-        page:offsetSubcategory
-    }, data =>{
+    callAPI('GET', `${API_SUBCATEGORY}/client?`, {
+        key: key,
+        limit: 10,
+        page: offsetSubcategory
+    }, data => {
         $(div_loading).hide()
         arrSubCategory = []
         $(div_subcategory).empty()
 
-        for(let i =0;i<data.length;i++){
+        for (let i = 0; i < data.length; i++) {
             arrSubCategory.push(data[i])
             $(div_subcategory).append(`
                 <li><a onclick="selectProduct(${arrSubCategory.length - 1})" href="javascript:void(0)">${data[i].subcategory_name}</a></li>
             `)
         }
-    },(data)=>{
+    }, (data) => {
         $(div_loading).hide()
-        errAjax(data) 
-    },false,false)
+        errAjax(data)
+    }, false, false)
 }
-function selectProduct(index){
+
+function selectProduct(index) {
 
     const tr = $(event.path[0]).closest('tr')
     const tbody = $(event.path[0]).closest('tbody')
     const td = $(event.path[0]).closest('td')
     $(td).find('.div-product').empty()
     $($(tr).find('input')[0]).val(arrSubCategory[index].subcategory_name)
-    $($(tr).find('input')[0]).attr("name",arrSubCategory[index]._id)
-    $($(tr).find('input')[0]).prop("disabled",true)
+    $($(tr).find('input')[0]).attr("name", arrSubCategory[index]._id)
+    $($(tr).find('input')[0]).prop("disabled", true)
     $($(tr).find('input')[1]).val(money(arrSubCategory[index].subcategory_import_price))
     $($(tr).find('input')[2]).val(money(arrSubCategory[index].subcategory_vat))
     $($(tr).find('input')[3]).val(money(arrSubCategory[index].subcategory_ck))
-    if($($(tr).find('input')[4]).val() == 0){
+    if ($($(tr).find('input')[4]).val() == 0) {
         $($(tr).find('input')[4]).val(1)
     }
     $($(tr).find('input')[5]).val(arrSubCategory[index].subcategory_warranty)
@@ -137,7 +142,7 @@ function selectProduct(index){
 }
 
 function changeMoney() {
-    
+
     const classes_input = $(event.path[0]).attr("class")
     if (typeof classes_input != 'undefined' && classes_input.includes('number')) {
         const input = $(event.path[0])
@@ -148,7 +153,7 @@ function changeMoney() {
     }
     const trs = $("#tbodyAdd").find('tr')
     let total = 0
-    for(let i = 0 ;i <trs.length;i++){
+    for (let i = 0; i < trs.length; i++) {
         const inputs = $(trs[i]).find('input')
         const import_price = $(inputs[1]).val()
         const vat = $(inputs[2]).val()
@@ -160,27 +165,27 @@ function changeMoney() {
     }
 
     $(".div-note tr:first-child th:last-child").html(money(total))
-    
+
 }
 
-function removeRow(){
+function removeRow() {
     const tr = $(event.path[0]).closest('tr')
     const tbody = $(event.path[0]).closest('tbody')
 
-    if( $(tr).index() != $(tbody).find('tr').length-1 ){
+    if ($(tr).index() != $(tbody).find('tr').length - 1) {
         $(tr).remove()
         changeMoney()
     }
-    
+
 }
 
 function confirmProposal() {
     const from_warehouse = $("#popupAdd select[name=warehouse] option:selected").val()
     const to_warehouse = $("#popupAdd select[name=to-warehouse] option:selected").val()
-   
+
     var arrProduct = []
     const trs = $("#tbodyAdd").find('tr')
-    for (let i = 0; i < trs.length; i++){
+    for (let i = 0; i < trs.length; i++) {
         const inputs = $(trs[i]).find('input')
 
 
@@ -207,7 +212,7 @@ function confirmProposal() {
         arrProduct: JSON.stringify(arrProduct),
         from_warehouse: from_warehouse,
         to_warehouse: to_warehouse,
-        internal_order_note:internal_order_note
+        internal_order_note: internal_order_note
     }, data => {
         success("Thành công")
         getData()
@@ -223,13 +228,13 @@ function getData() {
     id_warehouse = $("#selectWarehouse option:selected").val()
     const status = $("#selectStatus option:selected").val()
     callAPI('GET', API_INTERNAL_ORDER, {
-        limit:limit,
-        key:key,
-        fromdate:fromdate,
-        todate:todate,
-        from_warehouse:id_warehouse,
+        limit: limit,
+        key: key,
+        fromdate: fromdate,
+        todate: todate,
+        from_warehouse: id_warehouse,
         interal_order_status: status,
-        page:page
+        page: page
     }, data => {
         drawTable(data.data)
         pagination(data.count, data.data.length)
@@ -240,7 +245,7 @@ function getData() {
 function drawTable(data) {
     arrData = []
     $("#tbodyTable").empty()
-    for (let i = 0; i < data.length; i++){
+    for (let i = 0; i < data.length; i++) {
         arrData.push(data[i])
         $("#tbodyTable").append(`
             <tr>
@@ -279,7 +284,7 @@ function showEdit(index) {
     //nếu hoàn thành rồi thì cho in phiếu nhập
     if(arrData[index].interal_order_status == "Hoàn thành")
     {
-        $("#btnPrintImport").attr("onclick", `newPage('/import/print/${arrData[index]._id}')`)
+        $("#btnPrintImport").attr("onclick", `newPage('/import/print/${arrData[index].id_import_form}')`)
         $("#btnPrintImport").show()
         
     }
@@ -437,6 +442,13 @@ function detailTabExport(index) {
         $("#btnImport").hide()
 
     }
+
+    if(arrData[index].temp_to_user_id){
+        $("#div_find_supplier input").val(arrData[index].temp_to_user_fullname)
+        $("#div_find_supplier input").attr("name",arrData[index].temp_to_user_id)
+        id_user = arrData[index].temp_to_user_id
+    }
+   
     callAPI('GET', API_EXPORT, {
         key:arrData[index].id_export_form
     }, data => {

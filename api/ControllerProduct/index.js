@@ -52,12 +52,12 @@ export const getInfo =  (app) => {
             // if(!validator.ObjectId.isValid(req.query.id_product)) return res.status(400).send("Không tìm thấy ")
             let query = {}
             if (!validator.isDefine(req.query.key)) return res.status(400).send("Không tìm thấy sản phẩm")
-    
-            if (validator.isDefine(req.query.key) && validator.ObjectId.isValid(req.query.key)) {
-                query = { $or: [{_id: sanitize(req.query.key.trim())},{id_product2: req.query.key.trim()}]}
+            const key = req.query.key.replace('đ','dd')
+            if (validator.isDefine(key) && validator.ObjectId.isValid(key)) {
+                query = { $or: [{_id: sanitize(key.trim())},{id_product2: key.trim()}]}
             }
             else {
-                query = {id_product2: req.query.key.trim()}
+                query = {id_product2: key.trim()}
             }
 
             const dataProduct = await ModelProduct.findOne(query)
@@ -200,10 +200,12 @@ export const history = async (app)=>{
                 data.payment_form_money = 0
                 
                 const dataUser = await ModelUser.findById(data.id_user)
-
-                data.user_fullname = dataUser.user_fullname
-                data.user_phone = dataUser.user_phone
-                data.user_address = dataUser.user_address
+                if(dataUser){
+                    data.user_fullname = dataUser.user_fullname
+                    data.user_phone = dataUser.user_phone
+                    data.user_address = dataUser.user_address
+                }
+              
 
                 const dataWarehouse = await ModelWarehouse.findById(data.id_warehouse)
                 if(dataWarehouse) {
@@ -232,10 +234,12 @@ export const history = async (app)=>{
                 data.receive_form_money = 0
 
                 const dataUser = await ModelUser.findById(data.id_user)
-
-                data.user_fullname = dataUser.user_fullname
-                data.user_phone = dataUser.user_phone
-                data.user_address = dataUser.user_address
+                if(dataUser){
+                    data.user_fullname = dataUser.user_fullname
+                    data.user_phone = dataUser.user_phone
+                    data.user_address = dataUser.user_address
+                }
+              
 
                 const dataWarehouse = await ModelWarehouse.findById(data.id_warehouse)
                 if(dataWarehouse) {
@@ -292,6 +296,14 @@ export const filter = async (app)=>{
                 
             }
             const data = await ModelProduct.find(query)
+            for(let i =0;i<data.length;i++){
+                const dataIm = await ModelImportForm.findById(data[i].id_import_form)
+                if(dataIm){
+                    const dataUser = await ModelUser.findById(dataIm.id_user)
+                    data[i].date_import = dataIm.createdAt
+                    if(dataUser) data[i].user_fullname = dataUser.user_fullname
+                }
+            }
             return res.json(data)
         }
         catch(e)
@@ -459,7 +471,8 @@ export const report_sold_by_date = async (app)=>{
 export const check_warranty = async (app)=>{
     app.get(prefixApi +"/check-warranty",  async (req, res)=>{
         try{
-            const id_product = req.query.id_product
+            if(!req.query.id_product || req.query.id_product.trim().length == 0) return res.status(400).send(`Không tìm thấy thông tin`)
+            const id_product = req.query.id_product.replace('đ','dd')
 
             if(!id_product || id_product.trim().length == 0) return res.status(400).send(`Không tìm thấy thông tin`)
             let query = {}
@@ -519,5 +532,83 @@ export const check_warranty = async (app)=>{
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
         
+    })
+}
+
+
+export const find_all_imported = async (app)=>{
+    app.get(prefixApi +"/find-all-imported",  helper.authenToken, async (req, res)=>{
+        if(!await helper.checkPermission("623ec0176751da4434562711", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+        try
+        {
+            const id_subcategory = req.query.id_subcategory
+            const id_warehouse = req.query.id_warehouse
+            // const status = req.query.status
+
+          
+            const dataImport = await ModelImportForm.find({$and:[
+                {"id_warehouse":validator.ObjectId(id_warehouse)},
+                {"import_form_product.id_subcategory":validator.ObjectId(id_subcategory)}
+            ]})
+
+            const array_product = []
+            for(let i =0;i<dataImport.length;i++){
+                for(let j = 0;j<dataImport[i].import_form_product.length;j++){
+                    const item_import = dataImport[i].import_form_product[j]
+                    if(item_import.id_product && validator.ObjectId(item_import.id_product)){
+                        const dataPro = await ModelProduct.findById(item_import.id_product)
+                        if(dataPro){
+                            array_product.push({
+                                id_product:dataPro._id,
+                                product_import_price: dataPro.product_import_price,
+                                createdAt:dataPro.createdAt,
+                                id_warehouse:dataPro.id_warehouse,
+                                product_status:dataPro.product_status,
+                                id_product2:dataPro.id_product2
+                            })
+                        }
+                       
+                    }
+                    else{
+                        const dataPro = await ModelProduct.find({$and:[{id_import_form: dataImport[i]._id},{id_subcategory:validator.ObjectId(id_subcategory)}]})
+                        if(dataPro){
+                            for(let g =0;g<dataPro.length;g++){
+                                array_product.push({
+                                    id_product:dataPro[g]._id,
+                                    product_import_price: dataPro[g].product_import_price,
+                                    createdAt:dataPro[g].createdAt,
+                                    id_warehouse:dataPro[g].id_warehouse,
+                                    product_status:dataPro[g].product_status,
+                                    id_product2:dataPro[g].id_product2
+                                })
+                            }
+                            
+                        }
+                        break
+                    }
+                }
+            }
+
+            for(let i =0;i<array_product.length;i++){
+                for(let j = i+1; j<array_product.length;j++){
+                    if(array_product[i].id_product.toString() == array_product[j].id_product.toString() ){
+                        array_product.splice(j,1)
+                        j--
+                    }
+                }
+            }
+            for(let i =0;i<array_product.length;i++){
+                const dataWare = await ModelWarehouse.findById(array_product[i].id_warehouse)
+                if(dataWare){
+                    array_product[i].warehouse_name = dataWare.warehouse_name
+                }
+            }
+            return res.json(array_product)
+        }
+        catch(e)
+        {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
     })
 }

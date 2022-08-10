@@ -10,7 +10,6 @@ const FIXED_LIMIT = 10
 import path from "path"
 import multer from "multer"
 
-
 var url_image = "public/images/images_website_component"
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -43,15 +42,15 @@ export const management = async (app) => {
                         ...data[i],
                         data_product_flash_sale: arr_product_flash_sale,
                     }
-             
-                    if(validator.isDefine(data[i].Content.menu_build_pc)){
-                        for(let j =0;j<data[i].Content.menu_build_pc.array_category.length;j++){
+
+                    if (validator.isDefine(data[i].Content.menu_build_pc)) {
+                        for (let j = 0; j < data[i].Content.menu_build_pc.array_category.length; j++) {
                             const data_category = await ModelCategory.findById(data[i].Content.menu_build_pc.array_category[j])
                             data[i].Content.menu_build_pc.array_category[j] = data_category
                         }
                     }
-                    if(validator.isDefine(data[i].Content.list_subcategory_build_pc)){
-                        for(let j =0;j<data[i].Content.list_subcategory_build_pc.array_subcategory.length;j++){
+                    if (validator.isDefine(data[i].Content.list_subcategory_build_pc)) {
+                        for (let j = 0; j < data[i].Content.list_subcategory_build_pc.array_subcategory.length; j++) {
                             const data_subcategory = await ModelSubCategory.findById(data[i].Content.list_subcategory_build_pc.array_subcategory[j])
                             data[i].Content.list_subcategory_build_pc.array_subcategory[j] = data_subcategory
                         }
@@ -505,10 +504,78 @@ export const management = async (app) => {
                     }
                     break
                 }
+                case `footer_business_license`: {
+                    const _key_update = `footer_business_license`
+                    const _id = req.body._id
+                    const _DATA = await Model_Website_Component.findById(_id)
+                    if (!validator.isDefine(_DATA)) {
+                        return res.status(404).json(`Không tìm thấy nội dung cần được chỉnh sửa`)
+                    }
+                    //
+                    const DATA_UPDATE = req.body.receive_data
+                    var newValue = _DATA.Content
+                    newValue[_key_update].Content = DATA_UPDATE
+                    try {
+                        const dataUpdate = await Model_Website_Component.findByIdAndUpdate(_DATA._id, {
+                            $set: {
+                                Content: newValue,
+                            },
+                        })
+                        return res.json(dataUpdate)
+                    } catch (e) {
+                        validator.throwError(e)
+                        return res.status(500).send("Thất bại! Có lỗi xảy ra")
+                    }
+                    break
+                }
 
                 case `home_image_banner_flash_sale`: {
                     const _key_update = `home_image_banner_flash_sale`
                     let upload = multer({ storage: storage, fileFilter: null }).array("home_image_banner_flash_sale", 1)
+                    upload(req, res, async (err) => {
+                        if (err) {
+                            validator.throwError(err)
+                            return res.status(400).send("Thất bại! Ảnh không phù hợp")
+                        }
+                        //
+                        const _id = req.body._id
+                        const _DATA = await Model_Website_Component.findById(_id)
+                        if (!validator.isDefine(_DATA)) {
+                            return res.status(404).json(`Không tìm thấy nội dung cần được chỉnh sửa`)
+                        }
+                        //
+                        const img_old = _DATA.Content[_key_update].Content || null
+                        var newValue = _DATA.Content
+                        let check_delete_img_old = false
+                        if (req.files.length > 0) {
+                            check_delete_img_old = true
+                            newValue[_key_update].Content = req.files[0].filename
+                        }
+                        // else {
+                        //     return res.status(404).json(`Ảnh tải lên không thành công hoặc chưa có ảnh`)
+                        // }
+                        try {
+                            const dataUpdate = await Model_Website_Component.findByIdAndUpdate(_DATA._id, {
+                                $set: {
+                                    Content: newValue,
+                                },
+                            })
+                            if (check_delete_img_old) {
+                                await validator.removeFile(validator.URL_IMAGE_WEBSITE_COMPONENT + "/" + img_old)
+                                return res.json(dataUpdate)
+                            } else {
+                                return res.json(dataUpdate)
+                            }
+                        } catch (e) {
+                            validator.throwError(e)
+                            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+                        }
+                    })
+                    break
+                }
+                case `mobile_home_image_banner_flash_sale`: {
+                    const _key_update = `mobile_home_image_banner_flash_sale`
+                    let upload = multer({ storage: storage, fileFilter: null }).array("mobile_home_image_banner_flash_sale", 1)
                     upload(req, res, async (err) => {
                         if (err) {
                             validator.throwError(err)
@@ -622,6 +689,144 @@ export const management = async (app) => {
                 case `home_slide_banner`: {
                     const _key_update = `home_slide_banner`
                     let upload = multer({ storage: storage, fileFilter: null }).array("home_slide_banner", 100)
+                    upload(req, res, async (err) => {
+                        if (err) {
+                            validator.throwError(err)
+                            return res.status(400).send("Thất bại! Ảnh không phù hợp")
+                        }
+                        //
+                        const _id = req.body._id
+                        const _DATA = await Model_Website_Component.findById(_id)
+                        if (!validator.isDefine(_DATA)) {
+                            return res.status(404).json(`Không tìm thấy nội dung cần được chỉnh sửa`)
+                        }
+                        //xử lý chuỗi ảnh
+                        const arr_receive_data = JSON.parse(req.body.receive_data)
+                        var arrNew = []
+                        let check_delete_img_old = false
+                        var arr_old_image = []
+                        for (let i = 0; i < arr_receive_data.length; i++) {
+                            arrNew[i] = {
+                                title: arr_receive_data[i].title,
+                                link: arr_receive_data[i].link,
+                                image: arr_receive_data[i].image,
+                                Origin: arr_receive_data[i].image,
+                            }
+                            // for (let j = 0; j < _DATA.Content[_key_update].Content.length; j++) {
+                            //     if (arr_receive_data[i].image != _DATA.Content[_key_update].Content[j].image) {
+                            //         //gán check img old và cho tên ảnh cũ vào mảng
+                            //         check_delete_img_old = true
+                            //         arr_old_image.push(arrNew[i].image)
+                            //     }
+                            // }
+                        }
+                        for (let i = 0; i < req.files.length; i++) {
+                            for (let j = 0; j < arrNew.length; j++) {
+                                if (req.files[i].originalname == arrNew[j].Origin) {
+                                    //
+                                    arrNew[j].image = req.files[i].filename
+                                    break
+                                }
+                            }
+                        }
+                        for (let i = 0; i < arrNew.length; i++) {
+                            delete arrNew[i].Origin
+                        }
+                        var newValue = _DATA.Content
+                        newValue[_key_update].Content = arrNew
+                        try {
+                            const dataUpdate = await Model_Website_Component.findByIdAndUpdate(_DATA._id, {
+                                $set: {
+                                    Content: newValue,
+                                },
+                            })
+                            if (check_delete_img_old) {
+                                for (let i = 0; i < arr_old_image.length; i++) {
+                                    await validator.removeFile(validator.URL_IMAGE_WEBSITE_COMPONENT + "/" + arr_old_image[i])
+                                }
+                                return res.json(dataUpdate)
+                            } else {
+                                return res.json(dataUpdate)
+                            }
+                        } catch (e) {
+                            validator.throwError(e)
+                            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+                        }
+                    })
+                    break
+                }
+                case `mobile_home_slide_banner_1`: {
+                    const _key_update = `mobile_home_slide_banner_1`
+                    let upload = multer({ storage: storage, fileFilter: null }).array("mobile_home_slide_banner_1", 100)
+                    upload(req, res, async (err) => {
+                        if (err) {
+                            validator.throwError(err)
+                            return res.status(400).send("Thất bại! Ảnh không phù hợp")
+                        }
+                        //
+                        const _id = req.body._id
+                        const _DATA = await Model_Website_Component.findById(_id)
+                        if (!validator.isDefine(_DATA)) {
+                            return res.status(404).json(`Không tìm thấy nội dung cần được chỉnh sửa`)
+                        }
+                        //xử lý chuỗi ảnh
+                        const arr_receive_data = JSON.parse(req.body.receive_data)
+                        var arrNew = []
+                        let check_delete_img_old = false
+                        var arr_old_image = []
+                        for (let i = 0; i < arr_receive_data.length; i++) {
+                            arrNew[i] = {
+                                title: arr_receive_data[i].title,
+                                link: arr_receive_data[i].link,
+                                image: arr_receive_data[i].image,
+                                Origin: arr_receive_data[i].image,
+                            }
+                            // for (let j = 0; j < _DATA.Content[_key_update].Content.length; j++) {
+                            //     if (arr_receive_data[i].image != _DATA.Content[_key_update].Content[j].image) {
+                            //         //gán check img old và cho tên ảnh cũ vào mảng
+                            //         check_delete_img_old = true
+                            //         arr_old_image.push(arrNew[i].image)
+                            //     }
+                            // }
+                        }
+                        for (let i = 0; i < req.files.length; i++) {
+                            for (let j = 0; j < arrNew.length; j++) {
+                                if (req.files[i].originalname == arrNew[j].Origin) {
+                                    //
+                                    arrNew[j].image = req.files[i].filename
+                                    break
+                                }
+                            }
+                        }
+                        for (let i = 0; i < arrNew.length; i++) {
+                            delete arrNew[i].Origin
+                        }
+                        var newValue = _DATA.Content
+                        newValue[_key_update].Content = arrNew
+                        try {
+                            const dataUpdate = await Model_Website_Component.findByIdAndUpdate(_DATA._id, {
+                                $set: {
+                                    Content: newValue,
+                                },
+                            })
+                            if (check_delete_img_old) {
+                                for (let i = 0; i < arr_old_image.length; i++) {
+                                    await validator.removeFile(validator.URL_IMAGE_WEBSITE_COMPONENT + "/" + arr_old_image[i])
+                                }
+                                return res.json(dataUpdate)
+                            } else {
+                                return res.json(dataUpdate)
+                            }
+                        } catch (e) {
+                            validator.throwError(e)
+                            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+                        }
+                    })
+                    break
+                }
+                case `mobile_home_slide_banner_2`: {
+                    const _key_update = `mobile_home_slide_banner_2`
+                    let upload = multer({ storage: storage, fileFilter: null }).array("mobile_home_slide_banner_2", 100)
                     upload(req, res, async (err) => {
                         if (err) {
                             validator.throwError(err)
@@ -915,24 +1120,24 @@ export const management = async (app) => {
                     }
                     break
                 }
-                case `menu_build_pc`:{
+                case `menu_build_pc`: {
                     await update_menu_build_pc(req, res)
                     break
                 }
-                case `list_subcategory_build_pc`:{
+                case `list_subcategory_build_pc`: {
                     await update_list_subcategory_build_pc(req, res)
                     break
-
                 }
-                case `banner_build_pc`:{
+                case `banner_build_pc`: {
                     await update_banner_build_pc(req, res)
                     break
-
-                    
+                }
+                case `banner_news`: {
+                    await update_banner_news(req, res)
+                    break
                 }
                 default:
                     return res.status(404).json(`Không tìm thấy nội dung cần chỉnh sửa - Vui lòng thử lại hoặc liên hệ với bộ phận kỹ thuật!`)
-           
             }
         } catch (e) {
             validator.throwError(e)
@@ -941,127 +1146,171 @@ export const management = async (app) => {
     })
 }
 
-
-const update_menu_build_pc = async (req, res) =>{
-    try{
+const update_menu_build_pc = async (req, res) => {
+    try {
         const id_menu = req.body.id_menu
         const array_category = JSON.parse(req.body.array_category)
 
         const data_menu = await Model_Website_Component.findById(id_menu)
-        if(!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
-        for(let i =0;i<array_category.length;i++){
-            if(!validator.ObjectId.isValid(array_category[i])) return res.status(400).send(`Thất bại! Có lỗi xảy ra`)
+        if (!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
+        for (let i = 0; i < array_category.length; i++) {
+            if (!validator.ObjectId.isValid(array_category[i])) return res.status(400).send(`Thất bại! Có lỗi xảy ra`)
             array_category[i] = validator.ObjectId(array_category[i])
         }
 
-        for(let i =0;i<array_category.length;i++){
-            for(let j =i+1;j<array_category.length;j++){
-                if(array_category[i].toString() == array_category[j].toString()){
-                    array_category.splice(j,1)
+        for (let i = 0; i < array_category.length; i++) {
+            for (let j = i + 1; j < array_category.length; j++) {
+                if (array_category[i].toString() == array_category[j].toString()) {
+                    array_category.splice(j, 1)
                     j--
                 }
             }
         }
-        await Model_Website_Component.findByIdAndUpdate(data_menu._id,{
-            Content:{
+        await Model_Website_Component.findByIdAndUpdate(data_menu._id, {
+            Content: {
                 ...data_menu.Content,
-                menu_build_pc:{
+                menu_build_pc: {
                     ...data_menu.Content.menu_build_pc,
-                    array_category:array_category
-                }
-            }
+                    array_category: array_category,
+                },
+            },
         })
         return res.json("Success")
-    }
-    catch(e){
+    } catch (e) {
         validator.throwError(e)
         return res.status(500).send("Thất bại! Có lỗi xảy ra")
     }
 }
 
-
-const update_list_subcategory_build_pc = async (req, res) =>{
-    try{
+const update_list_subcategory_build_pc = async (req, res) => {
+    try {
         const id_menu = req.body.id_menu
         const array_subcategory = JSON.parse(req.body.array_subcategory)
 
         const data_menu = await Model_Website_Component.findById(id_menu)
-        if(!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
-        for(let i =0;i<array_subcategory.length;i++){
-            if(!validator.ObjectId.isValid(array_subcategory[i])) return res.status(400).send(`Thất bại! Có lỗi xảy ra`)
+        if (!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
+        for (let i = 0; i < array_subcategory.length; i++) {
+            if (!validator.ObjectId.isValid(array_subcategory[i])) return res.status(400).send(`Thất bại! Có lỗi xảy ra`)
             array_subcategory[i] = validator.ObjectId(array_subcategory[i])
         }
 
-        for(let i =0;i<array_subcategory.length;i++){
-            for(let j =i+1;j<array_subcategory.length;j++){
-                if(array_subcategory[i].toString() == array_subcategory[j].toString()){
-                    array_subcategory.splice(j,1)
+        for (let i = 0; i < array_subcategory.length; i++) {
+            for (let j = i + 1; j < array_subcategory.length; j++) {
+                if (array_subcategory[i].toString() == array_subcategory[j].toString()) {
+                    array_subcategory.splice(j, 1)
                     j--
                 }
             }
         }
-        await Model_Website_Component.findByIdAndUpdate(data_menu._id,{
-            Content:{
+        await Model_Website_Component.findByIdAndUpdate(data_menu._id, {
+            Content: {
                 ...data_menu.Content,
-                list_subcategory_build_pc:{
+                list_subcategory_build_pc: {
                     ...data_menu.Content.list_subcategory_build_pc,
-                    array_subcategory:array_subcategory
-                }
-            }
+                    array_subcategory: array_subcategory,
+                },
+            },
         })
         return res.json("Success")
-    }
-    catch(e){
+    } catch (e) {
         validator.throwError(e)
         return res.status(500).send("Thất bại! Có lỗi xảy ra")
     }
 }
 
-const update_banner_build_pc = async (req, res) =>{
-    try{
+const update_banner_build_pc = async (req, res) => {
+    try {
         url_image = "public/images/images_website_component"
         multer({
             storage: storage,
             fileFilter: function (req, file, cb) {
                 cb(null, true)
             },
-        }).fields([{ name: "image_product" }]) (req, res, async  err =>{
+        }).fields([{ name: "image_product" }])(req, res, async (err) => {
             try {
-
                 if (err) return res.status(400).send(err)
                 const id_menu = req.body.id_menu
                 const data_menu = await Model_Website_Component.findById(id_menu)
-                if(!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
+                if (!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
                 const arrImage = []
                 const old_images = JSON.parse(req.body.old_images)
                 if (typeof req.files != "undefined" && req.files != null && typeof req.files.image_product != "undefined") {
-                    for (let i = 0;i < req.files.image_product.length;i++ ) {// thêm ảnh từ mảng mới up lên
+                    for (let i = 0; i < req.files.image_product.length; i++) {
+                        // thêm ảnh từ mảng mới up lên
                         arrImage.push(req.files.image_product[i].filename)
                     }
                 }
-                for (let i = 0;i < old_images.length;i++ ) {// thêm ảnh từ mảng mới up lên
+                for (let i = 0; i < old_images.length; i++) {
+                    // thêm ảnh từ mảng mới up lên
                     arrImage.push(old_images[i])
                 }
 
-                await Model_Website_Component.findByIdAndUpdate(data_menu._id,{
-                    Content:{
+                await Model_Website_Component.findByIdAndUpdate(data_menu._id, {
+                    Content: {
                         ...data_menu.Content,
-                        banner_build_pc:{
+                        banner_build_pc: {
                             ...data_menu.Content.banner_build_pc,
-                            array_images:arrImage
-                        }
-                    }
+                            array_images: arrImage,
+                        },
+                    },
                 })
-              
+
                 return res.json("success")
-                
             } catch (e) {
-                console.error("____",e)
+                console.error("____", e)
                 return res.status(500).send("Thất bại! Có lỗi xảy ra")
             }
         })
+    } catch (e) {
+        validator.throwError(e)
+        return res.status(500).send("Thất bại! Có lỗi xảy ra")
     }
-    catch(e){
+}
+
+const update_banner_news = async (req, res) => {
+    try {
+        url_image = "public/images/images_website_component"
+        multer({
+            storage: storage,
+            fileFilter: function (req, file, cb) {
+                cb(null, true)
+            },
+        }).fields([{ name: "image_product" }])(req, res, async (err) => {
+            try {
+                if (err) return res.status(400).send(err)
+                const id_menu = req.body.id_menu
+                const data_menu = await Model_Website_Component.findById(id_menu)
+                if (!data_menu) return res.status(400).send(`Thất bại! Không tìm thấy menu`)
+                const arrImage = []
+                const old_images = JSON.parse(req.body.old_images)
+                if (typeof req.files != "undefined" && req.files != null && typeof req.files.image_product != "undefined") {
+                    for (let i = 0; i < req.files.image_product.length; i++) {
+                        // thêm ảnh từ mảng mới up lên
+                        arrImage.push(req.files.image_product[i].filename)
+                    }
+                }
+                for (let i = 0; i < old_images.length; i++) {
+                    // thêm ảnh từ mảng mới up lên
+                    arrImage.push(old_images[i])
+                }
+
+                await Model_Website_Component.findByIdAndUpdate(data_menu._id, {
+                    Content: {
+                        ...data_menu.Content,
+                        banner_news: {
+                            ...data_menu.Content.banner_news,
+                            array_images: arrImage,
+                        },
+                    },
+                })
+
+                return res.json("success")
+            } catch (e) {
+                console.error("____", e)
+                return res.status(500).send("Thất bại! Có lỗi xảy ra")
+            }
+        })
+    } catch (e) {
         validator.throwError(e)
         return res.status(500).send("Thất bại! Có lỗi xảy ra")
     }

@@ -399,6 +399,7 @@ $("#btnConfirm").click(e => {
                 "Mã sản phẩm": product._id,
                 "Mã phụ": product.id_product2?product.id_product2:"",
                 "Tên sản phẩm": product.subcategory_name,
+                "Giá nhập": product.product_import_price,
             })
         })
         downloadExcelLocal(arrExcel,"Danh sách mã sản phẩm")

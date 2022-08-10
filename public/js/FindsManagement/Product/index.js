@@ -43,6 +43,7 @@ function drawTable(dataProduct, dataSubcategory, export_forms , import_forms){
     $(header_input[4]).val(dataProduct.warehouse_name)
     $(header_input[5]).val(formatDate(dataProduct.createdAt).fulldatetime)
     $(header_input[6]).val(total_inventory(dataSubcategory.subcategory_warehouses))
+    $(header_input[7]).val(dataProduct.product_status==true?"Đã xuất":"Chưa xuất")
 
     export_forms.map( form =>{
         arrExport.push(form)
@@ -206,7 +207,7 @@ function showEditExport(index) {
             <tr>
                 <td>${i+1}</td>
                 <td>${arrExport[index].export_form_product[i].subcategory_name}</td>
-                <td>${arrExport[index].export_form_product[i].id_product2 ? arrExport[index].export_form_product[i].id_product2 : ""}</td>
+                <td>${arrExport[index].export_form_product[i].id_product ? arrExport[index].export_form_product[i].id_product : ""}</td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrExport[index].export_form_product[i].product_export_price)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrExport[index].export_form_product[i].product_vat)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrExport[index].export_form_product[i].product_ck)}" ></td>
@@ -221,3 +222,7 @@ function showEditExport(index) {
 
     showPopup('popupDetailExport')
 }
+
+$(".div-input i").on("click",()=>{
+    $(".div-input input").val(null)
+})

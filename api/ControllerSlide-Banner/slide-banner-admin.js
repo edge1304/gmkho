@@ -5,6 +5,7 @@ import { Model_Slide_Banner } from "../../models/Slide-banner.js"
 
 //
 const prefixApi = "/api/slide-banner-admin"
+const prefixApi_client = "/api/slide-banner-client"
 const DEFAULT_LIMIT = validator.DEFAULT_LIMIT
 //
 import path from "path"
@@ -192,4 +193,41 @@ export const management = async (app) => {
             return res.status(500).send("Thất bại! Có lỗi xảy ra")
         }
     })
+
+    app.put(prefixApi +"/active-mobile", helper.authenToken, async (req, res) => {
+        await update_active_mobile(req, res)
+    })
+
+    app.get(prefixApi_client +"/mobile", async (req, res) => {
+        await get_slide_mobile(req, res)
+    })
+}
+
+const update_active_mobile = async(req, res)=>{
+    try{
+        const id_banner = req.body.id_banner
+        const status_active = req.body.status_active
+
+        if(!validator.ObjectId.isValid(id_banner)) return res.status(400).send(`Thất bại! Không tìm thấy banner`)
+
+        const update_data = await Model_Slide_Banner.findByIdAndUpdate(id_banner,{
+            Active_Mobile:status_active
+        },{new:true})
+        return res.json(update_data)
+    }
+    catch(e){
+        console.error(e)
+        return res.status(500).send(`Thất bại! Có lỗi xảy ra`)
+    }
+}
+
+const get_slide_mobile = async (req, res)=>{
+    try{
+        const data = await Model_Slide_Banner.find({Active_Mobile:true})
+        return res.json(data)
+    }  
+    catch(e){
+        console.error(e)
+        return res.status(500).send(`Thất bại! Có lỗi xảy ra`)
+    }
 }

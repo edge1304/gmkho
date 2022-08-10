@@ -257,3 +257,20 @@ export const import_period = async (app )=>{
     })
     
 }
+
+export const get_fundbook_by_employee = async (app) =>{
+    app.get(prefixApi +"/get-by-employee", helper.authenToken, async (req, res) => {
+        try
+        {
+            const id_branch = req.body._caller.id_branch
+            const data = await ModelFundBook.find({id_branch:id_branch})
+            return res.json(data)
+        }
+        catch(e)
+        {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+        
+    })
+}

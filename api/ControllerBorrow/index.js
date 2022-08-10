@@ -53,7 +53,8 @@ export const management = async (app)=>{
             }
             if (validator.isDefine(req.query.key) &&  validator.ObjectId.isValid(req.query.key)) {
                 query = {
-                    _id: validator.ObjectId(req.query.key)
+                    $or:[{id_export_form: validator.ObjectId(req.query.key)},{id_import_form: validator.ObjectId(req.query.key)}]
+                    
                 }
             }
             if (validator.isDefine(req.query.id_warehouse) && validator.ObjectId.isValid(req.query.id_warehouse)) {
@@ -190,7 +191,15 @@ export const insert = async (app)=>{
                 }).save()
 
                 for (let i = 0; i < arrProduct.length; i++){
-                    await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product,{product_status:true})
+                    await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product,{
+                        $set:{
+                            product_status:true,
+                            id_export_form:insertExport._id,
+                        },
+                        $push:{
+                            product_note:insertExport._id.toString()
+                        }
+                    })
                 }
                 return res.json(insertBorrow)
             }

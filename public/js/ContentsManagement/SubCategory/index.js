@@ -5,7 +5,7 @@ var arrAddExcel = []
 
 function getData(isLoad=true)
 {
-    isLoading(isLoading)
+    isLoading(isLoad)
     if(!getOther)
     {
         id_category = $("#selectCategory option:selected").val()

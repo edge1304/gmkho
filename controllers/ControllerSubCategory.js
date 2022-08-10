@@ -12,6 +12,7 @@ function createControllerSubCategory(app) {
     edit_content(app)
     edit_stt_status(app)
     main.detail_subcategory(app)
+    main.flash_sale_mobile(app)
 
 }
 export default createControllerSubCategory

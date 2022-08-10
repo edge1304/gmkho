@@ -339,3 +339,29 @@ export const get_data_print = async (app)=>{
         }
     })
 }
+
+
+export const delete_receive = async (app) =>{
+    app.delete(prefixApi , helper.authenToken, async (req, res) => {
+        try{
+            const id_receive = req.body.id_receive
+            if(!validator.isDefine(id_receive) || !validator.ObjectId.isValid(id_receive)) return res.status(400).send(`Thất bại! Không tìm thấy phiếu chi`)
+
+            const data_receive = await ModelReceive.findById(id_receive)
+            if(!data_receive) return res.status(400).send(`Thất bại! Không tìm thấy phiếu chi`)
+            if(data_receive.id_form) return res.status(400).send(`Thất bại! Không thể xóa phiếu thu phát sinh từ nghiệp vụ xuất hàng`)
+
+            const data_debt = await ModelDebt.findOne({$and:[{debt_type:"receive"}, {id_form:data_receive._id}]})
+            if(data_debt){
+                await ModelDebt.findByIdAndDelete(data_debt._id)
+            }
+            await ModelReceive.findByIdAndDelete(id_receive)
+            return res.json("Success")
+
+        }
+        catch(e){
+            console.error(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}

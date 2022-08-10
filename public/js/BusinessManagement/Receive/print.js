@@ -30,7 +30,6 @@ function drawTable(dataBranch, dataReceive) {
     `)
 
     $(".div-print .content-product").html(`
-        <label><b>Người nhận tiền:</b> ${dataReceive.employee_fullname}</label>
         <div><b>Số tiền:</b> ${money(dataReceive.receive_money)} &ensp; &ensp; Hình thức thanh toán: ${dataReceive.fundbook_name}</div>
         <label><b>Bằng chữ: ${tranfer_number_to_text(dataReceive.receive_money)}</b></label><br>
         <label><b>Khoản mục chi: </b>${dataReceive.accounting_entry_name}</label>

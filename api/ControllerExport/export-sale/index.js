@@ -6,6 +6,7 @@ import * as warehouse from '../../ControllerWarehouse/index.js'
 import * as category from '../../ControllerCategory/index.js'
 import * as fundbook from '../../ControllerFundBook/index.js'
 import { ModelUser } from '../../../models/User.js'
+import { ModelOrder } from '../../../models/Order.js'
 import { ModelWarehouse } from '../../../models/Warehouse.js'
 import { ModelFundBook } from '../../../models/FundBook.js'
 import { ModelExportForm } from '../../../models/ExportForm.js'
@@ -14,6 +15,7 @@ import { ModelProduct } from '../../../models/Product.js'
 import { ModelSubCategory } from '../../../models/SubCategory.js'
 import { ModelDebt } from '../../../models/Debt.js'
 import { ModelReceive } from '../../../models/Receive.js'
+import { ModelEmployee } from '../../../models/Employee.js'
 import { createAndUpdateReport} from '../../ControllerReportInventory/index.js'
 import { get_branch_ById} from '../../ControllerBranch/index.js'
 
@@ -115,6 +117,10 @@ export const management = async (app)=>{
                             data.receive_form_money = dataReceive.receive_money   
                         }
                     }
+                }
+                const dataEm = await ModelEmployee.findById(data.id_employee)
+                if(dataEm){
+                    data.employee_fullname = dataEm.employee_fullname
                 }
                 
             }))
@@ -388,7 +394,9 @@ export const print = async (app)=>{
             if(!id_export || !validator.ObjectId.isValid(id_export.trim())) return res.status(400).send("Thất bại! Không tìm thấy phiếu xuất")
             const dataExport = await ModelExportForm.findById(id_export.trim())
             if(!dataExport) return res.status(400).send("Thất bại! Không tìm thấy phiếu xuất")
-            const id_branch = req.body._caller.id_branch_login
+            const dataWarehouse = await ModelWarehouse.findById(dataExport.id_warehouse)
+            const id_branch = dataWarehouse.id_branch
+
             const dataBranch = await get_branch_ById(id_branch)
 
             dataExport.receive_money = 0
@@ -414,14 +422,196 @@ export const print = async (app)=>{
                 }
             }
             for(let i = 0;i<dataExport.export_form_product.length;i++){
+               
+                for(let j = i+1;j<dataExport.export_form_product.length;j++){
+                    if( 
+                        (dataExport.export_form_product[i].id_subcategory.toString() == dataExport.export_form_product[j].id_subcategory.toString()) &&
+                        (dataExport.export_form_product[i].product_vat == dataExport.export_form_product[j].product_vat) &&
+                        (dataExport.export_form_product[i].product_ck == dataExport.export_form_product[j].product_ck) &&
+                        (dataExport.export_form_product[i].product_discount == dataExport.export_form_product[j].product_discount) &&
+                        (dataExport.export_form_product[i].product_import_price == dataExport.export_form_product[j].product_import_price)
+                    ){
+                        dataExport.export_form_product[i].product_quantity += dataExport.export_form_product[j].product_quantity
+                        dataExport.export_form_product.splice(j,1)
+                        j--
+                    }
+                }
+    
+            }
+
+
+            
+            for(let i = 0;i<dataExport.export_form_product.length;i++){
                 dataExport.export_form_product[i].subcategory_unit = ""
                 const dataSub = await ModelSubCategory.findById(dataExport.export_form_product[i].id_subcategory)
                 if(dataSub){
                     dataExport.export_form_product[i].subcategory_unit = dataSub.subcategory_unit
                 }
-
+                dataExport.export_form_product[i].total = validator.calculateMoneyExport(dataExport.export_form_product[i])
             }
+
+            const totalMoney = validator.calculateMoneyExport(dataExport.export_form_product)
+            dataExport.text_of_number = validator.tranfer_number_to_text(totalMoney)
+            dataExport.total_money = totalMoney
+            
             return res.json({dataBranch:dataBranch, dataExport:dataExport})
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+export const cancel_product = async (app)=>{
+    app.delete(prefixApi +"/product",helper.authenToken, async (req, res)=>{
+        try{
+            
+            const id_export = req.body.id_export
+            const indexOfProduct = req.body.indexOfProduct
+            if(!id_export || !validator.ObjectId.isValid(id_export.trim())) return res.status(400).send("Thất bại! Không tìm thấy phiếu xuất")
+
+            const dataExport = await ModelExportForm.findById(id_export.trim())
+            if(!dataExport) return res.status(400).send("Thất bại! Không tìm thấy phiếu xuất")
+
+            if(dataExport.money_voucher_code && dataExport.money_voucher_code > 0) return res.status(400).send(`Thất bại! Phiếu xuất có áp dụng mã giảm giá không thể hủy`)
+
+            const dataDebt = await ModelDebt.findOne({$and:[{id_form:dataExport._id, debt_type:"export"}]})
+            if(!dataDebt) return res.status(400).send(`Thất bại! Không tìm thấy công nợ`)
+
+            const product_cancel = dataExport.export_form_product[indexOfProduct]
+            if(!product_cancel) return res.status(400).send(`Thất bại! Sản phẩm không còn trong phiếu xuất`)
+
+            const dataProduct = await ModelProduct.findById(product_cancel.id_product)
+            if(!dataProduct) return res.status(400).send(`Thất bại! Không tìm thấy sản phẩm này`)
+
+            if(!dataProduct.product_status) return res.status(400).send(`Thất bại! Sẩn phẩm này đã được nhập lại kho, không thể hủy`)
+            if(dataProduct.id_warehouse.toString() != dataExport.id_warehouse.toString() ) return res.status(400).send(`Thất bại! Sẩn phẩm này đang được lưu dữ trong kho khác không thể hủy`)
+            if(dataProduct.product_note[dataProduct.product_note.length-1].toString() != dataExport._id.toString()) return res.status(400).send(`Thất bại! Sản phẩm đã thực hiện 1 nghiệp vụ khác sau đó lên không thể xóa`)
+
+            dataExport.export_form_product.splice(indexOfProduct,1) 
+            const dataOrder = await ModelOrder.findOne({id_export_form:dataExport._id})
+                if(dataOrder){
+                    for(let i =0;i<dataOrder.order_product.length;i++){
+                        if(dataOrder.order_product[i].id_product.toString() == dataProduct._id.toString()){
+                            dataOrder.order_product.splice(i,1)
+                            break
+                        }
+                    }
+                    await ModelOrder.findByIdAndUpdate(dataOrder._id,{
+                        order_product:dataOrder.order_product
+                    })
+                }
+            
+            
+            const money_export = validator.calculateMoneyExport(dataExport.export_form_product)  
+
+            
+            await ModelDebt.findByIdAndUpdate(dataDebt._id,{
+                debt_money_export:money_export
+            })
+            await ModelProduct.findByIdAndUpdate(dataProduct._id,{
+                $set:{
+                    product_status:false,
+                    id_export:null,
+                }
+            })
+
+            const dataExport_after = await ModelExportForm.findByIdAndUpdate(dataExport._id,{
+                export_form_product:dataExport.export_form_product
+            },{new:true})
+
+            return res.json(dataExport_after)
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
+
+
+
+export const revenue_product_by_employee = async (app)=>{
+    app.get(prefixApi +"/revenue-product-by-employee",helper.authenToken, async (req, res)=>{
+        try{
+            if (!await helper.checkPermission("62552cb84173457d1adca31d", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const fromdate = req.query.fromdate
+            const todate = req.query.todate
+            const id_employee = req.query.id_employee
+            const query = {
+                ...validator.query_createdAt(fromdate, todate),
+            }
+
+            const dataExort = await ModelExportForm.find({       
+                ...query,
+                export_form_type: validator.TYPE_EXPORT,
+                "export_form_product.id_employee":validator.ObjectId(id_employee)
+                
+            })
+
+            const dataImport = await ModelImportForm.find({
+                ...query,
+                import_form_type: validator.TYPE_IMPORT_RETURN,
+                "import_form_product.id_employee":validator.ObjectId(id_employee)
+                
+            })
+
+            const arrData = []
+            for(let i =0;i<dataExort.length;i++){
+                for(let j =0;j<dataExort[i].export_form_product.length;j++){
+                    if(dataExort[i].export_form_product[j].id_employee && dataExort[i].export_form_product[j].id_employee.toString() == id_employee.toString()){
+                        arrData.push({
+                            _id:dataExort[i]._id,
+                            id_employee_setting:dataExort[i].id_employee_setting,
+                            id_user:dataExort[i].id_user,
+                            type:"export",
+                            id_product:dataExort[i].export_form_product[j].id_product,
+                            subcategory_name: dataExort[i].export_form_product[j].subcategory_name,
+                            product_price: dataExort[i].export_form_product[j].product_export_price,
+                            product_vat: dataExort[i].export_form_product[j].product_vat,
+                            product_ck: dataExort[i].export_form_product[j].product_ck,
+                            product_discount: dataExort[i].export_form_product[j].product_discount,
+                            product_quantity: dataExort[i].export_form_product[j].product_quantity,
+                            product_warranty: dataExort[i].export_form_product[j].product_warranty,                     
+                            subcategory_point: dataExort[i].export_form_product[j].subcategory_point,
+                            subcategory_part: dataExort[i].export_form_product[j].subcategory_part,
+                        })
+                    }
+                }
+            }
+            for(let i =0;i<dataImport.length;i++){
+                for(let j =0;j<dataImport[i].import_form_product.length;j++){
+                    if(dataImport[i].import_form_product[j].id_employee && dataImport[i].import_form_product[j].id_employee.toString() == id_employee.toString()){
+                        arrData.push({
+                            _id:dataImport[i]._id,
+                            id_employee_setting:dataImport[i].import_form_product[j].id_employee_setting,
+                            id_user:dataImport[i].id_user,
+                            type:"import",
+                            id_product:dataImport[i].import_form_product[j].id_product,
+                            subcategory_name: dataImport[i].import_form_product[j].subcategory_name,
+                            product_vat: dataImport[i].import_form_product[j].product_vat,
+                            product_ck: dataImport[i].import_form_product[j].product_ck,
+                            product_discount: dataImport[i].import_form_product[j].product_discount,
+                            product_quantity: dataImport[i].import_form_product[j].product_quantity,
+                            product_warranty: dataImport[i].import_form_product[j].product_warranty,
+                            product_price: dataImport[i].import_form_product[j].product_import_price,
+                            subcategory_point: dataImport[i].import_form_product[j].subcategory_point,
+                            subcategory_part: dataImport[i].import_form_product[j].subcategory_part,
+                        })
+                    }
+                }
+            }
+
+            for(let i =0;i<arrData.length;i++){
+                const dataUser = await ModelUser.findById(arrData[i].id_user)
+                if(dataUser){
+                    arrData[i].user_fullname = dataUser.user_fullname
+                    arrData[i].user_phone = dataUser.user_phone
+                }
+            }
+
+            return res.json(arrData)
         }
         catch (e) {
             console.log(e)

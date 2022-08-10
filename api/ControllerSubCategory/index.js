@@ -10,7 +10,7 @@ import { ModelCategory } from '../../models/Category.js'
 import { ModelInventoryWarning } from '../../models/InventoryWarning.js'
 import { ModelWarehouse } from '../../models/Warehouse.js'
 import { info } from "console";
-
+import { Model_Website_Component } from "../../models/WebsiteComponent.js"
 export const management = async(app) => {
     //#region api lấy danh sách chức năng và nhóm người dùng
     app.get(prefixApi, helper.authenToken, async(req, res) => {
@@ -95,17 +95,14 @@ export const findOther = async(app) => {
     app.get(prefixApi + "/findOther", helper.authenToken, async(req, res) => {
         let query = {}
         var sort = { _id: -1 }
-        if (validator.isDefine(req.query.key)) {
-            const search_key = validator.viToEn(req.query.key).replace(/[^a-zA-Z0-9]/g, " ")
-                query = {
-                    ...query,
-                    $or:[{$text: {$search: search_key}}],
-                }
-                sort= {
-                    score: { $meta: "textScore" },
-                    ...sort,
-                } 
+        const key = req.query.key
+        if (validator.isDefine(key)) {
+            query = {
+                ...query,
+                $or:[{subcategory_name:{$regex:".*"+key+".*",$options:"$i"}},{subcategory_replace_name:{$regex:".*"+key+".*",$options:"$i"}}]
             }
+        }
+
         if (validator.isDefine(req.query.id_category) && validator.ObjectId.isValid(req.query.id_category)) {
             query = {
                 ...query,
@@ -121,8 +118,22 @@ export const findOther = async(app) => {
             }
 
         }
-        
-        const data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+
+        var data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+        if(!data || data.length == 0){
+            if (validator.isDefine(key)) {
+                const search_key = validator.viToEn(key).replace(/[^a-zA-Z0-9]/g, " ")
+                    query = {
+                        $or:[{$text: {$search: search_key}}],
+                        ...query,
+                    }
+                    sort= {
+                        score: { $meta: "textScore" },
+                        ...sort,
+                    } 
+            }
+            data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+        }
         return res.json(data)
     });
 
@@ -302,8 +313,13 @@ export const getDataClient = async(app) => {
             validator.eshtml(req)
             var query = {}
             var sort = {_id:-1}
-            if (validator.isDefine(req.query.key)) {
-                const search_key = validator.viToEn(req.query.key).replace(/[^a-zA-Z0-9]/g, " ")
+            var query2 = {}
+            const key = req.query.key
+            if (validator.isDefine(key)) {
+                query2 = {
+                    $or:[{subcategory_name:{$regex:".*"+key+".*", $options:"$i"}},{subcategory_replace_name:{$regex:".*"+key+".*", $options:"$i"}}]
+                }
+                const search_key = validator.viToEn(key).replace(/[^a-zA-Z0-9]/g, " ")
                 query = {
                     ...query,
                     $or:[{$text: {$search: search_key}}],
@@ -318,10 +334,18 @@ export const getDataClient = async(app) => {
                     ...query,
                     id_category: req.query.id_category
                 }
+                query2= {
+                    ...query2,
+                    id_category: req.query.id_category
+                }
             }
             if (validator.isDefine(req.query.subcategory_status)) {
                 query = {
                     ...query,
+                    subcategory_status:validator.tryParseInt(req.query.subcategory_status)
+                }
+                query2 = {
+                    ...query2,
                     subcategory_status:validator.tryParseInt(req.query.subcategory_status)
                 }
             }
@@ -337,14 +361,29 @@ export const getDataClient = async(app) => {
                         }
                     ]
                 }
+
+                query2 = {
+                    ...query2,
+                    $and: [
+                        {
+                            subcategory_export_price:{$gte:validator.tryParseInt(req.query.fromprice)}
+                        },
+                        {
+                            subcategory_export_price:{$lte:validator.tryParseInt(req.query.toprice)}
+                        }
+                    ]
+                }
             }
            
             if (validator.isDefine(req.query.sort) && validator.isDefine(req.query.valuesort)) {
                 sort = {
                     [sanitize(req.query.sort)]: validator.tryParseInt(req.query.valuesort) }
             }
-          
-            const data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+            
+            var data = await ModelSubCategory.find(query2).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+            if(!data || data.length == 0){
+                data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
+            }
             return res.json(data)
         } catch (e) {
             console.log(e)
@@ -376,6 +415,32 @@ export const detail_subcategory = async (app) => {
                 
             }
             return res.json(data)
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+    
+}
+
+export const flash_sale_mobile = async (app) => {
+    app.get(prefixApi + "/flash-sale", async (req, res) => { 
+        try {
+            const dataMenu = await Model_Website_Component.find();
+
+            const array_subcategory = []
+
+            for(let i =0;i<dataMenu.length;i++){
+                const products = dataMenu[i].Content.home_flash_sale_products.Products
+                for(let j = 0;j<products.length;j++){
+                    const dataSub = await ModelSubCategory.findById(products[j])
+                    if(dataSub){
+                        array_subcategory.push(dataSub)
+                    }
+                }
+            }
+            return res.json(array_subcategory)
         }
         catch (e) {
             console.log(e)

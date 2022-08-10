@@ -45,6 +45,7 @@ function drawTable(data) {
             <tr>
                 <td>${stt+i}</td>
                 <td>${data[i]._id}</td>
+                <td>${data[i].employee_fullname}</td>
                 <td>${formatDate(data[i].createdAt).fulldatetime}</td>
                 <td>${data[i].user_fullname} - SĐT: ${data[i].user_phone}</td>
                 <td ><span class="substring">${data[i].export_form_product.length > 0 ? data[i].export_form_product[0].subcategory_name : ""}</span></td>
@@ -115,7 +116,7 @@ function showEdit(index) {
             <tr>
                 <td>${i+1}</td>
                 <td>${arrData[index].export_form_product[i].subcategory_name}</td>
-                <td>${arrData[index].export_form_product[i].id_product2 ? arrData[index].export_form_product[i].id_product2 : ""}</td>
+                <td>${arrData[index].export_form_product[i].id_product || ""}</td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_export_price)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_vat)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_ck)}" ></td>
@@ -124,6 +125,7 @@ function showEdit(index) {
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_discount)}" ></td>
 
                 <td>${money(calculateMoneyExport(arrData[index].export_form_product[i]))}</td>
+                <td class="center"><i onclick="delete_product(${index},${i})" class="fas fa-trash text-danger"></i></td>
             </tr>
         `)
     }
@@ -231,3 +233,22 @@ $("#payment_zero").change(e => {
         $("#payment_zero").val(false)
     }
 })
+
+function delete_product(index, indexOfProduct){
+    $("#popupDelete .modal-footer button:first-child").attr(`onclick`,`confirmDelete(${index},${indexOfProduct})`)
+    showPopup('popupDelete')
+}
+
+function confirmDelete(index,indexOfProduct){
+    hidePopup('popupDetail')
+    callAPI('delete',`${API_EXPORT}/product`,{
+        id_export:arrData[index]._id,
+        indexOfProduct:indexOfProduct
+    },(data)=>{
+        arrData[index] = {
+            ...arrData[index],
+            export_form_product:data.export_form_product
+        }
+        showEdit(index)
+    })
+}

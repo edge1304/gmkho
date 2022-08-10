@@ -13,8 +13,6 @@ export const timekeeping_work = (app)=>{
     try
     {
         app.post(prefixApi +"/in_morning", helper.authenToken,async (req,res)=>{
-           
-     
             const dateZone = validator.dateTimeZone(req.body.timezone);
             const id_branch = req.body._caller.id_branch;
             const id_employee = req.body._caller._id;
@@ -67,42 +65,13 @@ export const timekeeping_work = (app)=>{
     //#endregion chấm công đi làm sáng
 
      //#region  chấm công ra sáng
-    try
-    {
-        app.post(prefixApi +"/out_morning", helper.authenToken,async (req,res)=>{
-        
-        const dateZone = validator.dateTimeZone(req.body.timezone);
-        const id_branch = req.body._caller.id_branch;
-        const id_employee = req.body._caller._id;
-        const branch_ipwifi = req.body.branch_ipwifi;
-
-        const branch = await ModelBranch.findById(id_branch)
-
-        if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
     
-
-        if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
-        let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
-        const timeKeeping = await ModelTimekeepingWork.findOne(query)
-        if(!timeKeeping) return res.status(400).send("Thất bại! Bạn chưa chấm vào sáng"); // chưa tạo bao h
-        // kiểm tra đã kiểm chấm vào sáng chưa
-        if(timeKeeping.in_morning.hours == 0 && timeKeeping.in_morning.minutes ==0 && timeKeeping.in_morning.seconds ==0 ) return res.status(400).send("Thất bại! Bạn chưa chấm công vào sáng");
-        if(timeKeeping.out_morning.hours != 0 || timeKeeping.out_morning.minutes !=0 || timeKeeping.out_morning.seconds !=0 ) return res.status(400).send(`Thất bại! Bạn đã chấm công ra sáng vào ${timeKeeping.out_morning.hours}:${timeKeeping.out_morning.minutes}:${timeKeeping.out_morning.seconds}`);
-
-        const flagTime = dateZone.hours*60+dateZone.minutes // thời gian chấm hiện tại
-        if(flagTime > (branch.out_morning.hours*60+branch.out_morning.minutes+branch.late_limit))  return res.status(400).send("Thất bại! Giờ ra sáng đã kết thúc.")  // thời gian ra sáng phải nhỏ hơn thời ra sáng của chi nhánh
-        
-        const outMorning = await ModelTimekeepingWork.findByIdAndUpdate(timeKeeping._id,{out_morning:dateZone.scheduleNow},{new : true})
-        if(!outMorning) return res.status(500).send("Thất bại! Có lỗi xảy ra.")
-        return res.json(outMorning)
+        app.post(prefixApi +"/out_morning", helper.authenToken,async (req,res)=>{
+            out_morning(req, res)
+            
     
         })
-    }
-    catch(e)
-    {
-        validator.throwError(e);
-        res.sendStatus(500);
-    }
+   
     //#endregion chấm công ra sáng
 
 
@@ -203,11 +172,45 @@ export const timekeeping_work = (app)=>{
     catch(e)
     {
         validator.throwError(e);
-        res.sendStatus(500);
+        return res.status(500).send(`Thất bại! Có lỗi xảy ra`);
     }
     //#endregion chấm công chiều ra
 }
 
+const out_morning = async (req, res) =>{
+    try
+    {
+        const dateZone = validator.dateTimeZone(req.body.timezone);
+            const id_branch = req.body._caller.id_branch;
+            const id_employee = req.body._caller._id;
+            const branch_ipwifi = req.body.branch_ipwifi;
+
+            const branch = await ModelBranch.findById(id_branch)
+
+            if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
+        
+
+            if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
+            let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
+            const timeKeeping = await ModelTimekeepingWork.findOne(query)
+            if(!timeKeeping) return res.status(400).send("Thất bại! Bạn chưa chấm vào sáng"); // chưa tạo bao h
+            // kiểm tra đã kiểm chấm vào sáng chưa
+            if(timeKeeping.in_morning.hours == 0 && timeKeeping.in_morning.minutes ==0 && timeKeeping.in_morning.seconds ==0 ) return res.status(400).send("Thất bại! Bạn chưa chấm công vào sáng");
+            if(timeKeeping.out_morning.hours != 0 || timeKeeping.out_morning.minutes !=0 || timeKeeping.out_morning.seconds !=0 ) return res.status(400).send(`Thất bại! Bạn đã chấm công ra sáng vào ${timeKeeping.out_morning.hours}:${timeKeeping.out_morning.minutes}:${timeKeeping.out_morning.seconds}`);
+
+            const flagTime = dateZone.hours*60+dateZone.minutes // thời gian chấm hiện tại
+            if(flagTime > (branch.out_morning.hours*60+branch.out_morning.minutes+branch.late_limit))  return res.status(400).send("Thất bại! Giờ ra sáng đã kết thúc.")  // thời gian ra sáng phải nhỏ hơn thời ra sáng của chi nhánh
+            
+            const outMorning = await ModelTimekeepingWork.findByIdAndUpdate(timeKeeping._id,{out_morning:dateZone.scheduleNow},{new : true})
+            if(!outMorning) return res.status(500).send("Thất bại! Có lỗi xảy ra.")
+            return res.json(outMorning)
+    }
+    catch(e)
+    {
+        validator.throwError(e);
+        return res.status(500).send(`Thất bại! Có lỗi xảy ra`);
+    }
+}
 
 export const management_work = async (app)=>{
     //#region  api get data
@@ -313,7 +316,7 @@ export const addTimekeepingWork_byAdmin = async (app)=>{
         app.post(prefixApi+"/admin", helper.authenToken, async (req,res)=>{
             const id_employee = sanitize(req.body.id_employee)
             const dataEm = await ModelEmployee.findById(id_employee).lean()
-            if(!dataEm) return res.status(400).send("Thất bại! Không tìm thấy sản phẩm")
+            if(!dataEm) return res.status(400).send("Thất bại! Không tìm thấy nhân viên")
             
             const dataWork = await ModelTimekeepingWork.findOne({id_employee:id_employee,$and:[{createdAt:{$gte:validator.dateTimeZone().startOfDay}},{createdAt:{$lte:validator.dateTimeZone().endOfDay}}]}).lean()
             if(dataWork) return res.status(400).send("Thất bại! Nhân viên này đã chấm công hôm nay")
@@ -374,6 +377,91 @@ export const addTimekeepingWork_byAdmin = async (app)=>{
                     createdAt:validator.dateTimeZone().currentTime
                 }).save()
             if(!data) return res.status(500).send("Thất bại! Có lỗi xảy ra")
+            return res.json(data)
+        })
+    }
+    catch(e)
+    {
+        validator.throwError(e);
+        res.status(500).send("Có lỗi xảy ra");
+    }
+    //#endregion api get data
+
+}
+
+
+export const editTimekeepingWork_byAdmin = async (app)=>{
+    //#region  api get data
+    try
+    {
+        app.put(prefixApi+"/admin", helper.authenToken, async (req,res)=>{
+          
+            
+            const id_timekeeping = req.body.id_timekeeping
+            const dataWork = await ModelTimekeepingWork.findById(id_timekeeping)
+
+            if(!dataWork) return res.status(400).send(`Thất bại! Có lỗi xả ra`)
+
+            const id_employee = dataWork.id_employee
+            const dataEm = await ModelEmployee.findById(id_employee).lean()
+            if(!dataEm) return res.status(400).send("Thất bại! Không tìm thấy nhân viên này")
+
+            const in_morning = sanitize(req.body.in_morning)
+            const out_morning = sanitize(req.body.out_morning)
+            const in_afternoon = sanitize(req.body.in_afternoon)
+            const out_afternoon = sanitize(req.body.out_afternoon)
+
+            const dataBranch = await ModelBranch.findById(req.body._caller.id_branch_login)
+            if(!dataBranch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh")
+
+            var late_morning = {hours:0,minutes:0,seconds:0}
+            if(validator.isChecked(in_morning))
+            {
+                if((dataBranch.in_morning.hours * 60 + dataBranch.in_morning.minutes + dataBranch.late_limit) < (validator.tryParseInt(in_morning.hours)*60+ validator.tryParseInt(in_morning.minutes)))
+                {
+                    const late = (validator.tryParseInt(in_morning.hours)*60+ validator.tryParseInt(in_morning.minutes)) - (dataBranch.in_morning.hours * 60 + dataBranch.in_morning.minutes)
+
+                    late_morning = {
+                        hours: validator.tryParseInt(late/60),
+                        minutes: validator.tryParseInt(late%60) ,
+                        seconds:0
+                    }
+                }
+            }
+
+            var late_afternoon = {hours:0,minutes:0,seconds:0}
+            if(validator.isChecked(in_afternoon))
+            {
+                if((dataBranch.in_afternoon.hours * 60 + dataBranch.in_afternoon.minutes + dataBranch.late_limit) < (validator.tryParseInt(in_afternoon.hours)*60+ validator.tryParseInt(in_afternoon.minutes)))
+                {
+                    const late = (validator.tryParseInt(in_afternoon.hours)*60+ validator.tryParseInt(in_afternoon.minutes)) - (dataBranch.in_afternoon.hours * 60 + dataBranch.in_afternoon.minutes)
+
+                    late_afternoon = {
+                        hours: validator.tryParseInt(late/60),
+                        minutes: validator.tryParseInt(late%60) ,
+                        seconds:0
+                    }
+                }
+            }
+            let overtime = {hours:0,minutes:0,seconds:0}
+            if((validator.tryParseInt(out_afternoon).hours*60+validator.tryParseInt(out_afternoon).minutes) > (dataBranch.out_afternoon.hours*60+dataBranch.out_afternoon.minutes + dataBranch.late_limit))
+            {
+                const over = (validator.tryParseInt(out_afternoon).hours*60+validator.tryParseInt(out_afternoon).minutes) - (dataBranch.out_afternoon.hours*60+dataBranch.out_afternoon.minutes)
+                overtime = {hours: validator.tryParseInt(over/60), minutes:validator.tryParseInt(over%60),seconds:0}
+            }
+
+             const data = await ModelTimekeepingWork.findByIdAndUpdate(dataWork._id,{
+                    id_employee:id_employee,
+                    in_morning :in_morning ,
+                    out_morning :out_morning ,
+                    in_afternoon :in_afternoon ,
+                    out_afternoon :out_afternoon,
+                    late_morning:late_morning,
+                    late_afternoon:late_afternoon,
+                    overtime:overtime,
+                    createdAt:validator.dateTimeZone().currentTime
+                },{new:true})
+         
             return res.json(data)
         })
     }

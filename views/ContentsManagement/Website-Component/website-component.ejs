@@ -484,6 +484,25 @@
         </div>
     </div>
 </div>
+<div id="pupup_footer_business_license" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-50">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Giấy phép đăng ký kinh doanh</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea rows="5" id="input_footer_business_license" type="text" class="form-control" placeholder="Thông tin GPDKKD ..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_Save_edit_footer_business_license">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="popup_home_image_banner_flash_sale" class="modal fade" style="display: none;" aria-hidden="true">
     <div class="modal-dialog model-50">
@@ -503,6 +522,29 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="btn_Save_edit_home_image_banner_flash_sale">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup_mobile_home_image_banner_flash_sale" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-50">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ảnh banner flash sale</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Ảnh banner flash sale</label>
+                <div class="div-logo">
+                    <img id="img_mobile_home_image_banner_flash_sale" style="width: 300px; height: auto;">
+                    <input id="input_mobile_home_image_banner_flash_sale" type="file" oninput="changeImage(this)" accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn_Save_edit_mobile_home_image_banner_flash_sale">Lưu thay đổi</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
@@ -601,6 +643,56 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" onclick="add_more_home_slide_banner()">Thêm 1 dòng</button>
                 <button type="button" class="btn btn-primary" id="btn_Save_edit_home_slide_banner">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup_mobile_home_slide_banner_1" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-80">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Banner xu hướng tìm kiếm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body row">
+                <div class="col-12">
+                    <p><b>Ảnh banner:</b></p>
+                    <div class="row" id="div__mobile_home_slide_banner_1" style="height: auto; overflow: visible;">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="add_more_mobile_home_slide_banner_1()">Thêm 1 dòng</button>
+                <button type="button" class="btn btn-primary" id="btn_Save_edit_mobile_home_slide_banner_1">Lưu thay đổi</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup_mobile_home_slide_banner_2" class="modal fade" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog model-80">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Banner xu hướng tìm kiếm</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body row">
+                <div class="col-12">
+                    <p><b>Ảnh banner:</b></p>
+                    <div class="row" id="div__mobile_home_slide_banner_2" style="height: auto; overflow: visible;">
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="add_more_mobile_home_slide_banner_2()">Thêm 1 dòng</button>
+                <button type="button" class="btn btn-primary" id="btn_Save_edit_mobile_home_slide_banner_2">Lưu thay đổi</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
@@ -925,7 +1017,7 @@
     <div class="modal-dialog model-50">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Ảnh sản phẩm</h5>
+                <h5 class="modal-title">Banner</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

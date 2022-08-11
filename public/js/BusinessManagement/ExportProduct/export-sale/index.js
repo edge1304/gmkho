@@ -124,7 +124,7 @@ function showEdit(index) {
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_warranty)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_discount)}" ></td>
 
-                <td>${money(calculateMoneyExport(arrData[index].export_form_product[i]))}</td>
+                <td>${arrData[index].export_form_product[i].employee_fullname}</td>
                 <td class="center"><i onclick="delete_product(${index},${i})" class="fas fa-trash text-danger"></i></td>
             </tr>
         `)

@@ -90,20 +90,32 @@ export const management = async (app) => {
             let id_parent = ``
             if (validator.isNotEmpty(req.query.id_parent)) {
                 id_parent = req.query.id_parent
-                let arr_id_parent_category = get_child_menu(_data_all, id_parent).arr_ids
-                arr_id_parent_category.push(id_parent + "")
-                let arr_object_id_parent_category = get_child_menu(_data_all, id_parent).arr_object_id
-                arr_object_id_parent_category.push(validator.ObjectId(id_parent))
-                // console.log(id_parent)
-                // console.log(arr_id_parent_category)
-                // console.log(arr_object_id_parent_category)
-                query = {
-                    ...query,
-                    $or: [{ _id: { $in: arr_id_parent_category } }, { _id: { $in: arr_object_id_parent_category } }],
-                }
-                query_2 = {
-                    ...query_2,
-                    $or: [{ _id: { $in: arr_id_parent_category } }, { _id: { $in: arr_object_id_parent_category } }],
+                if (id_parent + "" == "top") {
+                    query = {
+                        ...query,
+                        id_parent:null
+                    }
+                    query_2 = {
+                        ...query_2,
+                        id_parent:null
+                    }
+                } else if(validator.isObjectId(id_parent)) {
+                    
+                    let arr_id_parent_category = get_child_menu(_data_all, id_parent).arr_ids
+                    arr_id_parent_category.push(id_parent + "")
+                    let arr_object_id_parent_category = get_child_menu(_data_all, id_parent).arr_object_id
+                    arr_object_id_parent_category.push(validator.ObjectId(id_parent))
+                    // console.log(id_parent)
+                    // console.log(arr_id_parent_category)
+                    // console.log(arr_object_id_parent_category)
+                    query = {
+                        ...query,
+                        $or: [{ _id: { $in: arr_id_parent_category } }, { _id: { $in: arr_object_id_parent_category } }],
+                    }
+                    query_2 = {
+                        ...query_2,
+                        $or: [{ _id: { $in: arr_id_parent_category } }, { _id: { $in: arr_object_id_parent_category } }],
+                    }
                 }
             }
             let id_website_component = ``
@@ -376,6 +388,22 @@ export const management = async (app) => {
                     }
                 }
             })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+    //delete
+    app.delete(prefixApi, helper.authenToken, async (req, res) => { 
+        try {
+            if (!(await helper.checkPermission("61ea38244d09cf202a258fe9", req.body._caller.id_employee_group))) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
+            const _id = req.body._id
+            const data_delete = await ModelMenu.findByIdAndRemove(_id)
+            if (data_delete) {
+                return res.sendStatus(200)
+            } else {
+                return res.status(400).json(`Có lỗi xảy ra vui lòng thử lại!`)
+            }
         } catch (e) {
             console.log(e)
             return res.status(500).send("Thất bại! Có lỗi xảy ra")

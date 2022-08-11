@@ -42,7 +42,7 @@ function drawTable(){
         <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Giá vốn . . ."></td>
         <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập bảo hành . . ."></td>
         <td>
-            <input oninput="findEmployee()" value="" class="form-control" disabled placeholder="Nhập tên nhân viên . . .">
+            <input oninput="findEmployee()" value="" class="form-control"  placeholder="Nhập tên nhân viên . . .">
             <div class="spinner-border" role="status">
                 <span class="sr-only">Loading...</span>
             </div>

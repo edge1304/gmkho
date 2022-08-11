@@ -320,7 +320,10 @@ export const management = async (app) => {
                         return res.status(404).json(`Không tìm thấy nội dung cần được chỉnh sửa`)
                     }
                     //
-                    const branch = req.body.arrBranch
+                    let branch = []
+                    if (validator.isNotEmpty(req.body.arrBranch)) {
+                        branch = req.body.arrBranch
+                    }
                     var newValue = _DATA.Content
                     newValue.Footer_Branch.Content = branch
                     try {
@@ -621,6 +624,50 @@ export const management = async (app) => {
                 case `logo_header`: {
                     const _key_update = `logo_header`
                     let upload = multer({ storage: storage, fileFilter: null }).array("logo_header", 1)
+                    upload(req, res, async (err) => {
+                        if (err) {
+                            validator.throwError(err)
+                            return res.status(400).send("Thất bại! Ảnh không phù hợp")
+                        }
+                        //
+                        const _id = req.body._id
+                        const _DATA = await Model_Website_Component.findById(_id)
+                        if (!validator.isDefine(_DATA)) {
+                            return res.status(404).json(`Không tìm thấy nội dung cần được chỉnh sửa`)
+                        }
+                        //
+                        const img_old = _DATA.Content[_key_update].Content || null
+                        var newValue = _DATA.Content
+                        let check_delete_img_old = false
+                        if (req.files.length > 0) {
+                            check_delete_img_old = true
+                            newValue[_key_update].Content = req.files[0].filename
+                        }
+                        // else {
+                        //     return res.status(404).json(`Ảnh tải lên không thành công hoặc chưa có ảnh`)
+                        // }
+                        try {
+                            const dataUpdate = await Model_Website_Component.findByIdAndUpdate(_DATA._id, {
+                                $set: {
+                                    Content: newValue,
+                                },
+                            })
+                            if (check_delete_img_old) {
+                                await validator.removeFile(validator.URL_IMAGE_WEBSITE_COMPONENT + "/" + img_old)
+                                return res.json(dataUpdate)
+                            } else {
+                                return res.json(dataUpdate)
+                            }
+                        } catch (e) {
+                            validator.throwError(e)
+                            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+                        }
+                    })
+                    break
+                }
+                case `mobile_logo_header`: {
+                    const _key_update = `mobile_logo_header`
+                    let upload = multer({ storage: storage, fileFilter: null }).array("mobile_logo_header", 1)
                     upload(req, res, async (err) => {
                         if (err) {
                             validator.throwError(err)

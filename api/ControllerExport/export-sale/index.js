@@ -122,6 +122,16 @@ export const management = async (app)=>{
                 if(dataEm){
                     data.employee_fullname = dataEm.employee_fullname
                 }
+
+                for(let i = 0;i<data.export_form_product.length;i++){
+                    data.export_form_product[i].employee_fullname = ""
+                    if(data.export_form_product[i].id_employee && validator.ObjectId.isValid(data.export_form_product[i].id_employee)){
+                        const dataEm2 = await ModelEmployee.findById(data.export_form_product[i].id_employee)
+                        if(dataEm2){
+                            data.export_form_product[i].employee_fullname = dataEm2.employee_fullname
+                        }
+                    }
+                }
                 
             }))
    
@@ -549,7 +559,7 @@ export const revenue_product_by_employee = async (app)=>{
                 "export_form_product.id_employee":validator.ObjectId(id_employee)
                 
             })
-
+            console.log(dataExort)
             const dataImport = await ModelImportForm.find({
                 ...query,
                 import_form_type: validator.TYPE_IMPORT_RETURN,
@@ -610,7 +620,7 @@ export const revenue_product_by_employee = async (app)=>{
                     arrData[i].user_phone = dataUser.user_phone
                 }
             }
-
+    
             return res.json(arrData)
         }
         catch (e) {

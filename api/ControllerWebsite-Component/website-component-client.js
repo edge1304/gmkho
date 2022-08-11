@@ -44,7 +44,9 @@ async function get_data_website_component() {
 }
 //lấy dữ liệu menu
 async function get_data_menu() {
-    const data_menu = await ModelMenu.find({ display_app: true, id_parent: null }).sort({ serial_number: -1 })
+    let data_website_component = await Model_Website_Component.findOne({ MenuName: NAME_WEBSITE_COMPONENT })
+    const _id_website_component = data_website_component?._id
+    const data_menu = await ModelMenu.find({ id_website_component: validator.ObjectId(_id_website_component), display_app: true, id_parent: null }).sort({ serial_number: -1 })
     // for (let i = 0; i < data_menu.length; i++) {
     //     const _data = await ModelCategory.findById(data_menu[i]?.id_represent_category)
     //     data_menu[i] = {

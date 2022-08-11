@@ -173,6 +173,13 @@ function editMenu(index, key) {
             showPopup("popup_logo_header")
             break
         }
+        case `mobile_logo_header`: {
+            $("#btn_Save_edit_mobile_logo_header").attr("onclick", `confirm_Save_Edit_mobile_logo_header(${index})`)
+            $("#img_mobile_logo_header").attr("src", `${URL_IMAGE_WEBSITE_COMPONENT}${arrData[index]?.Content?.mobile_logo_header?.Content}`)
+            $("#input_mobile_logo_header").val(null)
+            showPopup("popup_mobile_logo_header")
+            break
+        }
         case `home_image_banner_flash_sale`: {
             $("#btn_Save_edit_home_image_banner_flash_sale").attr("onclick", `confirm_Save_Edit_home_image_banner_flash_sale(${index})`)
             $("#img_home_image_banner_flash_sale").attr("src", `${URL_IMAGE_WEBSITE_COMPONENT}${arrData[index]?.Content?.home_image_banner_flash_sale?.Content}`)
@@ -823,6 +830,28 @@ function confirm_Save_Edit_logo_header(index) {
     )
 }
 //#endregion logo_header
+
+//#region mobile_logo_header
+function confirm_Save_Edit_mobile_logo_header(index) {
+    const _id = arrData[index]._id
+    const mobile_logo_header = $("#input_mobile_logo_header")[0].files[0]
+    var data = new FormData()
+    data.append("_id", _id)
+    data.append("mobile_logo_header", mobile_logo_header)
+    hidePopup("popup_mobile_logo_header")
+    callAPI(
+        "PUT",
+        `${API_WEBSITE_COMPONENT}/mobile_logo_header`,
+        data,
+        () => {
+            success("Thành công")
+            getData()
+        },
+        undefined,
+        true
+    )
+}
+//#endregion mobile_logo_header
 //#region home_image_banner_flash_sale
 function confirm_Save_Edit_home_image_banner_flash_sale(index) {
     const _id = arrData[index]._id

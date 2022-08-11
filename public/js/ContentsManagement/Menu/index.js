@@ -1,4 +1,4 @@
-var arrCategory = []
+var arrMenu = []
 var MAX_SERIAL_NUMBER = 0
 var DATA_ALL_MENU = []
 var DATA_ALL_CATEGORY = []
@@ -64,26 +64,35 @@ function draw_List_data_website_component(id_website_component, _div_select) {
 }
 function draw_List_category_website(id_parent) {
     $(`#select_Menu`).empty()
-    let check = 0
-    DATA_ALL_MENU.forEach((element) => {
-        if (element["_id"] + "" == id_parent + "") {
-            check++
-            $("#select_Menu").append(`<option selected value="${element["_id"]}">${element["name"]}</option>`)
-            $("#select_Menu").append(`<option value="">____ Chọn menu cha ____</option>`)
-            return
+    //nếu là menu cha cao nhất
+    if (id_parent + "" == "top") {
+        $("#select_Menu").append(`<option value="">__Tất cả__</option>`)
+        $("#select_Menu").append(`<option selected value="top">__Menu cao nhất__</option>`)
+    } else {
+        //hiển thị các menu con
+        let check = 0
+        DATA_ALL_MENU.forEach((element) => {
+            if (element["_id"] + "" == id_parent + "") {
+                check++
+                $("#select_Menu").append(`<option selected value="${element["_id"]}">${element["name"]}</option>`)
+                $("#select_Menu").append(`<option value="">__Tất cả__</option>`)
+                $("#select_Menu").append(`<option value="top">__Menu cao nhất__</option>`)
+                return
+            }
+        })
+        if (check == 0) {
+            $("#select_Menu").append(`<option selected value="">__Tất cả__</option>`)
+            $("#select_Menu").append(`<option value="top">__Menu cao nhất__</option>`)
         }
-    })
-    if (check == 0) {
-        $("#select_Menu").append(`<option selected value="">____ Chọn menu cha ____</option>`)
     }
     load_parent_menu("select_Menu", null, "")
 }
 function drawTable(data, current_page) {
     let stt_table = (current_page - 1) * data.length + 1
-    arrCategory = []
+    arrMenu = []
     $("#tbodyTable").empty()
     for (let i = 0; i < data.length; i++) {
-        arrCategory.push(data[i])
+        arrMenu.push(data[i])
         let image = `<img style="width:80px ; height:80px" src="${URL_IMAGE_MENU}${data[i]["Image"]}">`
         if (data[i]["Image"] == null || typeof data[i]["Image"] == "undefined") image = ""
         $("#tbodyTable").append(`
@@ -94,15 +103,35 @@ function drawTable(data, current_page) {
                 <td>${data[i]?.data_parent?.name || "---"}</td>
                 <td>${data[i]["link"]}</td>
                 <td>${data[i]?.data_website_component?.Description ? data[i]?.data_website_component?.Description : "---"}</td>
-                <td class="center"><button onclick="showPopupEdit(${i})" class="btn btn-danger">Chi tiết</button></td>
+                <td class="center">
+                    <button onclick="showPopupEdit(${i})" class="btn btn-primary">Chi tiết</button>
+                    <button onclick="showPopupDelete(${i})" class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+                </td>
             </tr>
         `)
         stt_table++
     }
 }
+function showPopupDelete(index) {
+    const _data = arrMenu[index]
+    if (confirm(`Bạn có muốn xóa menu <b>${_data.name}</b>? Thao tác này không thể hoàn tác!`) == true) {
+        const data = {
+            _id: _data._id,
+        }
+        callAPI(
+            "DELETE",
+            API_MENU,
+            data,
+            () => {
+                success("Xóa thành công")
+                getData()
+            },
+        )
+    }
+}
 function showPopupEdit(index) {
     $("#btnConfirmEdit").attr("onclick", `confirmEdit(${index})`)
-    const _data = arrCategory[index]
+    const _data = arrMenu[index]
     //load parent categỏy+
     const idcategory = _data._id
     const parent_id = typeof _data.id_parent == "undefined" ? null : _data.id_parent
@@ -163,7 +192,7 @@ function showPopupEdit(index) {
     showPopup(`popupEdit`)
 }
 function confirmEdit(index) {
-    const _id = arrCategory[index]._id
+    const _id = arrMenu[index]._id
     const name = $("#name_Menu_edit").val()
     const link_edit = $("#link_edit").val()
     const serial_number = $("#serial_number_edit").val()

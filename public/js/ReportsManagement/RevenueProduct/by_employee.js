@@ -58,7 +58,7 @@ function drawTable(data){
 
 
 
-    for(let i =0 ;i<data;i++){
+    for(let i =0 ;i<data.length;i++){
         const part = money(data[i].subcategory_part)
         $(".container-fluid .div-table table tbody").append(`
             <tr>

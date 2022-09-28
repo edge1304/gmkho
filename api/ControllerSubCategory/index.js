@@ -82,7 +82,7 @@ export const management = async(app) => {
             }
             data = await ModelSubCategory.find(query).sort(sort).skip(validator.getOffset(req)).limit(validator.getLimit(req))
             count = await ModelSubCategory.countDocuments(query)
-            console.log("??dưới")
+          
             return res.json({ data: data, count: count, arrCategory: arrCategory })
         } catch (e) {
             console.log(e)

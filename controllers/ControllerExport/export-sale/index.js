@@ -1,6 +1,15 @@
 
 import * as add from "./../../../api/ControllerExport/export-sale/add.js";
-import {management,update , revenue_product_checkpermission, revenue_product, print, cancel_product ,revenue_product_by_employee } from "./../../../api/ControllerExport/export-sale/index.js";
+import {
+    management,
+    update , 
+    revenue_product_checkpermission, 
+    revenue_product, print, 
+    cancel_product ,
+    revenue_product_by_employee, 
+    update_employee ,
+    change_customer
+} from "./../../../api/ControllerExport/export-sale/index.js";
 
 function createControllerExportSale(app) {
     add.checkPermission(app)
@@ -15,6 +24,7 @@ function createControllerExportSale(app) {
     print(app)
     cancel_product(app)
     revenue_product_by_employee(app)
-
+    update_employee(app)
+    change_customer(app)
 }
 export default createControllerExportSale

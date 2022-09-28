@@ -57,6 +57,7 @@ function drawTable(data){
                     <th>Nhà cung cấp</th>
                     <th>Bảo hành</th>
                     <th>Trạng thái</th>
+                    <th>Ngày xuất</th>
                     <th>Giá (nhập gần nhất)</th>
                     <th>Mã chính</th>
                     <th>Mã phụ</th>
@@ -77,6 +78,7 @@ function drawTable(data){
                 <td>${data[i].user_fullname}</td>
                 <td>${data[i].product_warranty}</td>
                 <td>${data[i].product_status?"Đã xuất":"Chưa xuất"}</td>
+                <td>${data[i].product_status? formatDate(data[i].date_export).fulldate:""}</td>
                 <td>${money(data[i].product_import_price)}</td>
                 <td>${data[i]._id}</td>
                 <td>${data[i].id_product2?data[i].id_product2:""}</td>

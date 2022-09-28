@@ -1,4 +1,4 @@
-#tbodyTable td:nth-child(3) {
+#tbodyTable td:nth-child(4) {
     text-align: right;
 }
 .header-table .relative i {
@@ -33,3 +33,6 @@
 #popupDetail tfoot td:last-child {
     color: red;
 }
+/* #popupDetail table th{
+    width: 0%;
+} */

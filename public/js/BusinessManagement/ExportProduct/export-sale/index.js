@@ -17,19 +17,21 @@ function checkPermission() {
 function getData() {
     limit = tryParseInt($("#selectLimit option:selected").val())
     key = $("#inputFind").val()
+    const fromdate = $("#fromdate").val()
+    const todate = $("#todate").val()
     callAPI('GET', API_EXPORT, {
         limit: limit,
         key: key,
         id_warehouse: $("#selectWarehouse option:selected").val(),
-        fromdate: $("#fromdate").val(),
-        todate: $("#todate").val(),
+        fromdate: fromdate,
+        todate: todate,
         page: page,
         export_form_type:type_export
     }, data => {
       
         drawTable(data.data)
         pagination(data.count, data.data.length)
-        changeURL(`?limit=${limit}&page=${page}&key=${key}&warehouse_name=${$("#selectWarehouse option:selected").text()}`)
+        changeURL(`?limit=${limit}&page=${page}&fromdate=${fromdate}&todate=${todate}&key=${key}&warehouse_name=${$("#selectWarehouse option:selected").text()}`)
     })
 }
 function drawTable(data) {
@@ -66,6 +68,7 @@ function findData() {
     }
 }
 function showEdit(index) {
+
     const modelBoby = $("#popupEdit .modal-body")
     const tableCustomer = $(modelBoby).find('table')[0]
     const tableProduct = $(modelBoby).find('table')[1]
@@ -80,7 +83,20 @@ function showEdit(index) {
         </tr>
         <tr>
             <th>Khách hàng</th>
-            <td><b>Tên </b>: ${arrData[index].user_fullname} &nbsp; &nbsp; <b> SĐT</b>: ${arrData[index].user_phone}  &nbsp; &nbsp; &nbsp;<b> Địa chỉ:</b> ${arrData[index].user_address} </td>
+            <td>
+                <div id="div_find_supplier" style="position: relative" class="relative">
+                    <input id="input_edit_supplier" value="${arrData[index].user_fullname}" name="${arrData[index].id_user}" placeholder="Nhập tên nhà cung cấp hoặc số điện thoại" type="text" oninput="findSupplier()" class="form-control">
+                    <button onclick="save_change_supplier(${index})" class="btn btn-danger" style="position:absolute; top:12px;right:10px">Lưu</button>
+                    <div style="width:15px; height:15px; position:absolute; top:21px;right:67px; display:none" class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div style="position: absolute;z-index: 200;background-color: antiquewhite;"  onscroll="loadmoreSupplier()" id="div_list_supplier"></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>Thông tin khách hàng</th>
+            <td id="td_info_supplier"><b> SĐT</b>: ${arrData[index].user_phone}  &nbsp; &nbsp; &nbsp;<b> Địa chỉ:</b> ${arrData[index].user_address} </td>
         </tr>
         <tr>
             <th>Ngày tạo phiếu</th>
@@ -121,18 +137,39 @@ function showEdit(index) {
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_vat)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_ck)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_quantity)}" disabled></td>
-                <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_warranty)}" ></td>
+                <td><input oninput="changeMoney()" class="number form-control"  type="text" value="${money(arrData[index].export_form_product[i].product_warranty)}" ></td>
                 <td><input oninput="changeMoney()" class="number form-control" ${isable} type="text" value="${money(arrData[index].export_form_product[i].product_discount)}" ></td>
 
-                <td>${arrData[index].export_form_product[i].employee_fullname}</td>
+                <td class="div-employee-setting">
+                    <input oninput="findEmployee()" value="${arrData[index].export_form_product[i].employee_fullname}" name="${arrData[index].export_form_product[i].id_employee}" class="form-control" placeholder="Nhập tên nhân viên . . .">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div onscroll="loadmoreEmployee()" class="div-employee"></div>
+                </td>
+                <td class="div-employee-setting">
+                    <input oninput="findEmployee()" value="${arrData[index].export_form_product[i].employee_setting_fullname}" name="${arrData[index].export_form_product[i].id_employee_setting}" class="form-control" placeholder="Nhập tên nhân viên . . .">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div onscroll="loadmoreEmployee()" class="div-employee"></div>
+                </td>
                 <td class="center"><i onclick="delete_product(${index},${i})" class="fas fa-trash text-danger"></i></td>
             </tr>
         `)
     }
+
+    if(arrData[index].id_fundbook){
+        $("#selectTypePayment").val(arrData[index].id_fundbook).change()
+        $("#paid").val(money(arrData[index].receive_form_money))
+        $("#note").val(arrData[index].export_form_note)
+    }
+
     if (isable) {
         $("#btnAddMore").hide()
-        $("#btnSaveEdit").hide()
+        // $("#btnSaveEdit").hide()
         $(".div-payment").hide()
+        $("#btnSaveEdit").attr("onclick",`confirmUpdateEmployee(${index})`)
     }
     else {
         $("#btnAddMore").show()
@@ -149,6 +186,70 @@ function showEdit(index) {
     showPopup('popupEdit')
 }
 
+function findEmployee(isMore=false) {
+    
+    const td = $(event.target).parent()
+    const input = $(td).find('input')[0]
+    $(input).attr("name",null)
+    const div_loading = $(td).find('.spinner-border')[0]
+    const div_employee = $(td).find(".div-employee")[0]
+    if ($(input).val().trim().length == 0) {
+        $(div_employee).empty()
+        arrEmployee = []
+    }
+    $(div_loading).show()
+    if (!isMore) {
+        offsetEmployee = 1
+        $(div_employee).empty()
+            
+    }
+    
+    callAPI('GET', `${API_EMPLOYEE}/info`, {
+        key: $(input).val(),
+        limit: 5,
+        page:offsetEmployee
+    }, data => {
+        if ($(input).val().trim().length > 0) {
+            if (!isMore) {
+                $(div_employee).empty()
+                arrEmployee = []
+            }
+            
+            data.map(employee => {
+                
+                arrEmployee.push(employee)
+                $(div_employee).append(`<li><a onclick="selectEmployee(${arrEmployee.length-1})" href="javascript:void(0)">${employee.employee_fullname} &emsp; ${employee.employee_phone} </a></li>`)
+            })
+        }
+        else {
+            $(div_employee).empty()
+        }
+        $(div_loading).hide()
+    }, err => {
+        $(div_loading).show()
+        errAjax(err)
+    },false, false)
+}
+
+function loadmoreEmployee() {
+    const div = $(event.target)
+    if ($(div).scrollTop() + $(div).innerHeight() >= $(div)[0].scrollHeight) {
+        offsetEmployee++
+        findEmployee(true)
+    }
+}
+
+function selectEmployee(index) {
+    const parent_one = $(event.target).parent().parent().parent()
+    // console.log(parent_one)
+    const input = $(parent_one).find('input')[0]
+    const div_employee = $(parent_one).find(".div-employee")[0]
+    $(div_employee).empty()
+    $(input).val(arrEmployee[index].employee_fullname)
+    $(input).attr("name", arrEmployee[index]._id)
+    // $(input).prop("disabled",true)
+
+}
 
 
 function confirmSaveEdit(index) {
@@ -167,13 +268,17 @@ function confirmSaveEdit(index) {
         const product_quantity = tryParseInt($($(trs[i]).find('input')[3]).val())
         const product_warranty = tryParseInt($($(trs[i]).find('input')[4]).val())
         const product_discount = tryParseInt($($(trs[i]).find('input')[5]).val())
+        const id_employee = $($(trs[i]).find('input')[6]).attr("name")
+        const id_employee_setting = $($(trs[i]).find('input')[7]).attr("name")
         arrProduct[i] = {
             ...arrProduct[i],
             product_export_price: product_export_price,
             product_vat : product_vat,
             product_ck : product_ck,
             product_discount : product_discount,
-            product_warranty:product_warranty
+            product_warranty:product_warranty,
+            id_employee:id_employee && id_employee.length == 24?id_employee:null,
+            id_employee_setting:id_employee_setting && id_employee_setting.length == 24?id_employee_setting:null,
         }
     }
     const id_fundbook = $("#selectTypePayment option:selected").val().trim()
@@ -184,7 +289,7 @@ function confirmSaveEdit(index) {
     const receive_form_money = tryParseInt($("#paid").val()) // tiền khách thanh toán
     const export_form_note = $("input[name=note]").val()
     const is_payment_zero = $("#payment_zero").val()
-   
+
     hidePopup('popupEdit')
     callAPI('PUT', API_EXPORT, {
         arrProduct: JSON.stringify(arrProduct),
@@ -240,15 +345,89 @@ function delete_product(index, indexOfProduct){
 }
 
 function confirmDelete(index,indexOfProduct){
-    hidePopup('popupDetail')
+    hidePopup('popupEdit')
     callAPI('delete',`${API_EXPORT}/product`,{
         id_export:arrData[index]._id,
         indexOfProduct:indexOfProduct
     },(data)=>{
+        getData()
+
+    })
+}
+
+function confirmUpdateEmployee(index){
+    const modelBoby = $("#popupEdit .modal-body")
+    const tableProduct = $(modelBoby).find('table')[1]
+    const trs = $(tableProduct).find('tbody tr')
+
+    var arrProduct = []
+    arrData[index].export_form_product.map(product => {
+        arrProduct.push({...product})
+    })
+    for (let i =0; i < trs.length; i++){
+        const product_export_price = tryParseInt($($(trs[i]).find('input')[0]).val())
+        const product_vat = tryParseInt($($(trs[i]).find('input')[1]).val())
+        const product_ck = tryParseInt($($(trs[i]).find('input')[2]).val())
+        const product_quantity = tryParseInt($($(trs[i]).find('input')[3]).val())
+        const product_warranty = tryParseInt($($(trs[i]).find('input')[4]).val())
+        const product_discount = tryParseInt($($(trs[i]).find('input')[5]).val())
+        const id_employee = $($(trs[i]).find('input')[6]).attr("name")
+        const id_employee_setting = $($(trs[i]).find('input')[7]).attr("name")
+        arrProduct[i] = {
+            ...arrProduct[i],
+            product_export_price: product_export_price,
+            product_vat : product_vat,
+            product_ck : product_ck,
+            product_discount : product_discount,
+            product_warranty:product_warranty,
+            id_employee:id_employee,
+            id_employee_setting:id_employee_setting
+        }
+    }
+    const id_fundbook = $("#selectTypePayment option:selected").val().trim()
+    if (id_fundbook.length == 0) {
+        info("Hãy chọn hình thức thanh toán")
+        return
+    }
+    const receive_form_money = tryParseInt($("#paid").val()) // tiền khách thanh toán
+    const export_form_note = $("input[name=note]").val()
+    const is_payment_zero = $("#payment_zero").val()
+   
+    hidePopup('popupEdit')
+    callAPI('PUT', `${API_EXPORT}/employee`, {
+        arrProduct: JSON.stringify(arrProduct),
+        id_fundbook: id_fundbook,
+        receive_form_money: receive_form_money,
+        export_form_note:export_form_note,
+        id_export: arrData[index]._id,
+        is_payment_zero:is_payment_zero
+    }, (data) => {
+        getData()
+        success("Thành công")
+        
+    })
+}
+
+function selectSupplier(index){
+    $("#input_edit_supplier").val(arrSupplier[index].user_fullname)
+    $("#input_edit_supplier").attr("name",arrSupplier[index]._id)
+    $("#td_info_supplier").html(`<b> SĐT</b>: ${arrSupplier[index].user_phone}  &nbsp; &nbsp; &nbsp;<b> Địa chỉ:</b> ${arrSupplier[index].user_address} `)
+
+    $("#div_list_supplier").empty()
+}
+
+function save_change_supplier(index){
+
+    const id_supplier = $("#input_edit_supplier").attr("name")
+    callAPI('PUT',`${API_EXPORT}/change-customer`,{
+        id_user:id_supplier,
+        id_export:arrData[index]._id
+    }, data =>{
         arrData[index] = {
             ...arrData[index],
-            export_form_product:data.export_form_product
+            ...data,
+            
         }
-        showEdit(index)
+        success("Thành công")
     })
 }

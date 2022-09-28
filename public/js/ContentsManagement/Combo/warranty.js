@@ -6,36 +6,16 @@ function getData(isLoad = true) {
    
     limit = $("#selectLimit option:selected").val();
     key = $("#keyFind").val()
-    $.ajax({
-        type: 'GET',
-        url: `../api/warranty-combo?`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            limit: tryParseInt(limit),
-            page: tryParseInt(page),
-            key: key,
-        },
-
-        cache: false,
-        success: function (data) {
-
-            isLoading(false);
-            drawTable(data.data);
-            pagination(data.count, data.data.length)
-            changeURL(`?limit=${limit}&page=${page}&warranty_combo_name=${key}`)
-
-            
-        },
-        error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-
-        }
+    callAPI('GET',`../api/warranty-combo?`,{
+        limit: tryParseInt(limit),
+        page: tryParseInt(page),
+        key: key,
+    },data =>{
+        drawTable(data.data);
+        pagination(data.count, data.data.length)
+        changeURL(`?limit=${limit}&page=${page}&warranty_combo_name=${key}`)
     })
+   
 }
 
 function drawTable(data)
@@ -158,32 +138,19 @@ function confirmEdit(index)
     }
 
     hidePopup('popupEdit')
-    isLoading()
-    $.ajax({
-        type: 'put',
-        url: `../api/warranty-combo`,
-        headers: {
-            token: ACCESS_TOKEN,
-        },
-        data: {
-            warranty_combo_name:warranty_combo_name,
+    callAPI('put',`../api/warranty-combo`,{
+        warranty_combo_name:warranty_combo_name,
             arrContent:arrContent,
             id_combo:arrData[index]._id
-        },
-        cache: false,
-        success: function (data) {
-            isLoading(false);
-           success("Thành công")
+    },data =>{
+        success("Thành công")
            getData()
           
-            
-        },
-        error: function (data) {
-            isLoading(false);
-            if (data.status == 503 || data.status == 502) info("Server bị ngắt kết nối , hãy kiểm tra lại mạng của bạn");
-            if (data != null && data.status != 503 && data.status != 502)
-                info(data.responseText);
-
-        }
     })
+ 
+}
+
+function showPopupAdd(){
+    arrContent = []
+    showPopup('popupAdd',true)
 }

@@ -28,7 +28,7 @@ app.listen(process.env.PORT || 8005, () => {
 // các link api client
 import controller_api_client from "./controllers/Controller_api_client.js"
 controller_api_client(app)
-//
+    //
 import createControllerAdmin from "./controllers/ControllerAdmin.js"
 createControllerAdmin(app)
 import createControllerPermission from "./controllers/ControllerPermission.js"
@@ -162,10 +162,16 @@ createControllerExternalRepairService(app)
 import createControllerChangeWarehouse from "./controllers/ControllerChangeWarehouse.js"
 createControllerChangeWarehouse(app)
 
+import createControllerComboProduct from "./controllers/ControllerComboProduct.js"
+createControllerComboProduct(app)
+
+import createControllerTranferFundbook from "./controllers/ControllerTranferFundbook.js"
+createControllerTranferFundbook(app)
+
 app.use(routerAdmin)
 
 import { ModelBranch } from "./models/Branch.js"
-app.get("/addbranch/:name/:phone", async (req, res) => {
+app.get("/addbranch/:name/:phone", async(req, res) => {
     const data = await new ModelBranch({
         branch_name: req.params.name,
         branch_phone: req.params.phone,
@@ -174,7 +180,7 @@ app.get("/addbranch/:name/:phone", async (req, res) => {
 })
 
 import { ModelEmployeeGroup } from "./models/EmployeeGroup.js"
-app.get("/addGroup/:name/:level/:idgroupsup", async (req, res) => {
+app.get("/addGroup/:name/:level/:idgroupsup", async(req, res) => {
     const data = await new ModelEmployeeGroup({
         employee_group_name: req.params.name,
         employee_level: req.params.level,
@@ -184,7 +190,7 @@ app.get("/addGroup/:name/:level/:idgroupsup", async (req, res) => {
 })
 
 import { ModelFunction } from "./models/Function.js"
-app.get("/addFunction/:name", async (req, res) => {
+app.get("/addFunction/:name", async(req, res) => {
     const data = await new ModelFunction({
         function_name: req.params.name,
     }).save()
@@ -192,7 +198,7 @@ app.get("/addFunction/:name", async (req, res) => {
 })
 
 import { ModelEmployeeSuperGroup } from "./models/EmployeeSuperGroup.js"
-app.get("/addSupperGroup/:name/:level", async (req, res) => {
+app.get("/addSupperGroup/:name/:level", async(req, res) => {
     const data = await new ModelEmployeeSuperGroup({
         employee_super_group_name: req.params.name,
         employee_super_group_level: req.params.level,
@@ -236,7 +242,7 @@ import { Model_Policy } from "./models/Policy.js"
 import { ModelNews } from "./models/News.js"
 import { Model_Email_Announcement_Promotion } from "./models/Email_Announcement_Promotion.js"
 
-app.get("/lay:name", async (req, res) => {
+app.get("/lay:name", async(req, res) => {
     let query = {}
     Object.keys(req.query).map((key) => {
         if (key != "limit" && key != "page") {
@@ -251,14 +257,14 @@ app.get("/lay:name", async (req, res) => {
     return res.json(data)
 })
 
-app.get("/empty/:name", async (req, res) => {
+app.get("/empty/:name", async(req, res) => {
     var db = get_Model(req)
     const data = await db.deleteMany({})
     return res.json(data)
 })
 import { ModelPermission } from "./models/Permission.js"
 
-app.get("/addPermission/:group/:function", async (req, res) => {
+app.get("/addPermission/:group/:function", async(req, res) => {
     const data = await new ModelPermission({
         id_employee_group: req.params.group,
         id_function: req.params.function,
@@ -266,7 +272,7 @@ app.get("/addPermission/:group/:function", async (req, res) => {
     return res.json(data)
 })
 
-app.get("/xoa", async (req, res) => {
+app.get("/xoa", async(req, res) => {
     await ModelImportForm.deleteMany({})
     await ModelProduct.deleteMany({})
     await ModelExportForm.deleteMany({})
@@ -280,7 +286,7 @@ app.get("/xoa", async (req, res) => {
     return res.json("ok")
 })
 
-app.get("/USUB", async (req, res) => {
+app.get("/USUB", async(req, res) => {
     //  await Model_Website_Component.findByIdAndUpdate("62733731a23200000c005a23")'
     const data = await Model_Website_Component.findById("62733731a23200000c005a23")
     if (data) {
@@ -299,12 +305,12 @@ app.get("/USUB", async (req, res) => {
 })
 
 import { ModelNotification } from "./models/Notification.js"
-app.get("/Notification", async (req, res) => {
+app.get("/Notification", async(req, res) => {
     const data = await ModelNotification.find().lean()
     return res.json(data)
 })
 
-cron.schedule("* * * * *", async () => {
+cron.schedule("* * * * *", async() => {
     const dataNotifi = await ModelNotification.find().lean()
     const time = validator.dateTimeZone()
     for (let i = 0; i < dataNotifi.length; i++) {
@@ -320,170 +326,211 @@ function get_Model(req) {
     const name_model = req.params.name
     let db = ModelBranch
     switch (name_model) {
-        case `Function`: {
-            db = ModelFunction
-            break
-        }
-        case `AppComponent`: {
-            db = Model_App_Component
-            break
-        }
-        case `Permission`: {
-            db = ModelPermission
-            break
-        }
-        case `EmployeeGroup`: {
-            db = ModelEmployeeGroup
-            break
-        }
-        case `Employee`: {
-            db = ModelEmployee
-            break
-        }
-        case `EmployeeSuperGroup`: {
-            db = ModelEmployeeSuperGroup
-            break
-        }
-        case `SuperCategory`: {
-            db = ModelSuperCategory
-            break
-        }
-        case `Category`: {
-            db = ModelCategory
-            break
-        }
-        case `Warehouse`: {
-            db = ModelWarehouse
-            break
-        }
-        case `SubCategory`: {
-            db = ModelSubCategory
-            break
-        }
-        case `Asset`: {
-            db = ModelAsset
-            break
-        }
-        case `WarrantyCombo`: {
-            db = ModelWarrantyCombo
-            break
-        }
-        case `Menu`: {
-            db = ModelMenu
-            break
-        }
-        case `Calendar`: {
-            db = ModelCalendar
-            break
-        }
-        case `FundBook`: {
-            db = ModelFundBook
-            break
-        }
-        case `AccountingEntry`: {
-            db = ModelAccountingEntry
-            break
-        }
-        case `User`: {
-            db = ModelUser
-            break
-        }
-        case `Product`: {
-            db = ModelProduct
-            break
-        }
-        case `Import`: {
-            db = ModelImportForm
-            break
-        }
-        case `Payment`: {
-            db = ModelPayment
-            break
-        }
-        case `Debt`: {
-            db = ModelDebt
-            break
-        }
-        case `Point`: {
-            db = ModelPoint
-            break
-        }
-        case `Voucher`: {
-            db = ModelVoucher
-            break
-        }
-        case `Export`: {
-            db = ModelExportForm
-            break
-        }
-        case `Receive`: {
-            db = ModelReceive
-            break
-        }
-        case `Part`: {
-            db = ModelPart
-            break
-        }
-        case `Internal`: {
-            db = ModelInternalOrder
-            break
-        }
-        case `Borrow`: {
-            db = ModelBorrow
-            break
-        }
-        case `Cart`: {
-            db = ModelCart
-            break
-        }
-        case `Order`: {
-            db = ModelOrder
-            break
-        }
-        case `Warranty`: {
-            db = ModelWarranty
-            break
-        }
-        case `ExportWarranty`: {
-            db = ModelExportWarranty
-            break
-        }
-        case `Report`: {
-            db = ModelReportInventory
-            break
-        }
-        case `Notification`: {
-            db = ModelNotificationUser
-            break
-        }
-        case `WebsiteComponent`: {
-            db = Model_Website_Component
-            break
-        }
-        case `AppComponent`: {
-            db = Model_App_Component
-            break
-        }
-        case `SlideBanner`: {
-            db = Model_Slide_Banner
-            break
-        }
-        case `Policy`: {
-            db = Model_Policy
-            break
-        }
-        case `Category`: {
-            db = ModelCategory
-            break
-        }
-        case `News`: {
-            db = ModelNews
-            break
-        }
-        case `Email_Promotion`: {
-            db = Model_Email_Announcement_Promotion
-            break
-        }
+        case `Function`:
+            {
+                db = ModelFunction
+                break
+            }
+        case `AppComponent`:
+            {
+                db = Model_App_Component
+                break
+            }
+        case `Permission`:
+            {
+                db = ModelPermission
+                break
+            }
+        case `EmployeeGroup`:
+            {
+                db = ModelEmployeeGroup
+                break
+            }
+        case `Employee`:
+            {
+                db = ModelEmployee
+                break
+            }
+        case `EmployeeSuperGroup`:
+            {
+                db = ModelEmployeeSuperGroup
+                break
+            }
+        case `SuperCategory`:
+            {
+                db = ModelSuperCategory
+                break
+            }
+        case `Category`:
+            {
+                db = ModelCategory
+                break
+            }
+        case `Warehouse`:
+            {
+                db = ModelWarehouse
+                break
+            }
+        case `SubCategory`:
+            {
+                db = ModelSubCategory
+                break
+            }
+        case `Asset`:
+            {
+                db = ModelAsset
+                break
+            }
+        case `WarrantyCombo`:
+            {
+                db = ModelWarrantyCombo
+                break
+            }
+        case `Menu`:
+            {
+                db = ModelMenu
+                break
+            }
+        case `Calendar`:
+            {
+                db = ModelCalendar
+                break
+            }
+        case `FundBook`:
+            {
+                db = ModelFundBook
+                break
+            }
+        case `AccountingEntry`:
+            {
+                db = ModelAccountingEntry
+                break
+            }
+        case `User`:
+            {
+                db = ModelUser
+                break
+            }
+        case `Product`:
+            {
+                db = ModelProduct
+                break
+            }
+        case `Import`:
+            {
+                db = ModelImportForm
+                break
+            }
+        case `Payment`:
+            {
+                db = ModelPayment
+                break
+            }
+        case `Debt`:
+            {
+                db = ModelDebt
+                break
+            }
+        case `Point`:
+            {
+                db = ModelPoint
+                break
+            }
+        case `Voucher`:
+            {
+                db = ModelVoucher
+                break
+            }
+        case `Export`:
+            {
+                db = ModelExportForm
+                break
+            }
+        case `Receive`:
+            {
+                db = ModelReceive
+                break
+            }
+        case `Part`:
+            {
+                db = ModelPart
+                break
+            }
+        case `Internal`:
+            {
+                db = ModelInternalOrder
+                break
+            }
+        case `Borrow`:
+            {
+                db = ModelBorrow
+                break
+            }
+        case `Cart`:
+            {
+                db = ModelCart
+                break
+            }
+        case `Order`:
+            {
+                db = ModelOrder
+                break
+            }
+        case `Warranty`:
+            {
+                db = ModelWarranty
+                break
+            }
+        case `ExportWarranty`:
+            {
+                db = ModelExportWarranty
+                break
+            }
+        case `Report`:
+            {
+                db = ModelReportInventory
+                break
+            }
+        case `Notification`:
+            {
+                db = ModelNotificationUser
+                break
+            }
+        case `WebsiteComponent`:
+            {
+                db = Model_Website_Component
+                break
+            }
+        case `AppComponent`:
+            {
+                db = Model_App_Component
+                break
+            }
+        case `SlideBanner`:
+            {
+                db = Model_Slide_Banner
+                break
+            }
+        case `Policy`:
+            {
+                db = Model_Policy
+                break
+            }
+        case `Category`:
+            {
+                db = ModelCategory
+                break
+            }
+        case `News`:
+            {
+                db = ModelNews
+                break
+            }
+        case `Email_Promotion`:
+            {
+                db = Model_Email_Announcement_Promotion
+                break
+            }
         default:
             break
     }
@@ -494,191 +541,219 @@ function empty_Model(req) {
     const name_model = req.params.name
     let db = null
     switch (name_model) {
-        case `EmployeeGroup`: {
-            db = ModelEmployeeGroup
-            break
-        }
-        case `Employee`: {
-            db = ModelEmployee
-            break
-        }
-        case `EmployeeSuperGroup`: {
-            db = ModelEmployeeSuperGroup
-            break
-        }
-        case `SuperCategory`: {
-            db = ModelSuperCategory
-            break
-        }
-        case `Category`: {
-            db = ModelCategory
-            break
-        }
-        case `Warehouse`: {
-            db = ModelWarehouse
-            break
-        }
-        case `SubCategory`: {
-            db = ModelSubCategory
-            break
-        }
-        case `Asset`: {
-            db = ModelAsset
-            break
-        }
-        case `WarrantyCombo`: {
-            db = ModelWarrantyCombo
-            break
-        }
-        case `Menu`: {
-            db = ModelMenu
-            break
-        }
-        case `Calendar`: {
-            db = ModelCalendar
-            break
-        }
-        case `FundBook`: {
-            db = ModelFundBook
-            break
-        }
-        case `AccountingEntry`: {
-            db = ModelAccountingEntry
-            break
-        }
-        case `User`: {
-            db = ModelUser
-            break
-        }
-        case `Product`: {
-            db = ModelProduct
-            break
-        }
-        case `Import`: {
-            db = ModelImportForm
-            break
-        }
-        case `Payment`: {
-            db = ModelPayment
-            break
-        }
-        case `Debt`: {
-            db = ModelDebt
-            break
-        }
-        case `Point`: {
-            db = ModelPoint
-            break
-        }
-        case `Voucher`: {
-            db = ModelVoucher
-            break
-        }
-        case `Export`: {
-            db = ModelExportForm
-            break
-        }
-        case `Receive`: {
-            db = ModelReceive
-            break
-        }
-        case `Part`: {
-            db = ModelPart
-            break
-        }
-        case `Internal`: {
-            db = ModelInternalOrder
-            break
-        }
-        case `Borrow`: {
-            db = ModelBorrow
-            break
-        }
-        case `Cart`: {
-            db = ModelCart
-            break
-        }
-        case `Order`: {
-            db = ModelOrder
-            break
-        }
-        case `Warranty`: {
-            db = ModelWarranty
-            break
-        }
-        case `ExportWarranty`: {
-            db = ModelExportWarranty
-            break
-        }
-        case `Report`: {
-            db = ModelReportInventory
-            break
-        }
-        case `Notification`: {
-            db = ModelNotificationUser
-            break
-        }
+        case `EmployeeGroup`:
+            {
+                db = ModelEmployeeGroup
+                break
+            }
+        case `Employee`:
+            {
+                db = ModelEmployee
+                break
+            }
+        case `EmployeeSuperGroup`:
+            {
+                db = ModelEmployeeSuperGroup
+                break
+            }
+        case `SuperCategory`:
+            {
+                db = ModelSuperCategory
+                break
+            }
+        case `Category`:
+            {
+                db = ModelCategory
+                break
+            }
+        case `Warehouse`:
+            {
+                db = ModelWarehouse
+                break
+            }
+        case `SubCategory`:
+            {
+                db = ModelSubCategory
+                break
+            }
+        case `Asset`:
+            {
+                db = ModelAsset
+                break
+            }
+        case `WarrantyCombo`:
+            {
+                db = ModelWarrantyCombo
+                break
+            }
+        case `Menu`:
+            {
+                db = ModelMenu
+                break
+            }
+        case `Calendar`:
+            {
+                db = ModelCalendar
+                break
+            }
+        case `FundBook`:
+            {
+                db = ModelFundBook
+                break
+            }
+        case `AccountingEntry`:
+            {
+                db = ModelAccountingEntry
+                break
+            }
+        case `User`:
+            {
+                db = ModelUser
+                break
+            }
+        case `Product`:
+            {
+                db = ModelProduct
+                break
+            }
+        case `Import`:
+            {
+                db = ModelImportForm
+                break
+            }
+        case `Payment`:
+            {
+                db = ModelPayment
+                break
+            }
+        case `Debt`:
+            {
+                db = ModelDebt
+                break
+            }
+        case `Point`:
+            {
+                db = ModelPoint
+                break
+            }
+        case `Voucher`:
+            {
+                db = ModelVoucher
+                break
+            }
+        case `Export`:
+            {
+                db = ModelExportForm
+                break
+            }
+        case `Receive`:
+            {
+                db = ModelReceive
+                break
+            }
+        case `Part`:
+            {
+                db = ModelPart
+                break
+            }
+        case `Internal`:
+            {
+                db = ModelInternalOrder
+                break
+            }
+        case `Borrow`:
+            {
+                db = ModelBorrow
+                break
+            }
+        case `Cart`:
+            {
+                db = ModelCart
+                break
+            }
+        case `Order`:
+            {
+                db = ModelOrder
+                break
+            }
+        case `Warranty`:
+            {
+                db = ModelWarranty
+                break
+            }
+        case `ExportWarranty`:
+            {
+                db = ModelExportWarranty
+                break
+            }
+        case `Report`:
+            {
+                db = ModelReportInventory
+                break
+            }
+        case `Notification`:
+            {
+                db = ModelNotificationUser
+                break
+            }
         default:
             break
     }
     return db
 }
 
-app.get("/cak", async (req, res) => {
+app.get("/cak", async(req, res) => {
     const dataInternal = await ModelInternalOrder.find()
+    const arrrData = []
     for (let i = 0; i < dataInternal.length; i++) {
         if (dataInternal[i].id_import_form && validator.ObjectId(dataInternal[i].id_import_form)) {
             const dataImport = await ModelImportForm.findById(dataInternal[i].id_import_form)
-            if (!dataImport || !dataImport.import_form_product) console.log(dataInternal[i].id_import_form)
-            for (let j = 0; j < dataImport.import_form_product.length; j++) {
-                if (dataImport.import_form_product[j].product_import_price == 0) {
-                    const dataPro = await ModelProduct.findById(dataImport.import_form_product[j].id_product)
-                    dataImport.import_form_product[j].product_import_price = dataPro.product_import_price
+            if(dataImport){
+                const dataDebt = await ModelDebt.findOne({$and:[{debt_type:"import"},{id_form:dataImport._id}]})
+                let money = 0
+                const dataPayment = await ModelPayment.findOne({$and:[{payment_type:"import"},{id_form:dataImport._id}]})
+                if(dataPayment) money = dataPayment.payment_money
+
+                const total = validator.calculateMoneyImport(dataImport.import_form_product)
+                if(!dataDebt){
+                  
+                    
+                    const cc = await new ModelDebt({
+                        id_user: dataInternal[i].to_user, // tên nhân viên
+                        id_branch: dataInternal[i].from_user,
+                        id_employee: dataInternal[i].from_employee,
+                        debt_money_payment: money,
+                        debt_money_import:total,
+                        debt_note: dataImport.import_form_note,
+                        debt_type: "import",
+                        id_form: dataImport._id,
+                    }).save()
+                    arrrData.push(cc)
+                }
+                else{
+                    if(dataDebt.debt_money_receive > 0 || dataDebt.debt_money_export > 0){
+                        const dataUpdate =  await ModelDebt.findByIdAndUpdate(dataDebt._id,{
+                            debt_money_export:0,
+                            debt_money_receive:0,
+                            debt_money_import:total,
+                            debt_money_payment: money,
+                        })
+
+                        arrrData.push({
+                            ...dataUpdate,
+                            type:"update"
+                        })
+                    }
                 }
             }
-            const total_import = validator.calculateMoneyImport(dataImport.import_form_product)
-            await ModelImportForm.findByIdAndUpdate(dataImport._id, {
-                import_form_product: dataImport.import_form_product,
-            })
-
-            await ModelDebt.findOneAndUpdate(
-                { $and: [{ debt_type: "import" }, { id_form: dataImport._id }] },
-                {
-                    $set: {
-                        debt_money_import: total_import,
-                    },
-                }
-            )
         }
 
-        if (dataInternal[i].id_export_form && validator.ObjectId(dataInternal[i].id_export_form)) {
-            const dataExport = await ModelExportForm.findById(dataInternal[i].id_export_form)
-
-            for (let j = 0; j < dataExport.export_form_product.length; j++) {
-                if (dataExport.export_form_product[j].product_export_price == 0) {
-                    const dataPro = await ModelProduct.findById(dataExport.export_form_product[j].id_product)
-                    dataExport.export_form_product[j].product_export_price = dataPro.product_import_price
-                    dataExport.export_form_product[j].product_import_price = dataPro.product_import_price
-                }
-            }
-            const total_export = validator.calculateMoneyExport(dataExport.export_form_product)
-            await ModelExportForm.findByIdAndUpdate(dataExport._id, {
-                export_form_product: dataExport.export_form_product,
-            })
-
-            await ModelDebt.findOneAndUpdate(
-                { $and: [{ debt_type: "export" }, { id_form: dataExport._id }] },
-                {
-                    $set: {
-                        debt_money_export: total_export,
-                    },
-                }
-            )
-        }
+       
     }
-    return res.json("ok")
+    
+    return res.json(arrrData)
 })
 
-app.get("/*", async (req, res) => {
+app.get("/*", async(req, res) => {
     return res.status(404).render("pages/samples/error-404")
 })

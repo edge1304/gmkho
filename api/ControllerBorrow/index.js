@@ -131,6 +131,7 @@ export const insert = async (app)=>{
             if(!await helper.checkPermission("6219b0eff796eb805c4af47e", req.body._caller.id_employee_group)) return res.status(403).send("Thất bại! Bạn không có quyền truy cập chức năng này")
             try
             {
+                const note = req.body.note
                 const arrProduct = JSON.parse(req.body.arrProduct)
                 const id_employee_created = req.body._caller._id
                 const id_employee = req.body.id_employee
@@ -187,7 +188,8 @@ export const insert = async (app)=>{
                     borrow_product: arrProduct,
                     id_export_form: insertExport._id,
                     borrow_status: "Đang mượn",
-                    id_employee_created:id_employee_created
+                    id_employee_created:id_employee_created,
+                    borrow_note:note
                 }).save()
 
                 for (let i = 0; i < arrProduct.length; i++){
@@ -241,9 +243,9 @@ export const update = async (app)=>{
                     }
                 }
                 if (indexProduct == -1) return res.status(400).send("Thất bại! Không tìm thấy sản phẩm trong phiếu")
-            
+                var id_import =dataBorrow.id_import_form
                 if (!validator.ObjectId.isValid(dataBorrow.id_import_form)) { // chưa có phiếu nhập vì trả lần đầu
-                    const insertImport = await new ModelImportForm({
+                        const insertImport = await new ModelImportForm({
                         id_warehouse: dataBorrow.id_warehouse,
                         id_employee: req.body._caller._id,
                         id_user: dataBorrow.id_user,
@@ -251,6 +253,7 @@ export const update = async (app)=>{
                         import_form_product: [dataBorrow.borrow_product[indexProduct]],
                         import_form_type:"Nhập hàng mượn kho"
                     }).save()
+                    id_import = insertImport._id
                     updateBorrow = await ModelBorrow.findByIdAndUpdate(dataBorrow._id, {
                         borrow_product: dataBorrow.borrow_product,
                         borrow_status: borrow_status,
@@ -268,7 +271,14 @@ export const update = async (app)=>{
                         borrow_status: borrow_status,
                     })
                 }
-                await ModelProduct.findByIdAndUpdate(dataProduct._id, { product_status: false })
+                await ModelProduct.findByIdAndUpdate(dataProduct._id, { 
+                    $set:{
+                        product_status: false 
+                    },
+                    $push:{
+                        product_note:id_import.toString()
+                    }
+                })
                 return res.json(updateBorrow)
             }
             catch(e)

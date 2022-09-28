@@ -79,7 +79,7 @@ function showPopupEdit(index) {
     else $("#imageEdit").attr("src", URL_IMAGE_EMPLOYEE + arrData[index].employee_image)
     $("#inputEditImage").val(null)
     $("#editPassword").val(null)
-
+    $("#edit_select_branch").val(arrData[index].id_branch).change()
     $("#confirmEdit").attr("onclick", `confirmEdit(${index})`)
     showPopup('popupEdit')
 }
@@ -115,6 +115,7 @@ function confirmEdit(index) {
     const employee_revenue_percent = isNaN(parseFloat($("#editPercent").val())) ? 0 : parseFloat($("#editPercent").val())
     const employee_status = $(`input[type=radio][name=editStatus]:checked`).val()
     const employee_image = $("#inputEditImage")[0].files[0];
+    const id_branch = $("#edit_select_branch option:selected").val()
     if (!employee_fullname) {
         info("Tên nhân viên không được để trống")
         return
@@ -139,6 +140,7 @@ function confirmEdit(index) {
     data.append('employee_image', employee_image)
     data.append('employee_status', employee_status)
     data.append('id_employee', arrData[index]._id)
+    data.append('id_branch', id_branch)
 
     hidePopup('popupEdit')
     callAPI('PUT', `${API_EMPLOYEE}`, data, () => {

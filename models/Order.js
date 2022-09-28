@@ -91,7 +91,8 @@ const SchemaOrder = new mongoose.Schema({
     },
     id_export_form: {
         ...validator.schemaObjectId
-    }
+    },
+    order_time_trafer:{...validator.schemaDatetime}
 },{timestamps: true });
 
 

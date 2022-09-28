@@ -1,7 +1,7 @@
 const ACCESS_TOKEN = getCookie("token")
 const MAX_SIZE_IMAGE = 400000
-const URL_MAIN = "https://gmkho.aecongnghe.com/"
-const URL_API = "https://gmkho.aecongnghe.com/api"
+    const URL_MAIN = "https://gmkho.aecongnghe.com/"
+    const URL_API = "https://gmkho.aecongnghe.com/api"
 
 // const URL_MAIN = "https://haiphongcomputer.com/"
 // const URL_API = "https://haiphongcomputer.com/api"
@@ -58,6 +58,8 @@ const API_YOUTUBE = `/api/youtube`
 const API_EMAIL_ANNOUNCEMENT_PROMOTION = `/api/email-announcement-promotion`
 const API_EXTERNAL_REPAIR_SERVICE = '/api/external-repair-service'
 const API_CHANGE_WAREHOUSE = `/api/change-warehouse`
+const API_COMBO_PRODUCT_TO_SALE = '/api/combo-product-to-sale'
+const API_TRANFER_FUNDBOOK = '/api/tranfer-fundbook'
     //
 var stt = 1
 const isDebug = true
@@ -420,9 +422,6 @@ function nextPage() {
     const new_URL = theURL.toString()
     changeURL(new_URL)
     getData(page_change)
-        // var a = document.createElement("a")
-        // a.setAttribute("href", `${new_URL}`)
-        // a.click()
 }
 
 function previousPage() {
@@ -434,9 +433,6 @@ function previousPage() {
     const new_URL = theURL.toString()
     changeURL(new_URL)
     getData(page_change)
-        // var a = document.createElement("a")
-        // a.setAttribute("href", `${new_URL}`)
-        // a.click()
 }
 
 function changeOffset_1(index) {
@@ -448,9 +444,7 @@ function changeOffset_1(index) {
     const new_URL = theURL.toString()
     changeURL(new_URL)
     getData(page_change)
-        // var a = document.createElement("a")
-        // a.setAttribute("href", `${new_URL}`)
-        // a.click()
+
 }
 //#endregion
 function addZero(number, length = 2) {
@@ -517,15 +511,16 @@ function isChecked(time) {
 function achievement(in_morning, out_morning, in_afternoon, out_afternoon) {
     let number = 0
     if (isChecked(in_morning) && isChecked(out_morning)) {
-        const totalMinutes = (out_morning.hours * 60 + out_morning.minutes - in_morning.hours * 60 + in_morning.minutes) / 60
-      
-        if (totalMinutes / 4 >= 1) number = 0.5
-        else number = totalMinutes / 4 
+
+        const totalMinutes = ((out_morning.hours * 60 + out_morning.minutes) - (in_morning.hours * 60 + in_morning.minutes)) / 60
+
+        if (totalMinutes / 8 >= 0.5) number = 0.5
+        else number = totalMinutes / 8
     }
     if (isChecked(in_afternoon) && isChecked(out_afternoon)) {
-        const totalMinutes = (out_afternoon.hours * 60 + out_afternoon.minutes - in_afternoon.hours * 60 + in_afternoon.minutes) / 60
-        if (totalMinutes / 4 >= 1) number += 0.5
-        else number += totalMinutes / 4
+        const totalMinutes = (out_afternoon.hours * 60 + out_afternoon.minutes - (in_afternoon.hours * 60 + in_afternoon.minutes)) / 60
+        if (totalMinutes / 8 >= 0.5) number += 0.5
+        else number += totalMinutes / 8
     }
 
     return round2(number)
@@ -581,7 +576,7 @@ function dataTable(id, isButton = true) {
                             $(this).attr('title', $(this).val());
                             var regexr = '({search})'; //$(this).parents('th').find('select').val();
 
-                            var cursorPosition = this.selectionStart;
+                            // var cursorPosition = this.selectionStart;
                             // Search the column for that value
                             api
                                 .column(colIdx)
@@ -594,14 +589,14 @@ function dataTable(id, isButton = true) {
                                 )
                                 .draw();
                         })
-                        .on('keyup', function(e) {
-                            e.stopPropagation();
+                        // .on('keyup', function(e) {
+                        //     e.stopPropagation();
 
-                            $(this).trigger('change');
-                            $(this)
-                                .focus()[0]
-                                .setSelectionRange(cursorPosition, cursorPosition);
-                        });
+                    //     $(this).trigger('change');
+                    //     $(this)
+                    //         .focus()[0]
+                    //         .setSelectionRange(cursorPosition, cursorPosition);
+                    // });
                 });
         },
 
@@ -639,7 +634,6 @@ function dataTable2(table, isButton = true, islength = true, isPaging = true) {
         orderCellsTop: true,
         fixedHeader: true,
         initComplete: function() {
-            console.log("???")
             var api = this.api();
 
             // For each column
@@ -665,7 +659,7 @@ function dataTable2(table, isButton = true, islength = true, isPaging = true) {
                             $(this).attr('title', $(this).val());
                             var regexr = '({search})'; //$(this).parents('th').find('select').val();
 
-                            var cursorPosition = this.selectionStart;
+                            // var cursorPosition = this.selectionStart;
                             // Search the column for that value
                             api
                                 .column(colIdx)
@@ -678,14 +672,14 @@ function dataTable2(table, isButton = true, islength = true, isPaging = true) {
                                 )
                                 .draw();
                         })
-                        .on('keyup', function(e) {
-                            e.stopPropagation();
+                        // .on('keyup', function(e) {
+                        //     e.stopPropagation();
 
-                            $(this).trigger('change');
-                            $(this)
-                                .focus()[0]
-                                .setSelectionRange(cursorPosition, cursorPosition);
-                        });
+                    //     $(this).trigger('change');
+                    //     $(this)
+                    //         .focus()[0]
+                    //         .setSelectionRange(cursorPosition, cursorPosition);
+                    // });
                 });
         },
 
@@ -971,12 +965,19 @@ function findSupplier() {
     if (type == "scroll") pageSupplier++
         $(input).attr("name", null)
 
+    const key = $(input).val().trim()
+    if (key.length == 0) {
+        $(divLoading).hide()
+        $(div_show).empty()
+        return
+    }
+
     if ($(input).val().trim().length > 0) {
         $(divLoading).show()
         callAPI(
             "GET",
             `${API_USER}/findOther?`, {
-                key: $(input).val(),
+                key: key,
                 limit: 10,
                 page: pageSupplier,
             },
@@ -1037,10 +1038,19 @@ function findSubCategory(isMore = false, success = success_get_subcategory) {
         offsetSubcategory = 0
     }
     $(input).attr("name", null)
+
+
+    const key = $(input).val().trim()
+    if (key.length == 0) {
+        $(loading).hide()
+        $(parent).find("div:last-child").empty()
+        return
+    }
+
     callAPI(
         "GET",
         `${API_SUBCATEGORY}/client?`, {
-            key: $(input).val(),
+            key: key,
             limit: 10,
             page: offsetSubcategory,
         },

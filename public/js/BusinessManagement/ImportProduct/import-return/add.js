@@ -1,4 +1,3 @@
-
 var id_user = null
 var pageSupplier = 1
 var arrSupplier = []
@@ -9,24 +8,24 @@ var dataPoint = null
 var offsetEmployee = 0
 var arrEmployee = []
 checkPermission()
-function checkPermission()
-{
+
+function checkPermission() {
     drawTable()
-    
-        callAPI('GET',`${API_IMPORT}/import-supplier/checkPermission`,null,(data)=>{
-            data.warehouses.map(warehouse => {
-                $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
-            })
-      
-            data.fundbooks.map(fund => {
-                $("#selectTypePayment").append(`<option value="${fund._id}">${fund.fundbook_name}</option>`)
-            })
+
+    callAPI('GET', `${API_IMPORT}/import-supplier/checkPermission`, null, (data) => {
+        data.warehouses.map(warehouse => {
+            $("#selectWarehouse").append(`<option value="${warehouse._id}">${warehouse.warehouse_name}</option>`)
         })
-   
+
+        data.fundbooks.map(fund => {
+            $("#selectTypePayment").append(`<option value="${fund._id}">${fund.fundbook_name}</option>`)
+        })
+    })
+
 }
 
 
-function drawTable(){
+function drawTable() {
     $("#tbodyTable").append(`
     <tr>
         <td>
@@ -48,29 +47,36 @@ function drawTable(){
             </div>
             <div onscroll="loadmoreEmployee()" class="div-employee"></div>
         </td>
+        <td>
+            <input oninput="findEmployee()" value="" class="form-control"  placeholder="Nhập tên nhân viên . . .">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div onscroll="loadmoreEmployee()" class="div-employee"></div>
+        </td>
         <td><i onclick="removeRow()" class="mdi mdi-delete-forever"></i></td>
     </tr>
     `)
- 
-    const tr = $("#tbodyTable").find('tr')[$("#tbodyTable").find('tr').length-1]
-  
+
+    const tr = $("#tbodyTable").find('tr')[$("#tbodyTable").find('tr').length - 1]
+
     $($(tr).find('input')[0]).focus()
     formatNumber()
 }
 
 // function findSupplier() {
-    
+
 //     id_user = null
 //     const type = event.type
 //     const div = $("#div_find_supplier")
-    
+
 //     const input = $(div).find('input')[0]
 //     const divLoading = $(div).find('.spinner-border')[0]
 //     const div_show = $(div).find('div')[1]
 //     if (type == 'input')  pageSupplier = 1
 //     if (type == 'scroll') pageSupplier++
 
-    
+
 //     if ($(input).val().trim().length > 0) {
 //         $(divLoading).show()
 //         callAPI('GET', `${API_USER}/findOther?`, {
@@ -83,7 +89,7 @@ function drawTable(){
 //                 $(div_show).empty()
 //                 arrSupplier = []
 //             }
-           
+
 //             users.map(user => {
 //                 $(div_show).append(`
 //                     <li><a href="javascript:void(0)" onclick="selectSupplier(${arrSupplier.length})" >Tên: ${user.user_fullname} - SĐT: ${user.user_phone}</a></li>
@@ -95,7 +101,7 @@ function drawTable(){
 //     else {
 //         $(div_show).empty()
 //     }
-   
+
 // }
 
 function findProduct() {
@@ -104,29 +110,29 @@ function findProduct() {
         const tr = $(input).closest('tr')
         const key = $(input).val().trim()
         const div_loading = $(input).closest('td').find('div')[0]
-    
+
         $(div_loading).show()
-        callAPI('GET',API_PRODUCT,{
-            key:key,
+        callAPI('GET', API_PRODUCT, {
+            key: key,
         }, data => {
-            
+
             if (!data.product_status) {
                 info("Sản phẩm này chưa xuất kho")
                 $(div_loading).hide()
                 $(input).val(null)
                 return
             }
-           
+
             $(div_loading).hide()
             $(input).val(data._id)
-            $(input).attr("name",data.subcategory_name)
+            $(input).attr("name", data.subcategory_name)
             $(input).prop("disabled", true)
-         
-            if(!id_user){
+
+            if (!id_user) {
                 id_user = data.id_user
 
                 $(".header-table div:nth-child(2) div:first-child input").val(data.user_fullname)
-                $(".header-table div:nth-child(2) div:first-child input").attr("name",data.id_user)
+                $(".header-table div:nth-child(2) div:first-child input").attr("name", data.id_user)
                 $(".header-table div:nth-child(2) div:nth-child(2) input").val(data.user_phone)
                 $(".header-table div:nth-child(2) div:nth-child(3) input").val(data.user_address)
             }
@@ -137,20 +143,22 @@ function findProduct() {
             $($(tr).find('input')[5]).val(money(data.product_import_price))
             $($(tr).find('input')[6]).val(money(data.product_warranty))
             $($(tr).find('input')[7]).val(data.employee_fullname)
-            $($(tr).find('input')[7]).attr("name",data.id_employee)
-            
+            $($(tr).find('input')[7]).attr("name", data.id_employee)
+            $($(tr).find('input')[8]).val(data.employee_setting_fullname)
+            $($(tr).find('input')[8]).attr("name", data.id_employee_setting)
+
             changeMoney()
             drawTable()
-        },(data)=>{
+        }, (data) => {
             $(div_loading).hide()
-            errAjax(data) 
-        },false,false)
+            errAjax(data)
+        }, false, false)
     }
 }
 
 
 function changeMoney() {
-    
+
     const classes_input = $(event.path[0]).attr("class")
     if (typeof classes_input != 'undefined' && classes_input.includes('number')) {
         const input = $(event.path[0])
@@ -162,10 +170,10 @@ function changeMoney() {
     var arrProduct = []
     const trs = $("#table-main tbody").find('tr')
     let total = 0
-    for (let i = 0; i < trs.length; i++){
-        
+    for (let i = 0; i < trs.length; i++) {
+
         const inputs = $(trs[i]).find('input')
-        
+
         const subcategory_name = $(inputs[0]).attr("name")
         if (subcategory_name.length > 0) {
             const subcategory_export_price = $(inputs[1]).val()
@@ -181,29 +189,29 @@ function changeMoney() {
                 subcategory_ck: subcategory_ck,
                 subcategory_discount: subcategory_discount,
                 money_total: totalMoney(subcategory_export_price, subcategory_vat, subcategory_ck, subcategory_discount, 1),
-                subcategory_quantity:1
+                subcategory_quantity: 1
             })
         }
-        
+
     }
-    for (let i = 0; i < arrProduct.length; i++){  // gộp mảng sp để vẽ vào bảng bên cạnh
-        for (let j = i + 1; j < arrProduct.length; j++){
-           
+    for (let i = 0; i < arrProduct.length; i++) { // gộp mảng sp để vẽ vào bảng bên cạnh
+        for (let j = i + 1; j < arrProduct.length; j++) {
+
             if (arrProduct[i].subcategory_name == arrProduct[j].subcategory_name &&
                 arrProduct[i].subcategory_ck == arrProduct[j].subcategory_ck &&
                 arrProduct[i].subcategory_vat == arrProduct[j].subcategory_vat &&
                 arrProduct[i].subcategory_discount == arrProduct[j].subcategory_discount &&
-                arrProduct[i].subcategory_export_price == arrProduct[j].subcategory_export_price 
+                arrProduct[i].subcategory_export_price == arrProduct[j].subcategory_export_price
             ) {
                 arrProduct[i].subcategory_quantity += arrProduct[j].subcategory_quantity
                 arrProduct[i].money_total += arrProduct[j].money_total
-                arrProduct.splice(j,1)
+                arrProduct.splice(j, 1)
                 j--
             }
         }
     }
     $("#tbodySmall").empty()
-    for (let i = 0; i < arrProduct.length; i++){
+    for (let i = 0; i < arrProduct.length; i++) {
         $("#tbodySmall").append(`
             <tr>
                 <td>${arrProduct[i].subcategory_name}</td>
@@ -213,7 +221,7 @@ function changeMoney() {
         `)
     }
 
-    $("#totalMoney").val(money(total-money_code_discount))
+    $("#totalMoney").val(money(total - money_code_discount))
     const paid = tryParseInt($("#paid").val()) // số tiền đã thanh toán
     $("#debt").val(money(total - money_code_discount - money_point - paid))
     $("#divPagination td[colspan=3] span").html(`Mã giảm giá: ${money(money_code_discount)}         &emsp;&emsp; &emsp;&emsp;     Điểm: ${money(money_point)}`) // hiển thị lại giá đã giảm giá,  tiền đổi điểm
@@ -224,14 +232,14 @@ function removeRow() {
     if (!is_click_discount) {
         const tr = $(event.path[0]).closest('tr')
         const tbody = $(event.path[0]).closest('tbody')
-    
-        if( $(tr).index() != $(tbody).find('tr').length-1 ){
+
+        if ($(tr).index() != $(tbody).find('tr').length - 1) {
             $(tr).remove()
             changeMoney()
         }
     }
-   
-    
+
+
 }
 
 
@@ -269,11 +277,11 @@ $("#btnConfirm").click(e => {
     }
     let arrProduct = []
     const trs = $("#tbodyTable").find('tr')
- 
-    for (let i = 0; i < trs.length; i++){
+
+    for (let i = 0; i < trs.length; i++) {
         const inputs = $(trs[i]).find('input')
-       
-        if ($(inputs[0]).val().length == 24 ) {
+
+        if ($(inputs[0]).val().length == 24) {
 
             const id_product = $(inputs[0]).val().trim()
             const product_import_price = tryParseInt($(inputs[1]).val())
@@ -284,21 +292,23 @@ $("#btnConfirm").click(e => {
             const product_warranty = tryParseInt($(inputs[6]).val())
             const product_quantity = 1
             const id_employee = $(inputs[7]).attr("name")
+            const id_employee_setting = $(inputs[8]).attr("name")
 
             arrProduct.push({
-                id_product:id_product,
-                product_import_price:product_import_price,
-                product_vat:product_vat,
-                product_ck:product_ck,
-                product_discount:product_discount,
-                product_warranty:product_warranty,
+                id_product: id_product,
+                product_import_price: product_import_price,
+                product_vat: product_vat,
+                product_ck: product_ck,
+                product_discount: product_discount,
+                product_warranty: product_warranty,
                 product_quantity: product_quantity,
-                product_import_price_return:product_import_price_return,
-                id_employee:id_employee,
+                product_import_price_return: product_import_price_return,
+                id_employee: id_employee,
+                id_employee_setting: id_employee_setting
             })
-           
+
         }
-        
+
     }
     if (arrProduct.length == 0) {
         info("Hãy chọn ít nhất một sản phẩm")
@@ -311,7 +321,7 @@ $("#btnConfirm").click(e => {
     }
     const code_discount = is_click_discount ? $("#input_code_discount").val().trim() : null
     const point_number = tryParseInt($("#input_point").val())
-    const payment_money = tryParseInt($("#paid").val())  // số tiền khách hàng đã trả
+    const payment_money = tryParseInt($("#paid").val()) // số tiền khách hàng đã trả
     const import_form_note = $("input[name=note]").val()
     const id_warehouse = $("#selectWarehouse option:selected").val()
     hidePopup('popupConfirm')
@@ -340,12 +350,12 @@ function getValueCodeDiscount() {
 
     callAPI('GET', `${API_VOUCHER}/value`, {
         voucher_code: voucher_code,
-        totalMoney:totalMoney
+        totalMoney: totalMoney
     }, (data) => {
 
         is_click_discount = true
         money_code_discount = data
-        $(input).prop("disabled",true)
+        $(input).prop("disabled", true)
         success(`Áp dụng thành công, bạn được giảm ${money(data)}`)
         disAble()
 
@@ -358,7 +368,7 @@ function getValueCodeDiscount() {
 }
 
 function disAble() {
-    $("#tbodyTable input").prop("disabled",true)
+    $("#tbodyTable input").prop("disabled", true)
 }
 
 function getMoneyPoint() {
@@ -375,7 +385,7 @@ function getMoneyPoint() {
     if (!dataPoint) {
         callAPI('GET', `${API_POINT}/check`, {
             id_user: id_user,
-            point_number:point_number
+            point_number: point_number
         }, data => {
             dataPoint = data.dataPoint
             money_point = data.result
@@ -384,8 +394,7 @@ function getMoneyPoint() {
             error_change_point()
             errAjax(err)
         })
-    }
-    else {
+    } else {
         const point_current = tryParseInt($("#point_current").val())
         if (point_number > point_current) {
             info(`Khách hàng không đủ ${point_number} điểm để thực hiện quy đổi`)
@@ -395,7 +404,7 @@ function getMoneyPoint() {
         money_point = (dataPoint.point_value / dataPoint.point_number) * point_number
         changeMoney()
     }
-    
+
 }
 
 function error_change_point() {
@@ -404,8 +413,8 @@ function error_change_point() {
     changeMoney()
 }
 
-function findEmployee(isMore=false) {
-    
+function findEmployee(isMore = false) {
+
     const td = $(event.path[0]).parent()
     const input = $(td).find('input')[0]
     const div_loading = $(td).find('.spinner-border')[0]
@@ -418,34 +427,33 @@ function findEmployee(isMore=false) {
     if (!isMore) {
         offsetEmployee = 1
         $(div_employee).empty()
-            
+
     }
-    
+
     callAPI('GET', `${API_EMPLOYEE}/info`, {
         key: $(input).val(),
         limit: 5,
-        page:offsetEmployee
+        page: offsetEmployee
     }, data => {
         if ($(input).val().trim().length > 0) {
             if (!isMore) {
                 $(div_employee).empty()
                 arrEmployee = []
             }
-            
+
             data.map(employee => {
-                
+
                 arrEmployee.push(employee)
                 $(div_employee).append(`<li><a onclick="selectEmployee(${arrEmployee.length-1})" href="javascript:void(0)">${employee.employee_fullname} &emsp; ${employee.employee_phone} </a></li>`)
             })
-        }
-        else {
+        } else {
             $(div_employee).empty()
         }
         $(div_loading).hide()
     }, err => {
         $(div_loading).show()
         errAjax(err)
-    },false)
+    }, false)
 }
 
 function loadmoreEmployee() {
@@ -463,12 +471,12 @@ function selectEmployee(index) {
     $(div_employee).empty()
     $(input).val(arrEmployee[index].employee_fullname)
     $(input).attr("name", arrEmployee[index]._id)
-    $(input).prop("disabled",true)
+    $(input).prop("disabled", true)
 
 }
 
 function resetPage() {
-    
+
     id_user = null
     pageSupplier = 1
     arrSupplier = []
@@ -486,8 +494,8 @@ function resetPage() {
     $("#paid").val(0)
     $("input[name=note]").val(null)
     $("#input_code_discount").val(null)
-    $("#input_code_discount").prop("disabled",true)
-    $("#input_point").prop("disabled",true)
+    $("#input_code_discount").prop("disabled", true)
+    $("#input_point").prop("disabled", true)
     $("#input_point").val(0)
     drawTable()
     changeMoney()

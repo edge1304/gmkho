@@ -58,6 +58,9 @@ const SchemaBorrow= new mongoose.Schema(
             ...validator.schemaArray,
             type:[SchemaBorrowProduct]
         },
+        borrow_note:{
+            ...validator.schemaString
+        },
         id_import_form: {
             ...validator.schemaObjectId,
         }

@@ -69,7 +69,8 @@ function showEdit(index) {
     const tbodyProduct = $(tableProduct).find('tbody')[0]
     $(tableCustomer).empty()
     $(tbodyProduct).empty()
-    
+    const isable = arrData[index].import_form_status_paid?"disabled":""
+
     $(tableCustomer).append(`
         <tr>
             <th>Mã phiếu</th>
@@ -77,7 +78,20 @@ function showEdit(index) {
         </tr>
         <tr>
             <th>Khách hàng</th>
-            <td><b>Tên </b>: ${arrData[index].user_fullname} &nbsp; &nbsp; <b> SĐT</b>: ${arrData[index].user_phone}  &nbsp; &nbsp; &nbsp;<b> Địa chỉ:</b> ${arrData[index].user_address} </td>
+            <td>
+                <div id="div_find_supplier" style="position: relative" class="relative">
+                    <input id="input_edit_supplier" value="${arrData[index].user_fullname}" name="${arrData[index].id_user}" placeholder="Nhập tên nhà cung cấp hoặc số điện thoại" type="text" oninput="findSupplier()" class="form-control">
+                    <button onclick="save_change_supplier(${index})" class="btn btn-danger" style="position:absolute; top:12px;right:10px">Lưu</button>
+                    <div style="width:15px; height:15px; position:absolute; top:21px;right:67px; display:none" class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div style="position: absolute;z-index: 200;background-color: antiquewhite;"  onscroll="loadmoreSupplier()" id="div_list_supplier"></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>Thông tin khách hàng</th>
+            <td id="td_info_supplier"><b> SĐT</b>: ${arrData[index].user_phone}  &nbsp; &nbsp; &nbsp;<b> Địa chỉ:</b> ${arrData[index].user_address} </td>
         </tr>
         <tr>
             <th>Ngày tạo phiếu</th>
@@ -102,7 +116,7 @@ function showEdit(index) {
    
     `)
     $("input[name=note]").val(arrData[index].import_form_note)
-    const isable = arrData[index].import_form_status_paid?"disabled":""
+   
     for (let i = 0; i < arrData[index].import_form_product.length; i++){
         
         $(tbodyProduct).append(`
@@ -251,4 +265,28 @@ function downloadID(index) {
         }
         downloadExcelLocal(arrDownload,"Danh sách mã sản phẩm")
     }))
+}
+
+function selectSupplier(index){
+    $("#input_edit_supplier").val(arrSupplier[index].user_fullname)
+    $("#input_edit_supplier").attr("name",arrSupplier[index]._id)
+    $("#td_info_supplier").html(`<b> SĐT</b>: ${arrSupplier[index].user_phone}  &nbsp; &nbsp; &nbsp;<b> Địa chỉ:</b> ${arrSupplier[index].user_address} `)
+
+    $("#div_list_supplier").empty()
+}
+
+function save_change_supplier(index){
+
+    const id_supplier = $("#input_edit_supplier").attr("name")
+    callAPI('PUT',`${API_IMPORT}/import-supplier/change_supplier`,{
+        id_user:id_supplier,
+        id_import:arrData[index]._id
+    }, data =>{
+        arrData[index] = {
+            ...arrData[index],
+            ...data,
+            
+        }
+        success("Thành công")
+    })
 }

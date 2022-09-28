@@ -2,6 +2,7 @@
     position: absolute;
     top: 25px;
 }
+
 #div_find_supplier .spinner-border {
     top: 10px;
     position: absolute;
@@ -18,4 +19,14 @@
     position: absolute;
     background-color: white;
     overflow: auto;
+}
+
+#popupAdd .modal-body table tr:first-child th:nth-child(2) {
+    position: relative;
+}
+
+#popupAdd .modal-body table tr:first-child th:nth-child(2) button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
 }

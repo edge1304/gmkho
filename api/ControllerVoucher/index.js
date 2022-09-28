@@ -138,6 +138,7 @@ export const checkValueCode = async (app)=>{
 export const checkCodeDiscount = async (voucher_code, money, res) => {
     try
     {
+
         money = validator.tryParseInt(money)
         if(!voucher_code || voucher_code.length == 0) return res.status(400).send("Thất bại! Mã giảm giá không phù hợ")
         const dataVoucher = await ModelVoucher.findOne({ voucher_code: voucher_code.trim() })
@@ -149,15 +150,18 @@ export const checkCodeDiscount = async (voucher_code, money, res) => {
         )) {
             return res.status(400).send("Thất bại! Mã giảm giá đã hết hạn hoặc chưa đến hạn sử dụng")   
         }
-        if (dataVoucher.voucher_type == "percent" && money > dataVoucher.voucher_limit_total ) {
-            return res.status(400).send(`Thất bại! Mã giảm giá chỉ áp dụng cho đơn hàng dưới ${dataVoucher.voucher_limit_total}`)
-        }
+        // if (dataVoucher.voucher_type == "percent" && money > dataVoucher.voucher_limit_total ) {
+        //     return res.status(400).send(`Thất bại! Mã giảm giá chỉ áp dụng cho đơn hàng dưới ${dataVoucher.voucher_limit_total}`)
+        // }
         if (dataVoucher.voucher_type == "money" && money < dataVoucher.voucher_limit_total ) {
             return res.status(400).send(`Thất bại! Mã giảm giá chỉ áp dụng cho đơn hàng trên ${dataVoucher.voucher_limit_total}`)
         } 
         let total = 0;
         if (dataVoucher.voucher_type == "percent") {
-            total = money/100*dataVoucher.voucher_value
+            if(money > dataVoucher.voucher_limit_total){
+                total = dataVoucher.voucher_limit_total/100*dataVoucher.voucher_value
+            }
+            else total = money/100*dataVoucher.voucher_value
         }
         else {
             total = dataVoucher.voucher_value
@@ -185,15 +189,18 @@ export const checkCodeDiscountReturnError = async (voucher_code, money) => {
         )) {
             return ("Thất bại! Mã giảm giá đã hết hạn hoặc chưa đến hạn sử dụng")   
         }
-        if (dataVoucher.voucher_type == "percent" && money > dataVoucher.voucher_limit_total ) {
-            return (`Thất bại! Mã giảm giá chỉ áp dụng cho đơn hàng dưới ${dataVoucher.voucher_limit_total}`)
-        }
+        // if (dataVoucher.voucher_type == "percent" && money > dataVoucher.voucher_limit_total ) {
+        //     return (`Thất bại! Mã giảm giá chỉ áp dụng cho đơn hàng dưới ${dataVoucher.voucher_limit_total}`)
+        // }
         if (dataVoucher.voucher_type == "money" && money < dataVoucher.voucher_limit_total ) {
             return (`Thất bại! Mã giảm giá chỉ áp dụng cho đơn hàng trên ${dataVoucher.voucher_limit_total}`)
         } 
         let total = 0;
         if (dataVoucher.voucher_type == "percent") {
-            total = money/100*dataVoucher.voucher_value
+            if(money > dataVoucher.voucher_limit_total){
+                total = dataVoucher.voucher_limit_total/100*dataVoucher.voucher_value
+            }
+            else total = money/100*dataVoucher.voucher_value
         }
         else {
             total = dataVoucher.voucher_value

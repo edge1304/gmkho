@@ -55,6 +55,7 @@ function drawTable(data){
                     <th>Ngày nhập</th>
                     <th>Kho hiện tại</th>           
                     <th>Trạng thái</th>
+                    <th>Ngày xuất</th>
                     <th>Giá (nhập gần nhất)</th>
                     <th>Mã chính</th>
                     <th>Mã phụ</th>
@@ -67,12 +68,14 @@ function drawTable(data){
 
 
     for(let i =0;i<data.length;i++){
+        
         $(".div-table tbody").append(`
             <tr>
                 <td>${i+1}</td>
                 <td>${formatDate(data[i].createdAt).fulldate}</td>
                 <td>${data[i].warehouse_name}</td>
                 <td>${data[i].product_status?"Đã xuất":"Chưa xuất"}</td>
+                <td>${data[i].product_status?formatDate(data[i].date_export).fulldate:""}</td>
                 <td class="right">${money(data[i].product_import_price)}</td>
                 <td>${data[i].id_product}</td>
                 <td>${data[i].id_product2?data[i].id_product2:""}</td>

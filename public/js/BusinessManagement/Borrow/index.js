@@ -202,10 +202,12 @@ function confirmAdd() {
         info("Hãy chọn ít nhất 1 sp")
         return
     }
+    const note = $("#input_note").val()
     hidePopup('popupAdd')
     callAPI('POST', API_BORROW, {
         arrProduct: JSON.stringify(arrProduct),
-        id_employee:id_employee
+        id_employee:id_employee,
+        note:note
     }, data => {
         success("Thành công")
         getData()
@@ -213,7 +215,7 @@ function confirmAdd() {
 }
 
 function showPopupEdit(index) {
-    console.log(arrData[index])
+   
     $("#popupEdit .info-employee").html(`
         <tr>
             <td>Nhân viên mươn</td>
@@ -235,7 +237,13 @@ function showPopupEdit(index) {
             <td>Người xuất</td>
             <td>${arrData[index].id_employee_created_fullname}</td>
         </tr>
-
+        <tr>
+        <tr>
+            <td>Ghi chú</td>
+            <td>${arrData[index].borrow_note}</td>
+        </tr>
+        
+    </tr>
     `)
     $("#popupEdit table:last-child() tbody").empty()
     for (let i = 0; i < arrData[index].borrow_product.length; i++){

@@ -26,6 +26,8 @@ const limit_query = 100
 const FIXED_LIMIT = 40
 export const DEFAULT_LIMIT = 100
 //#region check validate
+export const ARRAY_STATUS_EXPORT = ["Chờ xác nhận","Đã xuất kho","Chờ lắp đặt" ,"Đang lắp đặt", "Đã lắp đặt xong","Chờ giao hàng" ,"Đang giao hàng", "Hoàn thành"]
+export const ARRAY_STATUS_ORDER = ["Chờ xác nhận","Chờ lấy hàng", "Đang giao hàng", "Hoàn thành","Đã hủy"]
 
 export const TYPE_IMPORT_WARRANTY = "Nhập bảo hành"
 export const TYPE_IMPORT_RETURN = "Nhập hàng khách trả lại"
@@ -426,7 +428,7 @@ export const timeString = (time = new Date()) => {
     }
 }
 // GMT +07:00
-export const dateTimeZone = (timezone = "GMT +00:00", date = Date.now()) => {
+export const dateTimeZone = (timezone = "GMT +00:00", date = new Date()) => {
     const time = timezone.replace("UTC", "").replace("GMT", "").replace("GTM", "").trim().split(":")
     const timeZonemHours = tryParseInt(time[0]) * 60
     const timeZoneminutes = tryParseInt(time[0]) < 0 ? -1 * tryParseInt(time[1]) : tryParseInt(time[1])

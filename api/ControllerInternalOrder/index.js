@@ -503,12 +503,12 @@ export const confirmImport = async(app) => {
                 id_user: dataUser._id, // tên nhân viên
                 id_branch: id_branch,
                 id_employee: id_employee,
-                debt_money_receive: payment_money,
-                debt_money_export: total,
+                debt_money_payment: payment_money,
+                debt_money_import: total,
                 debt_note: import_form_note,
                 debt_type: "import",
                 id_form: insertNewImport._id,
-            })
+            }).save()
             if (payment_money > 0) {
                 const insertPayment = new ModelPayment({
                     id_user: dataUser._id,

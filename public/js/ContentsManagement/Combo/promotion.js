@@ -175,3 +175,9 @@ function confirmEdit(index)
         }
     })
 }
+
+
+function showPopupAdd(){
+    arrContent = []
+    showPopup('popupAdd',true)
+}

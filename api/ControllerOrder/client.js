@@ -59,6 +59,7 @@ export const insert = async (app) => {
             const id_user = req.body._caller._id
             const id_branch = req.body.id_branch
             const arrCart = validator.tryParseJson(req.body.arrCart)
+
             const order_address = req.body.order_address
             const order_phone = req.body.order_phone
             const order_note = req.body.order_note
@@ -78,7 +79,7 @@ export const insert = async (app) => {
             for (let i = 0; i < arrCart.length; i++) {
                 const dataCart = await ModelCart.findById(arrCart[i])
                 if (!dataCart) return res.status(400).send("Thất bại! Không tìm thấy sản phẩm")
-
+console.log(dataCart)
                 const dataSub = await ModelSubCategory.findById(dataCart.cart_product.id_subcategory)
                 if (!dataSub) return res.status(400).send("Thất bại! Không tìm thấy sản phẩm")
 

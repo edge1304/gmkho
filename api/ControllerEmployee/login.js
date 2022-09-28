@@ -16,6 +16,7 @@ export const login = (app)=>{
             const password = sanitize(req.body.password)
 
             const dataEmployee = await ModelEmployee.findOne({employee_phone:username});
+  
             if(!dataEmployee) return res.status(400).send("Đăng nhập thất bại! Sai tên đăng nhập hoặc mật khẩu.");
             const dataBranch = await ModelBranch.findById(dataEmployee.id_branch);
             if(!dataBranch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh của bạn")
@@ -28,6 +29,7 @@ export const login = (app)=>{
             if(!dataGroup) return res.status(400).send("Thất bại! Không tìm thấy chức danh của bạn")
             dataEmployee.employee_group_name = dataGroup.employee_group_name
             delete dataEmployee.password
+
             return res.json({token:token, dataEmployee:dataEmployee, dataBranch:dataBranch});
         })
     }

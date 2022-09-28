@@ -3,12 +3,12 @@ var id_user = null
 var arrSupplier = []
 var offsetSubcategory = 1
 var arrSubCategory = []
-getData()
 var is_click_discount = false
 var money_code_discount = 0 
 var money_point = 0
 var dataPoint = null
 var is_click_point = false
+var get_other = true
 function getData() {
 
     key = $("#keyFind").val()
@@ -23,13 +23,22 @@ function getData() {
         fromdate: fromdate,
         todate: todate,
         order_status: order_status,
-        page:page
+        page:page,
+        get_other:get_other
     }, data => {
         drawTable(data.data)
         pagination(data.count, data.data.length)
         changeURL(`?limit=${limit}&page=${page}&key=${key}&fromdate=${fromdate}&todate=${todate}&order_status=${order_status}`)
+
+        if(get_other){
+            get_other = false
+            data.employees.map(item =>{
+                $("select[name=select_employee]").append(`<option value="${item._id}">${item.employee_fullname}</option>`)
+            })
+        }
     })
 }
+getData()
 
 function drawTable(data) {
     arrData = []
@@ -49,6 +58,7 @@ function drawTable(data) {
                     <i onclick="showEdit(${i})" class="fas fa-edit text-warning"></i>
                     ${data[i].order_status == "Đang giao hàng"?`<i class="fas fa-upload" title="cập nhập hoàn thành" onclick="showPopupFinish(${i})"></i>`:""}
                     ${!data[i].id_export_form?"":`<i class="fas fa-print text-primary" onclick="newPage('/export/print/${data[i].id_export_form}')"></i>`}
+                    ${data[i].id_employee_manager?``:`<i onclick="tranfer_employee(${arrData.length-1})" class="fas fa-exchange-alt"></i>`}
                 </td>
             </tr>
         `)
@@ -97,9 +107,10 @@ function showEdit(index) {
                 <td class="substring">${arrData[index].order_product[i].subcategory_name}</td>
                 <td>${!arrData[index].order_product[i].id_product?"":arrData[index].order_product[i].id_product}/${!arrData[index].id_product2?"":arrData[index].id_product2}</td>
                 <td>${money(arrData[index].order_product[i].product_export_price)}</td>
-                <td>${money(arrData[index].order_product[i].vat)} %</td>
-                <td>${money(arrData[index].order_product[i].ck)} %</td>
-                <td>${money(arrData[index].order_product[i].quantity)}</td>
+                <td>${money(arrData[index].order_product[i].product_vat)} %</td>
+                <td>${money(arrData[index].order_product[i].product_ck)} %</td>
+                <td>${money(arrData[index].order_product[i].product_discount)}</td>
+                <td>${money(arrData[index].order_product[i].product_quantity)}</td>
             </tr>
         `)
     }
@@ -353,3 +364,24 @@ $("#popupCreateForm .modal-footer button:last-child").click(e =>{
     })
     
 })
+
+function tranfer_employee(index){
+    $("#popupTranfer .modal-footer button:last-child").attr("onclick",`confirm_tranfer(${index})`)
+    showPopup('popupTranfer')
+}
+
+function confirm_tranfer(index){
+    const id_employee = $("#select_employee_tranfer option:selected").val()
+    if(id_employee.length == 0){
+        info("Hãy chọn nhân viên")
+        return
+    }
+
+    callAPI('PUT',`${API_ORDER}/tranfer-employee-manager`,{
+        id_employee:id_employee,
+        id_order:arrData[index]._id
+    }, data =>{
+        hidePopup('popupTranfer')
+        success("Thành công")
+    })
+}

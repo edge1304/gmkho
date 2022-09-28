@@ -125,6 +125,7 @@ export const insert = async (app)=>{
                     if(!validator.isDefine(title_news) || title_news.length ==0) return res.status(400).send("Tiêu đề không được để trống")
                     var values = {
                         news_title: title_news,
+                        news_slug_link: validator.stringToSlug(title_news),
                         news_content:news_content,
                         news_image:image_news,
                         news_brief:news_brief,

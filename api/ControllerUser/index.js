@@ -123,7 +123,19 @@ export const check_is_register = async (app) => {
         if (check_usable_phone(phone)) {
             const dataUser = await ModelUser.findOne({ user_phone: phone })
             if (dataUser && validator.isNotEmpty(dataUser.user_password)) return res.status(400).send(`Số điện thoại đã được đăng ký`)
-            return res.json("success")
+            return res.status(200).json("success")
+        } else {
+            return res.status(400).send(`Số điện thoại không hợp lệ`)
+        }
+    })
+}
+export const check_exist_phone_register = async (app) => {
+    app.get(prefixApi + "/check-exist-phone-register", async (req, res) => {
+        const phone = req.query.phone
+        if (check_usable_phone(phone)) {
+            const dataUser = await ModelUser.findOne({ user_phone: phone })
+            if (dataUser && validator.isNotEmpty(dataUser.user_password)) return res.sendStatus(200)
+            return res.status(400).send(`Số điện thoại chưa được đăng ký`)
         } else {
             return res.status(400).send(`Số điện thoại không hợp lệ`)
         }
@@ -134,6 +146,12 @@ export const signup = async (app) => {
         try {
             const user_phone = req.body.user_phone
             const dataUser = await ModelUser.findOne({ user_phone: user_phone })
+            const info_firebase = validator.tryParseJson(req.body.info_firebase)
+            // console.log(info_firebase)
+            const uid = info_firebase?.user?.uid || null;
+            if (!validator.isNotEmpty(uid)) {
+                return res.status(400).send("Thất bại! Không tìm thấy uid")
+            }
             if (dataUser && validator.isNotEmpty(dataUser.user_password)) {
                 return res.status(400).send("Thất bại! Số điện thoại đã được đăng kí")
             } else if (dataUser) {
@@ -143,6 +161,7 @@ export const signup = async (app) => {
                 if (typeof user_password == "undefined" || !user_password) return res.status(400).send("Thất bại! Mật khẩu không được để trống")
                 const dataUpdate = await ModelUser.findByIdAndUpdate(dataUser._id, {
                     $set: {
+                        uid_firebase:uid,
                         user_fullname: user_fullname,
                         user_password: user_password,
                     },
@@ -157,6 +176,7 @@ export const signup = async (app) => {
                 const user_password = req.body.user_password
                 if (typeof user_password == "undefined" || !user_password) return res.status(400).send("Thất bại! Mật khẩu không được để trống")
                 const insertUser = await new ModelUser({
+                    uid_firebase:uid,
                     user_fullname: user_fullname,
                     user_phone: user_phone,
                     user_password: user_password,
@@ -264,6 +284,37 @@ function check_usable_phone(phone) {
     return true
 }
 
+export const forgot_password = async (app) => {
+    app.put(prefixApi + "/forgot-password",  async (req, res) => {
+        try {
+            const user_phone = req.body.user_phone
+            const new_password = req.body.new_password
+            const dataUser = await ModelUser.findOne({user_phone:user_phone})
+            //
+            if (!dataUser) {
+                return res.status(400).send(`Thất bại! Không tìm thấy thông tin người dùng`)
+            } else {
+                const info_firebase = validator.tryParseJson(req.body.info_firebase)
+                const uid = info_firebase?.user?.uid || null;
+                //
+                if (!validator.isNotEmpty(uid)) {
+                    return res.status(400).send("Thất bại! Không tìm thấy uid")
+                }
+                if (dataUser.uid_firebase != uid) {
+                    return res.status(400).send("Thất bại! Thông tin không trùng khớp")
+                }
+                if (!validator.isNotEmpty(new_password)) return res.status(400).send(`Mật khẩu mới không được để trống`)
+                await ModelUser.findByIdAndUpdate(dataUser._id, {
+                    user_password: new_password,
+                })
+                return res.sendStatus(200)
+            }
+        } catch (e) {
+            console.error(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}
 export const change_password = async (app) => {
     app.put(prefixApi + "/client/change-password", helper.authenToken, async (req, res) => {
         try {

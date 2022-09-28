@@ -217,3 +217,21 @@ export const get_branch_ById = async(id_branch) => {
     const data = await ModelBranch.findById(id_branch)
     return data
 }
+
+export const update_active = async(app) => {
+
+    app.put(prefixApi + "/active", async(req, res) => {
+        try {
+            const branch_active = req.body.branch_active === 'true'
+            const id_branch = req.body.id_branch
+
+            const data = await ModelBranch.findByIdAndUpdate(id_branch,{
+                branch_active:branch_active
+            })
+            return res.json(data)
+        } catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+    })
+}

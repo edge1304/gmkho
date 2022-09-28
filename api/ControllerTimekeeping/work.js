@@ -7,21 +7,66 @@ import {ModelTimekeepingWork} from '../../models/TimeKeepingWork.js'
 import {ModelBranch} from '../../models/Branch.js'
 import {ModelEmployee} from '../../models/Employee.js'
 
+function check_same_IP(ip1, ip2) {
+    const a = ip1.split(':')
+    const b = ip2.toString().split(':')
+    if (!ip1.includes(':') || !ip2.includes(':')) return false
+    const lenght = Math.abs(a.length - b.length)
+    if (lenght >= 2) return false
+    let count = 0
+    for (let i = 0; i < b.length; i++) {
+        if (a.indexOf(b[i]) == -1) {
+            count++
+        }
+    }
 
+    if (count >= 2) {
+        return false
+    }
+    return true
+}
 export const timekeeping_work = (app)=>{
     //#region  chấm công bào sáng
-    try
-    {
+        app.get(prefixApi +"/check-ipwifi", helper.authenToken,async (req,res)=>{
+            try{
+                return res.json(req.headers['x-forwarded-for'])
+            }
+            catch(e){
+                return res.json(null)
+            }
+           
+        })
+        app.get(prefixApi +"/is-checked", helper.authenToken,async (req,res)=>{
+            try{
+                const dateZone = validator.dateTimeZone("GMT +07:00");
+                const id_employee = req.body._caller._id;
+                let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
+                const timeKeeping = await ModelTimekeepingWork.findOne(query)
+                return res.json(timeKeeping)
+            }
+            catch(e){
+                return res.json(null)
+            }
+           
+        })
+
         app.post(prefixApi +"/in_morning", helper.authenToken,async (req,res)=>{
-            const dateZone = validator.dateTimeZone(req.body.timezone);
+            try
+            {
+            const dateZone = validator.dateTimeZone("GMT +07:00");
             const id_branch = req.body._caller.id_branch;
             const id_employee = req.body._caller._id;
-            const branch_ipwifi = req.body.branch_ipwifi;
-       
+            // const branch_ipwifi = req.body.branch_ipwifi
+            const branch_ipwifi = req.headers['x-forwarded-for']
+               
             const branch = await ModelBranch.findById(id_branch)
-       
+     
             if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
-            if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
+
+            // if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
+            if(!check_same_IP(branch_ipwifi, branch.branch_ipwifi)) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
+            
+      
             let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
             const timeKeeping = await ModelTimekeepingWork.findOne(query)
             if(!timeKeeping) // chưa tạo bao h
@@ -30,7 +75,6 @@ export const timekeeping_work = (app)=>{
                 // kiểm tra giờ hiện tại và giờ chiều
                 
                 if( (branch.out_morning.hours * 60 + branch.out_morning.minutes) < (dateZone.hours*60+ dateZone.minutes )) return res.status(400).send("Thất bại!Bạn đã vượt quá giờ vào sáng"); // kiểm tra còn trong giờ sáng hay không
-                
                 const late =  (dateZone.hours*60+dateZone.minutes) - (branch.in_morning.hours*60+branch.in_morning.minutes+branch.late_limit) ;
 
                 let late_morning = {hours:0,minutes:0,seconds:0}
@@ -51,17 +95,16 @@ export const timekeeping_work = (app)=>{
                 return res.json(timeKeepingMoring)
 
             }
-           
             return res.status(400).send("Thất bại! Bạn đã chấm các giờ khác, không thể chấm lại vào sáng.")
             
-       
+            }
+            catch(e)
+            {
+                validator.throwError(e);
+                return res.status(500).send("Thất bại! Có lỗi xảy ra.")
+            }
         })
-    }
-    catch(e)
-    {
-        validator.throwError(e);
-        res.sendStatus(500);
-    }
+    
     //#endregion chấm công đi làm sáng
 
      //#region  chấm công ra sáng
@@ -69,7 +112,6 @@ export const timekeeping_work = (app)=>{
         app.post(prefixApi +"/out_morning", helper.authenToken,async (req,res)=>{
             out_morning(req, res)
             
-    
         })
    
     //#endregion chấm công ra sáng
@@ -77,24 +119,26 @@ export const timekeeping_work = (app)=>{
 
     
      //#region  chấm công vào chiều
-    try
-    {
+    
         app.post(prefixApi +"/in_afternoon", helper.authenToken,async (req,res)=>{
-        
-            const dateZone = validator.dateTimeZone(req.body.timezone);
+            try
+            {
+            const dateZone = validator.dateTimeZone("GMT +07:00");
             const id_branch = req.body._caller.id_branch;
             const id_employee = req.body._caller._id;
-            const branch_ipwifi = req.body.branch_ipwifi;
-
+            // const branch_ipwifi = req.body.branch_ipwifi
+            const branch_ipwifi = req.headers['x-forwarded-for']
             const branch = await ModelBranch.findById(id_branch)
 
             if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
         
 
-            if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
+            // if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
+            if(!check_same_IP(branch_ipwifi, branch.branch_ipwifi)) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
             let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
             // kiểm tra giờ chấm phải > giờ ra sáng
-            if(dateZone.hours*60+dateZone.minutes < branch.out_morning.hours*60+branch.out_morning.minutes) return res.status(400).send("Thất bại! Chưa đến giờ chấm công vào chiều")
+            // 
+            if(dateZone.hours*60+dateZone.minutes + 60 < branch.out_morning.hours*60+branch.out_morning.minutes) return res.status(400).send("Thất bại! Chưa đến giờ chấm công vào chiều")
             
             let late_afternoon = {hours:0, minutes:0,seconds:0}
             if( (dateZone.hours*60+dateZone.minutes) > (branch.in_afternoon.hours*60+branch.in_afternoon.minutes+branch.late_limit))
@@ -122,14 +166,15 @@ export const timekeeping_work = (app)=>{
                 if(!in_afternoon) return res.status(500).send("Thất bại! Có lỗi xảy ra")
                 return res.json(in_afternoon)
             }
+            }
+            catch(e)
+            {
+                validator.throwError(e);
+                res.sendStatus(500);
+            }
         })
         
-    }
-    catch(e)
-    {
-        validator.throwError(e);
-        res.sendStatus(500);
-    }
+    
     //#endregion chấm công ra sáng
 
     //#region  chấm công  chiều ra
@@ -137,10 +182,10 @@ export const timekeeping_work = (app)=>{
     {
         app.post(prefixApi +"/out_afternoon", helper.authenToken,async (req,res)=>{
         
-            const dateZone = validator.dateTimeZone(req.body.timezone);
+            const dateZone = validator.dateTimeZone("GMT +07:00");
             const id_branch = req.body._caller.id_branch;
             const id_employee = req.body._caller._id;
-            const branch_ipwifi = req.body.branch_ipwifi;
+            const branch_ipwifi = req.body.branch_ipwifi
 
             const branch = await ModelBranch.findById(id_branch)
 
@@ -180,17 +225,20 @@ export const timekeeping_work = (app)=>{
 const out_morning = async (req, res) =>{
     try
     {
-        const dateZone = validator.dateTimeZone(req.body.timezone);
+        const dateZone = validator.dateTimeZone("GMT +07:00");
             const id_branch = req.body._caller.id_branch;
             const id_employee = req.body._caller._id;
-            const branch_ipwifi = req.body.branch_ipwifi;
-
+            // const branch_ipwifi = req.headers['x-forwarded-for']
+            // const branch_ipwifi = req.body.branch_ipwifi
+            
+            const branch_ipwifi = req.headers['x-forwarded-for']
             const branch = await ModelBranch.findById(id_branch)
 
             if(!branch) return res.status(400).send("Thất bại! Không tìm thấy chi nhánh");
         
 
-            if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
+            // if(branch.branch_ipwifi != branch_ipwifi) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
+            if(!check_same_IP(branch_ipwifi, branch.branch_ipwifi)) return res.status(400).send("Thất bại! Hãy chọn đúng WiFi")
             let query = { $and:[{id_employee:id_employee},{createdAt:{$gte: dateZone.startOfDay}},{createdAt:{$lte: dateZone.endOfDay }}]}
             const timeKeeping = await ModelTimekeepingWork.findOne(query)
             if(!timeKeeping) return res.status(400).send("Thất bại! Bạn chưa chấm vào sáng"); // chưa tạo bao h

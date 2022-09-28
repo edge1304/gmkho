@@ -50,8 +50,8 @@ export const employee_management = async (req, res) => {
     if (validator.isDefine(req.query.id_employee_group)) {
         id_employee_group = sanitize(req.query.id_employee_group)
     }
-
-    return res.render("SystemsManagement/Employee/index", { ...header_url(req), id_employee_group: id_employee_group })
+    const html_branch = await get_html_branch()
+    return res.render("SystemsManagement/Employee/index", { ...header_url(req), id_employee_group: id_employee_group , html_branch:html_branch})
 }
 
 export const permission = async (req, res) => {
@@ -367,6 +367,13 @@ export const change_warehouse = async (req, res) => {
 export const change_warehouse_export = async (req, res) => {
     return res.render("BusinessManagement/ChangeWarehouse/export", { ...header_url(req) })
 }
+export const combo_product_to_sale = async (req, res) => {
+    return res.render("SystemsManagement/ComboProduct/index", { ...header_url(req) })
+}
+export const tranfer_fundbook = async (req, res) => {
+    return res.render("BusinessManagement/TranferFundbook/index", { ...header_url(req) })
+}
+
 
 export default createControllerAdmin
 
@@ -424,3 +431,14 @@ const get_html_employee = (employees) =>{
     })
     return html
 }
+
+const get_html_branch = async ()=>{
+    const dataBranch = await ModelBranch.find()
+    let html = ''
+    dataBranch.map( item =>{
+
+        html += `<option value="${item._id}">${item.branch_name}</option>`
+    })
+    return html
+}
+

@@ -1,6 +1,13 @@
 import mongoose from "mongoose"
 import * as validator from "./../helper/validator.js"
 const SchemaUser = new mongoose.Schema({
+    uid_firebase: {
+      ...validator.schemaString  
+    },
+    is_verify_phone: {
+        ...validator.schemaBoolean,
+        default:false
+    },
     user_fullname: {
         ...validator.schemaString,
         ...validator.schemaTextIndex,

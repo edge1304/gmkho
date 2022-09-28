@@ -27,14 +27,14 @@
                                 <%- html_employee %>
                             </select>
                         </div>
-                      
-                        <div class="col-2 col-md-2 col-lg-2 col-xl-2">
+
+                        <div class="col-2 col-md-2 col-lg-2 col-xl-2 div-button-relative">
                             <button class="btn btn-primary"><span class="hide-on-mobile">Tìm kiếm</span> <i  class="fas fa-search"></i></button>
-                        </div>   
+                        </div>
                     </div>
-                   
+
                 </div>
-                
+
             </div>
             <div class="container-fluid">
                 <div class="div-table">
@@ -47,17 +47,18 @@
         <!-- ====================================== -->
         <%- include('../../footer') %>
 
-        <script src="/assets/dataTable/vfs_fonts.js"></script>
-        <script src="/assets/dataTable/pdfmake.min.js"></script>
-        <script src="/assets/dataTable/jszip.min.js"></script>
-        <script src="/assets/dataTable/jquery.dataTables.min.js"></script>
-        <script src="/assets/dataTable/dataTables.buttons.min.js"></script>
-        <script src="/assets/dataTable/buttons.print.min.js"></script>
-        <script src="/assets/dataTable/buttons.html5.min.js"></script>
-        <script>
-            var id_warehouse = '<% if(locals.id_warehouse){ %> <%- id_warehouse %>  <% } else { %><% } %>'
-            var id_category = '<% if(locals.id_category){ %> <%- id_category %>  <% } else { %><% } %>'
-        </script>
-        <script src="/js/ReportsManagement/RevenueProduct/by_employee.js"></script>
-        </body>
+            <script src="/assets/dataTable/vfs_fonts.js"></script>
+            <script src="/assets/dataTable/pdfmake.min.js"></script>
+            <script src="/assets/dataTable/jszip.min.js"></script>
+            <script src="/assets/dataTable/jquery.dataTables.min.js"></script>
+            <script src="/assets/dataTable/dataTables.buttons.min.js"></script>
+            <script src="/assets/dataTable/buttons.print.min.js"></script>
+            <script src="/assets/dataTable/buttons.html5.min.js"></script>
+            <script>
+                var id_warehouse = '<% if(locals.id_warehouse){ %> <%- id_warehouse %>  <% } else { %><% } %>'
+                var id_category = '<% if(locals.id_category){ %> <%- id_category %>  <% } else { %><% } %>'
+            </script>
+            <script src="/js/ReportsManagement/RevenueProduct/by_employee.js"></script>
+            </body>
+
 </html>

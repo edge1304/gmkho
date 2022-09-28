@@ -1,8 +1,8 @@
-.div-employee-setting{
+.div-employee-setting {
     position: relative;
 }
 
-.div-employee-setting .spinner-border{
+.div-employee-setting .spinner-border {
     position: absolute;
     width: 18px;
     height: 18px;
@@ -11,7 +11,7 @@
     display: none;
 }
 
-.div-employee-setting  .div-employee{
+.div-employee-setting .div-employee {
     position: absolute;
     z-index: 100;
     background-color: antiquewhite;
@@ -66,14 +66,14 @@
     margin-top: 20px;
     border: 1px solid black;
 }
+
 @media only screen and (max-width: 1366px) {
     #table-main th:nth-child(1) {
         width: 24%;
     }
     #table-main th:nth-child(2),
     #table-main th:nth-child(5),
-    #table-main th:nth-child(6)
-     {
+    #table-main th:nth-child(6) {
         width: 13%;
     }
     #table-main th:nth-child(4),
@@ -81,8 +81,9 @@
     #table-main th:nth-child(7) {
         width: 8%;
     }
-    #table-main th:nth-child(8) {
-        width: 15%;
+    #table-main th:nth-child(8),
+    #table-main th:nth-child(9) {
+        width: 7%;
     }
     #table-main td:first-child {
         position: relative;
@@ -97,11 +98,11 @@
         font-size: 12px;
     }
 }
+
 @media only screen and (max-width: 1280px) {
     table input {
         font-size: 11px;
     }
-
     .table {
         font-size: 11px;
     }
@@ -111,11 +112,11 @@
     table input {
         font-size: 9px;
     }
-
     .table {
         font-size: 9px;
     }
 }
+
 .div-table {
     overflow: unset !important;
 }
@@ -124,6 +125,7 @@
 #divPagination table tr:nth-child(2) td:nth-child(4) {
     position: relative;
 }
+
 #divPagination table tr:nth-child(2) td:nth-child(2) button,
 #divPagination table tr:nth-child(2) td:nth-child(4) button {
     position: absolute;
@@ -132,6 +134,7 @@
     top: 15px;
     right: 15px;
 }
+
 #divPagination table tr:nth-child(2) td:nth-child(2) input,
 #divPagination table tr:nth-child(2) td:nth-child(4) input {
     padding-right: 67px;
@@ -142,6 +145,7 @@
     top: 155px;
     /* right: 30px; */
 }
+
 @media only screen and (max-width: 768px) {
     body {
         font-size: 10px !important;
@@ -151,33 +155,43 @@
 #table-main th:nth-child(1) {
     width: 24%;
 }
+
 #table-main th:nth-child(2),
 #table-main th:nth-child(5),
-#table-main th:nth-child(6)
-{
+#table-main th:nth-child(6) {
     width: 13%;
 }
+
 #table-main th:nth-child(4),
 #table-main th:nth-child(3),
 #table-main th:nth-child(7) {
-    width: 8%;
+    width: 7%;
 }
-#table-main th:nth-child(8) {
-    width: 15%;
+
+#table-main th:nth-child(8),
+#table-main th:nth-child(9) {
+    width: 7%;
 }
+
 #table-main td:first-child {
     position: relative;
 }
+
 .table input {
     font-size: 15px;
 }
+
 .table {
     font-size: 15px;
 }
-#table-main tbody td:nth-child(8) {
+
+#table-main tbody td:nth-child(8),
+#table-main tbody td:nth-child(9) {
     position: relative;
 }
-#table-main tbody td:nth-child(8) .spinner-border {
+
+#table-main tbody td:nth-child(8) .spinner-border,
+#table-main tbody td:nth-child(9) .spinner-border {
     position: absolute;
     top: 23px;
     right: 11px;
@@ -186,7 +200,8 @@
     display: none;
 }
 
-#table-main tbody td:nth-child(8) .div-employee {
+#table-main tbody td:nth-child(8) .div-employee,
+#table-main tbody td:nth-child(9) .div-employee {
     z-index: 100;
     background-color: #ced4da;
     position: absolute;

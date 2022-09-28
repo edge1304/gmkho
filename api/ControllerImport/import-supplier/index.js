@@ -294,3 +294,49 @@ export const print = async (app)=>{
         
     })
 }
+export const update_change_supplier = async (app)=>{
+    app.put(`${prefixApi}/change_supplier`,helper.authenToken, async (req, res)=>{
+        try {
+            const id_import = req.body.id_import
+            const dataImport = await ModelImportForm.findById(id_import)
+            if(!dataImport) return res.status(400).send("Thất bại! Không tìm thấy phiếu nhập")
+            
+            const id_user = req.body.id_user
+            const dataUser = await ModelUser.findById(id_user)
+            if(!dataUser) return res.status(400).send(`Thất bại! Không tìm thấy nhà cung cấp`)
+        
+            const dataDebt = await ModelDebt.findOne({$and:[
+                {debt_type:"import"},
+                {id_form:dataImport._id}
+            ]})
+
+            if(!dataDebt) return res.status(400).send(`Thất bại! Không tìm thấy công nợ`)
+            await ModelDebt.findByIdAndUpdate(dataDebt._id,{
+                id_user:dataUser._id
+            })
+
+            await ModelPayment.updateOne({
+                $and:[
+                    {payment_type: "import"},
+                    {id_form:dataImport._id}
+                ]
+            },{$set:{
+                id_user:dataUser._id
+            }})
+            await ModelImportForm.findByIdAndUpdate(dataImport._id,{
+                id_user:dataUser._id
+            })
+            return res.json({
+                user_fullname:dataUser.user_fullname,
+                id_user:dataUser._id,
+                user_address:dataUser.user_address,
+                user_phone:dataUser.user_phone
+            })
+        }
+        catch (e) {
+            console.log(e)
+            return res.status(500).send("Thất bại! Có lỗi xảy ra")
+        }
+        
+    })
+}

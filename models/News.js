@@ -39,7 +39,7 @@ const SchemaNews = new mongoose.Schema(
 
 
 SchemaNews.pre(["findByIdAndUpdate", "findOneAndUpdate","updateOne", "insertMany"], async function (next) {
-    this._update.news_slug_link = validator.stringToSlug(this._update.news_title)
+    // this._update.news_slug_link = validator.stringToSlug(this._update.news_title)
     return next()
 })
 SchemaNews.pre(["save"], async function (next) {

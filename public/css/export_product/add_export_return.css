@@ -1,16 +1,12 @@
-#div_find_supplier .spinner-border {
-    top: 32px;
-    position: absolute;
-    right: 13px;
-    width: 18px;
-    height: 18px;
-    display: none;
-}
-.div-employee-setting{
+.div-employee-setting {
     position: relative;
 }
 
-.div-employee-setting .spinner-border{
+input {
+    padding: 6px 8px !important;
+}
+
+.div-employee-setting .spinner-border {
     position: absolute;
     width: 18px;
     height: 18px;
@@ -19,12 +15,20 @@
     display: none;
 }
 
-.div-employee-setting  .div-employee{
+.div-employee-setting .div-employee {
     position: absolute;
     z-index: 100;
     background-color: antiquewhite;
 }
 
+#div_find_supplier .spinner-border {
+    top: 32px;
+    position: absolute;
+    right: 13px;
+    width: 18px;
+    height: 18px;
+    display: none;
+}
 
 #div_list_supplier {
     width: 85%;
@@ -66,6 +70,7 @@
     margin-top: 20px;
     border: 1px solid black;
 }
+
 @media only screen and (max-width: 1366px) {
     #table-main th:nth-child(1) {
         width: 24%;
@@ -79,8 +84,9 @@
     #table-main th:nth-child(6) {
         width: 9%;
     }
-    #table-main th:nth-child(7) {
-        width: 17%;
+    #table-main th:nth-child(9),
+    #table-main th:nth-child(8) {
+        width: 9%;
     }
     #table-main td:first-child {
         position: relative;
@@ -95,11 +101,11 @@
         font-size: 12px;
     }
 }
+
 @media only screen and (max-width: 1280px) {
     table input {
         font-size: 11px;
     }
-
     .table {
         font-size: 11px;
     }
@@ -109,11 +115,11 @@
     table input {
         font-size: 9px;
     }
-
     .table {
         font-size: 9px;
     }
 }
+
 .div-table {
     overflow: unset !important;
 }
@@ -122,6 +128,7 @@
 #divPagination table tr:nth-child(2) td:nth-child(4) {
     position: relative;
 }
+
 #divPagination table tr:nth-child(2) td:nth-child(2) button,
 #divPagination table tr:nth-child(2) td:nth-child(4) button {
     position: absolute;
@@ -130,6 +137,7 @@
     top: 15px;
     right: 15px;
 }
+
 #divPagination table tr:nth-child(2) td:nth-child(2) input,
 #divPagination table tr:nth-child(2) td:nth-child(4) input {
     padding-right: 67px;
@@ -140,6 +148,7 @@
     top: 155px;
     /* right: 30px; */
 }
+
 @media only screen and (max-width: 768px) {
     body {
         font-size: 10px !important;
@@ -149,36 +158,42 @@
 #table-main th:nth-child(1) {
     width: 24%;
 }
-#table-main th:last-child {
-    width: 4%;
-}
+
 #table-main th:nth-child(2),
 #table-main th:nth-child(5) {
     width: 16%;
 }
+
 #table-main th:nth-child(4),
 #table-main th:nth-child(3),
 #table-main th:nth-child(6) {
     width: 9%;
 }
-#table-main th:nth-child(7) {
-    width: 17%;
-    display: none;
+
+#table-main th:nth-child(9),
+#table-main th:nth-child(8) {
+    width: 9%;
 }
+
 #table-main td:first-child {
     position: relative;
 }
+
 .table input {
     font-size: 15px;
 }
+
 .table {
     font-size: 15px;
 }
-#table-main tbody td:nth-child(7) {
+
+#table-main tbody td:nth-child(8),
+#table-main tbody td:nth-child(9) {
     position: relative;
-    display: none;
 }
-#table-main tbody td:nth-child(7) .spinner-border {
+
+#table-main tbody td:nth-child(9) .spinner-border,
+#table-main tbody td:nth-child(8) .spinner-border {
     position: absolute;
     top: 23px;
     right: 11px;
@@ -187,13 +202,16 @@
     display: none;
 }
 
-#table-main tbody td:nth-child(7) .div-employee {
+#table-main tbody td:nth-child(9) .div-employee,
+#table-main tbody td:nth-child(8) .div-employee {
     z-index: 100;
     background-color: #ced4da;
     position: absolute;
     max-height: 110px;
     overflow: auto;
     width: 230px;
-    
 }
 
+.none {
+    display: none;
+}

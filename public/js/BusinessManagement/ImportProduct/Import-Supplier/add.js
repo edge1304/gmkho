@@ -403,5 +403,48 @@ $("#btnConfirm").click(e => {
             })
         })
         downloadExcelLocal(arrExcel,"Danh sách mã sản phẩm")
+
+        location.reload()
     })
 })
+
+function confirmAdd() {
+    const inputs = $("#popupAdd input")
+    const user_phone = $(inputs[0]).val().trim()
+    const user_fullname = $(inputs[1]).val().trim()
+    const user_birthday = $(inputs[2]).val().trim()
+    const user_gender = $("#popupAdd select option:selected").val()
+    const password = $(inputs[3]).val().trim().length > 0 ? sha512($(inputs[3]).val().trim()).toString() : null
+    const user_email = $(inputs[4]).val().trim()
+    const user_address = $(inputs[5]).val().trim()
+
+    if (user_phone.length == 0) {
+        info("Số điện thoại không được để trống")
+        return
+    }
+    if (user_fullname.length == 0) {
+        info("Tên khách hàng không được để trống")
+        return
+    }
+    hidePopup('popupAdd')
+    callAPI('POST', API_USER, {
+        data: JSON.stringify({
+            user_phone: user_phone,
+            user_fullname: user_fullname,
+            user_birthday: user_birthday,
+            user_gender: user_gender,
+            user_password: password,
+            user_email: user_email,
+            user_address: user_address
+        })
+    }, data => {
+        success("Thêm thành công")
+        const div = $("#div_find_supplier").parent()
+        id_user = data._id
+        $($(div).find('input')[0]).val(data.user_fullname)
+        $($(div).find('input')[0]).attr("name",data._id)
+        $($(div).find('input')[1]).val(data.user_phone)
+        $($(div).find('input')[2]).val(data.user_address)
+        $($(div).find('input')[3]).val(data.user_point)
+    })
+}

@@ -149,6 +149,9 @@ routerAdmin.get("/external-repair-service/import", router.external_repair_servic
 
 routerAdmin.get("/change-warehouse", router.change_warehouse)
 routerAdmin.get("/change-warehouse/export", router.change_warehouse_export)
+
+routerAdmin.get("/combo-product-to-sale", router.combo_product_to_sale)
+routerAdmin.get("/tranfer-fundbook", router.tranfer_fundbook)
 //#endregion CRM management
 //========================================================================================================================
 

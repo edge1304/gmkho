@@ -112,7 +112,7 @@ export const update = async (app) => {
                 if (validator.isDefine(req.body.employee_revenue_percent)) newValue = { ...newValue, employee_revenue_percent: parseFloat(req.body.employee_revenue_percent) }
                 if (validator.isDefine(req.body.employee_status)) newValue = { ...newValue, employee_status: req.body.employee_status }
                 if (validator.isDefine(req.body.employee_phone)) newValue = { ...newValue, employee_phone: req.body.employee_phone }
-
+                if (validator.isDefine(req.body.id_branch)) newValue = { ...newValue, id_branch: req.body.id_branch }
                 try {
                     const updateNew = await ModelEmployee.findByIdAndUpdate(dataEm._id, newValue)
                     if (!req.file) {
@@ -171,7 +171,8 @@ export const insert = async (app) => {
                 if (validator.isDefine(req.body.employee_revenue_percent)) newValue = { ...newValue, employee_revenue_percent: parseFloat(req.body.employee_revenue_percent) }
                 if (validator.isDefine(req.body.employee_status)) newValue = { ...newValue, employee_status: true }
                 if (validator.isDefine(req.body.employee_phone)) newValue = { ...newValue, employee_phone: req.body.employee_phone }
-
+             
+                
                 try {
                     const insertNew = await new ModelEmployee(newValue).save()
                     return res.json(insertNew)
@@ -244,3 +245,19 @@ export const insert_group = async (app) => {
     })
 }
 
+export const get_employee = async(id_branch) =>{
+    try{
+        let query = {}
+        if(id_branch && validator.ObjectId.isValid(id_branch)){
+            query = {
+                id_branch:validator.ObjectId(id_branch)
+            }
+        }
+        
+        const data = await ModelEmployee.find(query)
+        return data
+    }
+    catch(e){
+        return null
+    }
+}

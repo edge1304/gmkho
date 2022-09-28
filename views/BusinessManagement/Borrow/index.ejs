@@ -121,7 +121,7 @@
                         <div class="spinner-border" role="status">
                           <span class="sr-only">Loading...</span>
                         </div>
-                        <div onscroll="loadMoreEmployee()">
+                        <div onscroll="loadMoreEmployee()" style="z-index:1000;">
                         </div>
                       </div>
                       <div class="col col-md-4 col-lg-3">
@@ -144,6 +144,10 @@
                          </thead>
                          <tbody></tbody>
                        </table>
+                    </div>
+                    <div>
+                      <label>Ghi chú:</label>
+                      <textarea class="form-control" id="input_note"></textarea>
                     </div>
                   </div>
                   <div class="modal-footer">

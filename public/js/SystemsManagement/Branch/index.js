@@ -20,6 +20,7 @@ function drawTable(data) {
             <th>Số điện thoại</th>
             <th>Login in phiếu</th>
             <th>Ảnh</th>
+            <td>Hiển thị web</td>
             <th>Chi tiết</th>
         </tr>
         </thead>
@@ -28,6 +29,7 @@ function drawTable(data) {
     arrData = []
     for (let i = 0; i < data.length; i++) {
         arrData.push(data[i])
+        const active = data[i].branch_active?"checked":""
         $("#tbodyTable").append(`
             <tr>
                 <td class="center">${i + 1}</td>
@@ -35,6 +37,7 @@ function drawTable(data) {
                 <td>${data[i].branch_phone}</td>
                 <td class="text-center">${data[i].branch_logo == null ? "" : `<img src="${URL_IMAGE_BRANCH}${data[i].branch_logo}">`}</td>
                 <td class="text-center">${data[i].branch_image == null ? "" : `<img src="${URL_IMAGE_BRANCH}${data[i].branch_image}">`}</td>
+                <td class="text-center"><input onchange="change_active(${arrData.length-1})" type="checkbox" ${active} ></td>
                 <td class="text-center">
                     <button onclick="editBranch(${i})" class="btn btn-primary"><i class="mdi mdi-tooltip-edit">Chỉnh sửa</i></button>
                 </td>
@@ -247,4 +250,20 @@ function confirmAdd() {
         getData()
     }, undefined, true)
 
+}
+
+function get_ip_wifi(){
+    callAPI('GET',`${API_TIMEKEEPING}/check-ipwifi`,null, data=>{
+        info(`IP WIFI của bạn là: ${data}`)
+    })
+}
+
+function change_active(index){
+
+    const branch_active = $(event.target).is(":checked")
+    const id_branch = arrData[index]._id
+    callAPI('PUT',`${API_BRANCH}/active`,{
+        id_branch:id_branch,
+        branch_active:branch_active
+    },undefined,undefined,undefined,false)
 }

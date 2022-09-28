@@ -21,3 +21,32 @@
     top: 22px;
     right: 0;
 }
+#popupEdit tbody td:nth-child(10) .spinner-border ,
+#popupEdit tbody td:nth-child(11) .spinner-border 
+
+{
+    position: absolute;
+    top: 23px;
+    right: 11px;
+    width: 15px;
+    height: 15px;
+    display: none;
+}
+#popupEdit tbody td:nth-child(10),
+#popupEdit tbody td:nth-child(11)
+ {
+    position: relative;
+}
+#popupEdit tbody td:nth-child(10) .div-employee ,
+#popupEdit tbody td:nth-child(11) .div-employee 
+{
+    z-index: 100;
+    background-color: #ced4da;
+    position: absolute;
+    max-height: 110px;
+    overflow: auto;
+    width: 230px;
+}
+.none{
+    display: none;
+}

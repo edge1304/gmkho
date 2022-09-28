@@ -44,8 +44,10 @@ function drawTable(dataBranch, dataImport) {
 
     for(let i =0; i<arrProduct.length;i++){
         total_number += arrProduct[i].product_quantity
-        total_vat += arrProduct[i].product_import_price/100*arrProduct[i].product_vat
-        total_ck += arrProduct[i].product_import_price/100*arrProduct[i].product_ck
+        // total_vat += arrProduct[i].product_import_price/100*arrProduct[i].product_vat
+        total_vat += arrProduct[i].product_vat
+        // total_ck += arrProduct[i].product_import_price/100*arrProduct[i].product_ck
+        total_ck += arrProduct[i].product_ck
         total_discount += arrProduct[i].product_discount
         total_price += arrProduct[i].product_import_price
         total_one += arrProduct[i].product_import_price*arrProduct[i].product_quantity
@@ -87,7 +89,7 @@ function drawTable(dataBranch, dataImport) {
     `)
     $(`.div-print .div-money`).html(`
         <div class="col col-md-4"><b>Hình thức thanh toán: ${dataImport.fundbook_name}</b></div>
-        <div class="col col-md-4"><b>Đã thanh toán: ${money(dataImport.payment_money)}</b></div>
+        <div class="col col-md-4"><b>Thanh toán: ${money(dataImport.payment_money)}</b></div>
         <div class="col col-md-4"><b>Còn nợ: ${money(total - dataImport.payment_money )}</b></div>
     `)
     

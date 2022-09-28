@@ -34,6 +34,7 @@
                     <select id="selectStatus">
                         <option value="">Tất cả</option>
                         <option value="Chưa xử lý">Chưa xử lý</option>
+                        <option value="Chờ lấy hàng">Chờ lấy hàng</option>
                         <option value="Đang giao hàng">Đang giao hàng</option>
                         <option value="Hoàn thành">Hoàn thành</option>
                     </select>
@@ -91,6 +92,7 @@
                             <th>Giá bán</th>
                             <th>VAT</th>
                             <th>CK</th>
+                            <th>Giảm giá</th>
                             <th>Số lượng</th>
                           </tr>
                         </thead>
@@ -123,7 +125,7 @@
                   </div>
               </div>
           </div>
-      </div>
+        </div>
         <!--  -->
         <div id="popupCreateForm" data-keyboard="true" data-backdrop="static" class="modal" tabindex="-1" role="dialog">
           <div class="modal-dialog model-90" role="document">
@@ -202,6 +204,27 @@
           </div>
       </div>
         <!--  -->
+        <div id="popupTranfer" data-keyboard="true" data-backdrop="static" class="modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title">Chuyển giao cho quản lý</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <div class="modal-body">
+                    <label>Chọn nhân viên</label>
+                    <select name="select_employee" id="select_employee_tranfer">
+                        <option value="">______________</option>
+                    </select>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                      <button type="button" class="btn btn-danger" >Xác nhận</button>
+                  </div>
+              </div>
+          </div>
+        </div>
+
         <%- include('../../footer') %>
         
         <script>

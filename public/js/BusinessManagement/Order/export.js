@@ -38,7 +38,7 @@ function drawTable(){
     $("#tbodyTable").append(`
     <tr>
         <td>
-            <input onkeypress="find_id_product_callback(success_find_id_product)" class="form-control" name="" placeholder="Nhập mã sản phẩm. . .">
+            <input onkeypress="findProduct()" class="form-control" name="" placeholder="Nhập mã sản phẩm. . .">
             <div class="spinner-border" role="status">
                 <span class="sr-only">Loading...</span>
             </div>

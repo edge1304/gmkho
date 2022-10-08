@@ -42,13 +42,21 @@ function drawTable() {
                 <span class="sr-only">Loading...</span>
             </div>
         </td>
-        <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập giá nhập . . ."></td>
-        <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập VAT . . ."></td>
-        <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập Chiết khấu . . ."></td>
-        <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập giảm giá. . ."></td>
-        <td><input oninput="changeMoney()" value="0" class="number form-control" placeholder="Nhập bảo hành . . ."></td>
+        <td><input class="form-control" placeholder="Tên sp"></td>
+        <td><input oninput="changeMoney()" value="0" class="number form-control price" placeholder="Nhập giá nhập . . ."></td>
+        <td><input oninput="changeMoney()" value="0" class="number form-control vat" placeholder="Nhập VAT . . ."></td>
+        <td><input oninput="changeMoney()" value="0" class="number form-control ck" placeholder="Nhập Chiết khấu . . ."></td>
+        <td><input oninput="changeMoney()" value="0" class="number form-control discount" placeholder="Nhập giảm giá. . ."></td>
+        <td><input oninput="changeMoney()" value="0" class="number form-control warranty" placeholder="Nhập bảo hành . . ."></td>
         <td>
-            <input oninput="findEmployee()" value="" class="form-control" placeholder="Nhập tên nhân viên . . .">
+            <input oninput="findEmployee()" value="" disabled class="form-control" placeholder="Nhập tên nhân viên . . .">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div onscroll="loadmoreEmployee()" class="div-employee"></div>
+        </td>
+        <td>
+            <input oninput="findEmployee()" disabled value="" class="form-control" placeholder="Nhập tên nhân viên . . .">
             <div class="spinner-border" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
@@ -63,6 +71,7 @@ function drawTable() {
     $($(tr).find('input')[0]).focus()
     formatNumber()
 }
+
 
 function findSupplier() {
 
@@ -130,22 +139,23 @@ function findProduct() {
             for (let i = 0; i < dataInternal.interal_order_product.length; i++) {
                 if (dataInternal.interal_order_product[i].id_subcategory.toString() == data.id_subcategory.toString()) {
                     isSame = true
-
-                    $($(tr).find('input')[1]).val(money(data.product_import_price))
-                    $($(tr).find('input')[2]).val(money(data.subcategory_vat))
-                    $($(tr).find('input')[3]).val(money(data.subcategory_ck))
-                    $($(tr).find('input')[4]).val(money(data.subcategory_discount))
-                    $($(tr).find('input')[5]).val(money(data.subcategory_warranty))
+                    $($(tr).find('input')[1]).val(money(data.subcategory_name))
+                    $($(tr).find('input')[2]).val(money(data.product_import_price))
+                    $($(tr).find('input')[3]).val(money(data.subcategory_vat))
+                    $($(tr).find('input')[4]).val(money(data.subcategory_ck))
+                    $($(tr).find('input')[5]).val(money(data.subcategory_discount))
+                    $($(tr).find('input')[6]).val(money(data.subcategory_warranty))
                     break
 
                 }
             }
             if (!isSame) {
-                $($(tr).find('input')[1]).val(money(data.product_import_price))
-                $($(tr).find('input')[2]).val(money(data.subcategory_vat))
-                $($(tr).find('input')[3]).val(money(data.subcategory_ck))
-                $($(tr).find('input')[4]).val(money(data.subcategory_discount))
-                $($(tr).find('input')[5]).val(money(data.subcategory_warranty))
+                $($(tr).find('input')[1]).val(money(data.subcategory_name))
+                $($(tr).find('input')[2]).val(money(data.product_import_price))
+                $($(tr).find('input')[3]).val(money(data.subcategory_vat))
+                $($(tr).find('input')[4]).val(money(data.subcategory_ck))
+                $($(tr).find('input')[5]).val(money(data.subcategory_discount))
+                $($(tr).find('input')[6]).val(money(data.subcategory_warranty))
             }
 
             changeMoney()
@@ -177,10 +187,10 @@ function changeMoney() {
 
         const subcategory_name = $(inputs[0]).attr("name")
         if (subcategory_name.length > 0) {
-            const subcategory_export_price = $(inputs[1]).val()
-            const subcategory_vat = $(inputs[2]).val()
-            const subcategory_ck = $(inputs[3]).val()
-            const subcategory_discount = $(inputs[4]).val()
+            const subcategory_export_price = $(inputs[2]).val()
+            const subcategory_vat = $(inputs[3]).val()
+            const subcategory_ck = $(inputs[4]).val()
+            const subcategory_discount = $(inputs[5]).val()
 
             total += totalMoney(subcategory_export_price, subcategory_vat, subcategory_ck, subcategory_discount, 1)
             arrProduct.push({
@@ -285,13 +295,14 @@ $("#btnConfirm").click(e => {
         if ($(inputs[0]).val().length == 24) {
 
             const id_product = $(inputs[0]).val().trim()
-            const product_export_price = tryParseInt($(inputs[1]).val())
-            const product_vat = tryParseInt($(inputs[2]).val())
-            const product_ck = tryParseInt($(inputs[3]).val())
-            const product_discount = tryParseInt($(inputs[4]).val())
-            const product_warranty = tryParseInt($(inputs[5]).val())
+            const product_export_price = tryParseInt($(inputs[2]).val())
+            const product_vat = tryParseInt($(inputs[3]).val())
+            const product_ck = tryParseInt($(inputs[4]).val())
+            const product_discount = tryParseInt($(inputs[5]).val())
+            const product_warranty = tryParseInt($(inputs[6]).val())
             const product_quantity = 1
-            const id_employee = $(inputs[6]).attr("name")
+            const id_employee = $(inputs[7]).attr("name")
+            const id_employee_setting = $(inputs[8]).attr("name")
 
             arrProduct.push({
                 id_product: id_product,
@@ -301,7 +312,8 @@ $("#btnConfirm").click(e => {
                 product_discount: product_discount,
                 product_warranty: product_warranty,
                 product_quantity: product_quantity,
-                id_employee: id_employee
+                id_employee: id_employee,
+                id_employee_setting:id_employee_setting
             })
 
         }

@@ -7,6 +7,7 @@ import * as fundbook from '../../ControllerFundBook/index.js'
 import { ModelUser } from '../../../models/User.js'
 import { ModelWarehouse } from '../../../models/Warehouse.js'
 import { ModelFundBook } from '../../../models/FundBook.js'
+import { ModelExportForm } from '../../../models/ExportForm.js'
 import { ModelImportForm } from '../../../models/ImportForm.js'
 import { ModelProduct } from '../../../models/Product.js'
 import { ModelSubCategory } from '../../../models/SubCategory.js'
@@ -138,15 +139,34 @@ export const update = async (app)=>{
                         isSame ++
                         dataProducts[j] = {
                             ...dataProducts[j],
-                            product_warranty:arrProduct[i].product_warranty, // cập nhập lại mỗi bảo hành thôi , còn cái khác láy từ phiếu nhập ra
+                            product_warranty:arrProduct[i].product_warranty, // cập nhập lại mỗi bảo hành thôi , còn cái khác láy từ phiếu nhập ra,
+                            old_import_price:dataProducts[j].product_import_price,
+                            product_import_price:arrProduct[i].product_import_price,
                         }
                     }
                 }
             }
             // console.log(dataProducts)
             if(isSame != dataProducts.length) return res.status(400).send("Thất bại! Có sản phẩm không phù hợp")
+
             for(let i =0;i<dataProducts.length;i++){
+            
                 await ModelProduct.findByIdAndUpdate(dataProducts[i]._id,dataProducts[i]) // cập nhập lại sản phẩm cũ với bảo hành mới
+                if(dataProducts[i].product_import_price != dataProducts[i].old_import_price){
+                    console.log( dataProducts[i])
+                    const dataExport = await ModelExportForm.find({type:"Xuất hàng để bán","export_form_product.id_product":dataProducts[i]._id})
+                    for(let j = 0;j<dataExport.length;j++){
+                        for(let g = 0;g<dataExport[j].export_form_product.length;g++){
+                            if(dataExport[j].export_form_product[g].id_product.toString() == dataProducts[i]._id.toString()){
+                                dataExport[j].export_form_product[g].product_import_price = dataProducts[i].product_import_price
+                                break
+                            }
+                        }
+                        await ModelExportForm.findByIdAndUpdate(dataExport[j]._id,{
+                            export_form_product:dataExport[j].export_form_product
+                        })
+                    }
+                }
             }
 
             const updateImport = await ModelImportForm.findByIdAndUpdate(dataImport._id, {  // 

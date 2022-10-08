@@ -8,6 +8,7 @@ import { ModelUser } from '../../../models/User.js'
 import { ModelWarehouse } from '../../../models/Warehouse.js'
 import { ModelFundBook } from '../../../models/FundBook.js'
 import { ModelImportForm } from '../../../models/ImportForm.js'
+import { ModelExportForm } from '../../../models/ExportForm.js'
 import { ModelProduct } from '../../../models/Product.js'
 import { ModelSubCategory } from '../../../models/SubCategory.js'
 import { ModelDebt } from '../../../models/Debt.js'
@@ -140,6 +141,7 @@ export const update = async (app)=>{
             const data_fundbook = await ModelFundBook.findById(id_fundbook)
             if(!data_fundbook) return res.status(400).send("Thất bại! Không tìm thấy hình thức thanh toán phù hợp")
           
+            const dataImport_old = await ModelImportForm.findById(id_import)
             const dataProducts = await ModelProduct.find({id_import_form:dataImport._id}) // tìm lại các sản phẩm của phiế để cập nhập lại bảo hành
             var isSame  = 0; // đây là biến xác định đã trùng hết mã sp hay chưa
             for(let i = 0;i<arrProduct.length;i++ ){
@@ -185,7 +187,7 @@ export const update = async (app)=>{
                 import_form_product: arrProduct,
                 import_form_note:import_form_note
             })
-           
+
             for (let i = 0; i < dataImport.import_form_product.length; i++){
 
                 await createAndUpdateReport(
@@ -206,6 +208,37 @@ export const update = async (app)=>{
                 )
             }
 
+
+            for(let i =0;i<arrProduct.length;i++){
+                for(let j =0;j<dataImport_old.import_form_product.length;j++){
+                    if(arrProduct[i].id_subcategory.toString() == dataImport_old.import_form_product[j].id_subcategory.toString()
+                        &&  dataImport_old.import_form_product[j].product_index == arrProduct[i].product_index 
+                        && dataImport_old.import_form_product[j].product_import_price != arrProduct[i].product_import_price
+                    ){
+               
+                        const dataPro = await ModelProduct.find({$and:[
+                            {id_import_form:dataImport_old._id},
+                            {product_index:dataImport_old.import_form_product[j].product_index},
+                            {id_subcategory:dataImport_old.import_form_product[j].id_subcategory}
+                        ]})
+                        for(let g =0;g<dataPro.length;g++){
+                            await ModelProduct.findByIdAndUpdate(dataPro[g]._id,{product_import_price:arrProduct[i].product_import_price})
+                            const data_export = await ModelExportForm.find({"export_form_product.id_product":dataPro[g]._id})
+                          
+                            for(let e = 0;e<data_export.length;e++){
+                                for(let h = 0;h<data_export[e].export_form_product.length;h++){
+                                    if(data_export[e].export_form_product[h].id_product.toString() ==dataPro[g]._id.toString()){
+                                        data_export[e].export_form_product[h].product_import_price = arrProduct[i].product_import_price
+                                    }
+                                }
+                                await ModelExportForm.findByIdAndUpdate(data_export[e]._id,{
+                                    export_form_product:data_export[e].export_form_product
+                                })
+                            }
+                        }
+                    }
+                }
+            }
             return res.json(updateImport)
             
         }

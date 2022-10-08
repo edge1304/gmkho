@@ -303,7 +303,7 @@ export const insertMore = async(app) => {
 
             for (let i = 0; i < arrProduct.length; i++) {
 
-                await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, { $set: { product_status: true, product_warranty: arrProduct[i].product_warranty, id_export_form: dataExport._id }, $push: { product_note: `${insertFormExport._id.toString()}` } })
+                await ModelProduct.findByIdAndUpdate(arrProduct[i].id_product, { $set: { product_status: true, product_warranty: arrProduct[i].product_warranty, id_export_form: dataExport._id } })
                 await ModelImportForm.findByIdAndUpdate(arrProduct[i].id_import_form, { import_form_status_paid: true })
 
             }

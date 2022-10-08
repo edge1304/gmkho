@@ -19,6 +19,9 @@ const SchemaWarehouse = new mongoose.Schema(
         },
         warehouse_status:{  // trạng thái kho, true còn hoạt động, false là ko hoạt động
             ...validator.schemaBoolean
+        },
+        warehouse_index:{
+            ...validator.schemaNumber
         }
     },
     { timestamps: true }

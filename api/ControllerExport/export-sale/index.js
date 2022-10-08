@@ -199,12 +199,12 @@ export const update = async(app) => {
                     id_branch: req.body._caller.id_branch_login,
                     id_form: dataExport._id,
                     receive_note: export_form_note,
-                    receive_content: "61fe7f6b50262301a2a39fd4", // "Chi trả nhập hàng từ nhà cung cấp",
+                    receive_content: "61fe7ec950262301a2a39fcc", // "Chi trả nhập hàng từ nhà cung cấp",
                     id_fundbook: id_fundbook,
                     receive_type: "export",
                 }).save()
                 isPayment = true
-                console.log("?tạo nhận")
+
             }
 
             const total = validator.calculateMoneyExport(arrProduct)
@@ -213,13 +213,13 @@ export const update = async(app) => {
                 debt_money_receive: receive_form_money
             })
 
-            const updateImport = await ModelExportForm.findByIdAndUpdate(dataExport._id, { // 
+            const updateExport = await ModelExportForm.findByIdAndUpdate(dataExport._id, { // 
                 export_form_status_paid: isPayment,
                 export_form_product: arrProduct,
                 export_form_note: export_form_note
             })
 
-            return res.json(updateImport)
+            return res.json(updateExport)
 
         } catch (e) {
             console.log(e)
@@ -311,60 +311,115 @@ export const revenue_product = async(app) => {
                 }
             ])
 
-            const dataImport = await ModelImportForm.aggregate([{
-                    $match: {
-                        ...query,
-                        import_form_type: "Nhập hàng khách trả lại"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$import_form_product"
-                    }
-                },
-                {
-                    $project: {
-                        id_subcategory: "$import_form_product.id_subcategory",
-                        product_quantity: "$import_form_product.product_quantity",
-                        revenue: {
-                            $multiply: [{
-                                    $subtract: [
-                                        "$import_form_product.product_export_price",
-                                        {
-                                            $subtract: [{
-                                                    $subtract: [
-                                                        "$import_form_product.product_import_price",
-                                                        {
-                                                            $multiply: [{
-                                                                    $divide: [
-                                                                        "$import_form_product.product_import_price",
-                                                                        100
-                                                                    ]
-                                                                },
-                                                                "$import_form_product.product_ck"
-                                                            ]
-                                                        }
-                                                    ]
-                                                },
-                                                "$import_form_product.product_discount"
-                                            ]
-                                        },
+            // const dataImport = await ModelImportForm.aggregate([{
+            //         $match: {
+            //             ...query,
+            //             import_form_type: "Nhập hàng khách trả lại"
+            //         }
+            //     },
+            //     {
+            //         $unwind: {
+            //             path: "$import_form_product"
+            //         }
+            //     },
+            //     {
+            //         $project: {
+            //             id_subcategory: "$import_form_product.id_subcategory",
+            //             product_quantity: "$import_form_product.product_quantity",
+            //             revenue: {
+            //                 $multiply: [{
+            //                         $subtract: [
+            //                             "$import_form_product.product_export_price",
+            //                             {
+            //                                 $subtract: [{
+            //                                         $subtract: [
+            //                                             "$import_form_product.product_import_price",
+            //                                             {
+            //                                                 $multiply: [{
+            //                                                         $divide: [
+            //                                                             "$import_form_product.product_import_price",
+            //                                                             100
+            //                                                         ]
+            //                                                     },
+            //                                                     "$import_form_product.product_ck"
+            //                                                 ]
+            //                                             }
+            //                                         ]
+            //                                     },
+            //                                     "$import_form_product.product_discount"
+            //                                 ]
+            //                             },
 
-                                    ]
-                                },
-                                "$import_form_product.product_quantity"
-                            ]
-                        }
-                    }
-                },
-                {
-                    $group: {
-                        _id: "$id_subcategory",
-                        product_quantity: { $sum: "$product_quantity" },
-                        revenue: { $sum: "$revenue" }
+            //                         ]
+            //                     },
+            //                     "$import_form_product.product_quantity"
+            //                 ]
+            //             }
+            //         }
+            //     },
+            //     {
+            //         $group: {
+            //             _id: "$id_subcategory",
+            //             product_quantity: { $sum: "$product_quantity" },
+            //             revenue: { $sum: "$revenue" }
+            //         }
+            //     }
+            // ])
+
+            const dataImport = await ModelImportForm.aggregate([{
+                $match: {
+                    ...query,
+                    import_form_type: "Nhập hàng khách trả lại"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$import_form_product"
+                }
+            },
+            {
+                $project: {
+                    id_subcategory: "$import_form_product.id_subcategory",
+                    product_quantity: "$import_form_product.product_quantity",
+                    revenue: {
+                        $multiply: [{
+                                $subtract: [
+                                    "$import_form_product.product_import_price_return",
+                                    {
+                                        $subtract: [{
+                                                $subtract: [
+                                                    "$import_form_product.product_import_price",
+                                                    {
+                                                        $multiply: [{
+                                                                $divide: [
+                                                                    "$import_form_product.product_import_price",
+                                                                    100
+                                                                ]
+                                                            },
+                                                            "$import_form_product.product_ck"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "$import_form_product.product_discount"
+                                        ]
+                                    },
+
+                                ]
+                            },
+                            "$import_form_product.product_quantity"
+                        ]
                     }
                 }
-            ])
+            },
+            {
+                $group: {
+                    _id: "$id_subcategory",
+                    product_quantity: { $sum: "$product_quantity" },
+                    revenue: { $sum: "$revenue" }
+                }
+            }
+        ])
 
             for (let i = 0; i < dataExport.length; i++) {
                 dataExport[i].neg_revenue = 0
@@ -375,7 +430,7 @@ export const revenue_product = async(app) => {
                 }
             }
             for (let i = 0; i < dataImport.length; i++) {
-
+            
                 const dataSub = await ModelSubCategory.findById(dataImport[i]._id)
                 if (dataSub) {
                     dataImport[i].subcategory_name = dataSub.subcategory_name

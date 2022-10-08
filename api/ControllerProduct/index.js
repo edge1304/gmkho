@@ -345,12 +345,13 @@ export const report_sold_by_date = async(app) => {
             if (validator.isDefine(req.query.id_warehouse) && validator.ObjectId.isValid(req.query.id_warehouse)) {
                 query = {
                     ...query,
-                    id_warehouse: validator.ObjectId(req.query.id_warehouse)
+                    id_warehouse: validator.ObjectId(req.query.id_warehouse),
                 }
             }
             const dataExport = await ModelExportForm.aggregate([{
                     $match: {
                         ...query,
+                        export_form_type:{$ne:validator.TYPE_EXPORT_WARRANTY}
                     }
                 },
                 {
